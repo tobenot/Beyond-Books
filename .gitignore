@@ -1,4 +1,9 @@
 dev-prompt
+dev-tool
+node_modules
+package-lock.json
+package.json
+sections_original
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
