@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+<!-- 文本文字不要直接写html里，要去读语言文件的json数据 -->
 <head>
     <meta charset="UTF-8">
     <title></title>
@@ -7,7 +8,8 @@
 </head>
 <body>
     <div class="container" id="menu">
-        <h1></h1>
+        <h1 id="mainTitle"></h1>
+        <h2 id="subTitle"></h2>
         <button class="button" onclick="startGame()"></button>
     </div>
 
@@ -24,6 +26,9 @@
         </div>
     </div>
     
-    <script src="game.js"></script>
+    <!-- 将 scripts/sections.js 放在 scripts/ui.js 之前 -->
+    <script src="scripts/sections.js" defer></script>
+    <script src="scripts/ui.js" defer></script>
+    <script src="scripts/pythonInteraction.js" defer></script>
 </body>
 </html>
