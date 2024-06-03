@@ -10,9 +10,13 @@
     <div class="container" id="menu">
         <h1 id="mainTitle"></h1>
         <h2 id="subTitle"></h2>
-        <button class="button" onclick="startGame()"></button>
+        <button class="button" id="newGameButton" onclick="newGame()"></button>
+        <button class="button" id="continueGameButton" onclick="continueGame()"></button>
+        <button class="button" id="exportSaveButton" onclick="exportSave()"></button>
+        <button class="button" id="importSaveButton" onclick="document.getElementById('fileInput').click()"></button>
+        <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
     </div>
-
+    
     <div class="container" id="sections"></div>
 
     <div class="container" id="story">
@@ -20,15 +24,13 @@
             <img id="sectionImage" src="" alt="章节图片">
         </div>
         <div class="text-container" id="storyContent"></div>
-        <div class="controls">
-            <button class="button" onclick="readMore()"></button>
-            <input type="text" id="freeChoice" placeholder="">
-        </div>
+        <div class="controls"></div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="scripts/sections.js" defer></script>
-    <script src="scripts/ui.js" defer></script>
+    <script src="scripts/saveLoad.js" defer></script>
     <script src="scripts/pythonInteraction.js" defer></script>
+    <script src="scripts/ui.js" defer></script>
 </body>
 </html>

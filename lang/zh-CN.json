@@ -1,9 +1,12 @@
 {
-    "title": "互动故事游戏",
+    "title": "不止于纸上的故事v1",
     "mainTitle": "Beyond Books",
     "subTitle": "不止于纸上的故事",
-    "startButton": "开始游戏",
-    "chooseSection": "选择章节",
+    "newGameButton": "开始新游戏",
+    "continueGameButton": "继续游戏",
+    "exportSaveButton": "导出存档",
+    "importSaveButton": "导入存档",
+    "chooseSection": "选择桥段",
     "readMore": "阅读完成",
     "inputPlaceholder": "在此输入你的选择..."
 }
