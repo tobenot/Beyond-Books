@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Story Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container" id="menu">
+        <h1>Interactive Story Game</h1>
+        <button class="button" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div class="container" id="sections">
+        <h2>Select a Section</h2>
+        <button class="button" onclick="chooseSection(1)">Section 1</button>
+        <button class="button" onclick="chooseSection(2)">Section 2</button>
+    </div>
+
+    <div class="container" id="story">
+        <div class="image-container">
+            <img id="sectionImage" src="" alt="Section Image">
+        </div>
+        <div class="text-container" id="storyContent">
+            <!-- Story content goes here -->
+        </div>
+        <div class="controls">
+            <button class="button" onclick="readMore()">Reading Completed</button>
+            <input type="text" id="freeChoice" placeholder="Type your choice here...">
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
