@@ -1,0 +1,16 @@
+{
+    "sections": [
+      {
+        "title": "Mysterious Forest",
+        "image": "path/to/forest-thumbnail.jpg",
+        "id": 1,
+        "file": "section_1.json"
+      },
+      {
+        "title": "Busy City",
+        "image": "path/to/city-thumbnail.jpg",
+        "id": 2,
+        "file": "section_2.json"
+      }
+    ]
+  }

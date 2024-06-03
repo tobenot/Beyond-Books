@@ -1,0 +1,9 @@
+{
+    "content": [
+      "This is the beginning of your journey...",
+      "You have entered a mysterious forest..."
+    ],
+    "title": "Mysterious Forest",
+    "id": 1,
+    "image": "path/to/forest-image.jpg"
+  }
