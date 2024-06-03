@@ -1,9 +1,9 @@
 {
-    "content": [
-      "This is the beginning of your journey...",
-      "You have entered a mysterious forest..."
-    ],
-    "title": "Mysterious Forest",
-    "id": 1,
-    "image": "path/to/forest-image.jpg"
-  }
+  "content": [
+      "这是你旅程的开始...",
+      "你进入了一片神秘的森林..."
+  ],
+  "title": "神秘森林",
+  "id": 1,
+  "image": "path/to/forest-image.jpg"
+}

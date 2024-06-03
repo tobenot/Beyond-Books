@@ -1,9 +1,9 @@
 {
-    "content": [
-        "In the bustling city, you find yourself lost...",
-        "The city lights shimmer around you as you navigate through the streets..."
-      ],
-    "title":  "Busy City",
-    "id":  2,
-    "image":  "path/to/city-image.jpg"
+  "content": [
+      "在繁忙的城市里，你发现自己迷路了...",
+      "城市的灯光在你四周闪烁，你在街道上穿行..."
+  ],
+  "title": "繁忙城市",
+  "id": 2,
+  "image": "path/to/city-image.jpg"
 }
