@@ -13,9 +13,11 @@ function initializeUI() {
 }
 
 function setupInitialView() {
+    // 确保只有主菜单显示
     document.getElementById('menu').style.display = 'flex';
     document.getElementById('sections').style.display = 'none';
     document.getElementById('story').style.display = 'none';
+    document.getElementById('settings').style.display = 'none';
 }
 
 function startGame() {

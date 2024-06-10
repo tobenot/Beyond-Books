@@ -1,4 +1,5 @@
 /* styles.css */
+/* 现在只管竖屏排版了！*/
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #F2F2F2;
@@ -83,7 +84,14 @@ h2 {
 }
 
 /* 控件 */
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 控制输入框和按钮之间的间距 */
+}
+
 .controls input[type="text"] {
+    flex-grow: 1;
     width: 100%;
     padding: 10px;
     margin: 10px auto;
@@ -92,6 +100,11 @@ h2 {
     background-color: #FFFFFF; 
     color: #333333;
     font-size: 16px;
+}
+
+.controls .button {
+    width: auto; /* 使按钮根据内容自动调整大小 */
+    padding: 10px 20px; /* 调整按钮内填充 */
 }
 
 /* 章节选择 */
