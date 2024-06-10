@@ -98,3 +98,15 @@ h2 {
 #sections, #story {
     display: none;
 }
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px; /* 加载动画文字大小 */
+    padding: 10px 20px; /* 内边距 */
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    z-index: 1000;
+    text-align: center;
+}

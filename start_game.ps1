@@ -1,30 +1,46 @@
-# 设置端口
-$Port = 8000
-
-# 设置当前目录路径
-$Directory = Get-Location
-
 # 确认执行策略允许脚本执行
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
-Write-Host "Starting HTTP server in $Directory on port $Port"
+# 设置端口
+$Port = 8000
+
+Write-Host "Starting HTTP server on port $Port"
+
+# 切换到当前目录
+try {
+    $currentDir = Get-Location
+    Write-Host "Current Directory: $currentDir"
+} catch {
+    Write-Host "Failed to get current directory"
+    exit
+}
 
 # 启动Python的HTTP服务器作为后台任务
 $job = Start-Job -ScriptBlock {
-    python -m http.server $Port
-}
+    param ($Port, $currentDir)
+    
+    try {
+        Set-Location $currentDir
+        python -m http.server $Port
+    } catch {
+        $_ | Write-Host
+    }
+} -ArgumentList $Port, $currentDir
 
-Start-Sleep -Seconds 2 # 等待服务器启动
+Start-Sleep -Seconds 1 # 等待服务器启动
 
 # 打开默认浏览器并跳转到本地服务器网址
 Start-Process "http://localhost:$Port"
 
-# 阻塞终端直到任务完成
-Write-Host "Press Ctrl+C to stop the server..."
-Wait-Job -Id $job.Id
-
-# 终止后台任务
-Stop-Job -Id $job.Id
-Remove-Job -Id $job.Id
-
-Write-Host "HTTP server stopped."
+# 使用用户输入来停止服务器
+Write-Host "Press 'q' to stop the server..."
+while ($true) {
+    $input = Read-Host
+    if ($input -eq 'q') {
+        Write-Host "Stopping HTTP server..."
+        Stop-Job -Id $job.Id
+        Remove-Job -Id $job.Id
+        Write-Host "HTTP server stopped."
+        break
+    }
+}

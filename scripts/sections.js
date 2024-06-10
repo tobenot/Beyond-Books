@@ -76,48 +76,39 @@ function chooseSection(fileName) {
         alert("此桥段已完成，不能重复进入。");
         return;
     }
-
-    fetch(`sections/${fileName}`)
+  
+    // 添加时间戳来避免缓存
+    const timestamp = new Date().getTime();
+    fetch(`sections/${fileName}?v=${timestamp}`)
         .then(response => response.text())
         .then(encryptedText => {
             const secretKey = 'ReadingThisIsASpoilerForYourself';
             const sectionContent = decryptJSONText(encryptedText, secretKey);
-            if (!sectionContent.outcomes) {
-                sectionContent.outcomes = []; // Set to empty array if undefined
-            }
             displaySection(sectionContent);
         })
         .catch(error => console.error('加载或解密章节数据时出错:', error));
-}
-
-function displaySection(section) {
+  }
+  
+  function displaySection(section) {
     document.getElementById('sections').style.display = 'none';
-
-    const storyContent = section.content.map(paragraph => `<p>${paragraph}</p>`).join('');
+  
+    const storyContent = `
+        <h2>${section.title}</h2>
+        <p><b>目标：${section.objective}</b></p>
+        <p>${section.backgroundInfo}</p>
+    `;
+    
     document.getElementById('storyContent').innerHTML = storyContent;
+  
     document.getElementById('sectionImage').src = section.image;
-
-    const controls = document.querySelector('.controls');
-    controls.innerHTML = '';
-
-    if (section.outcomes && section.outcomes.length > 0) {
-        section.outcomes.forEach(outcome => {
-            const button = document.createElement('button');
-            button.className = 'button';
-            button.innerText = outcome.title;
-            button.onclick = () => handleOutcome(section.id, outcome.result);
-            controls.appendChild(button);
-        });
-    } else {
-        const readMoreButton = document.createElement('button');
-        readMoreButton.className = 'button';
-        readMoreButton.innerText = "阅读完成";
-        readMoreButton.onclick = () => readMore();
-        controls.appendChild(readMoreButton);
-    }
-
+  
+    document.querySelector('.controls').style.display = 'flex';
+  
     document.getElementById('story').style.display = 'flex';
-}
+    currentSection = section; // 设定当前章节为 global 变量
+    
+    initializeConversation(section); // 初始化对话
+  }
 
 function handleOutcome(sectionId, result) {
     updateGameState(sectionId, result);
