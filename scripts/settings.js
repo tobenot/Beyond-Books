@@ -35,7 +35,7 @@ function decrypt(data, key) {
 function getFreeTrialKey() {
     const trialStatus = document.getElementById('trialStatus');
     trialStatus.innerText = '获取中...';
-    fetch('https://tobenot.github.io/storage/keyb.txt')
+    fetch('https://tobenot.top/storage/keyb.txt')
         .then(response => response.text())
         .then(encryptedKey => {
             // 解密免费试玩 Key

@@ -1,112 +1,159 @@
+/* styles.css */
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #F2F2F2; /* 设置背景颜色 */
-    color: #333333; /* 设置文本主体颜色 */
+    background-color: #F2F2F2;
+    color: #333333;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100vw;
     height: 100vh;
+    overflow: hidden; /* 隐藏溢出内容 */
 }
 
 .container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    max-width: 600px;
-    width: 90%;
-    height: 80%;
+    width: 100%;
+    height: 100%;
     padding: 20px;
-    background-color: #FFFFFF;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 设置盒子阴影 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     text-align: center;
+    overflow-y: auto; /* 允许垂直滚动 */
+}
+
+/* 标题 */
+h1, h2 {
+    color: #333333;
+    margin-bottom: 10px;
 }
 
 h1 {
-    font-size: 24px; /* 设置标题文字大小 */
-    color: #333333; /* 设置标题颜色 */
-    margin-bottom: 20px;
+    font-size: 22px; 
 }
 
 h2 {
-    font-size: 20px; /* 设置副标题文字大小 */
-    color: #333333; /* 设置副标题颜色 */
-    margin-bottom: 15px;
+    font-size: 18px; 
 }
 
+/* 按钮 */
 .button {
-    display: inline-block;
-    padding: 15px 25px;
-    margin: 10px 0;
-    font-size: 18px; /* 设置按钮文字大小 */
+    display: block;
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 18px;
     font-weight: 600;
-    color: #333333; /* 设置按钮字体颜色 */
-    background-color: #FFFFFF; /* 设置按钮背景颜色 */
-    border: 1px solid #D9D9D9; 
-    border-radius: 5px; /* 设置按钮圆角 */
+    margin: 10px 0;
+    color: #333333;
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .button:hover {
-    background-color: #E0E0E0; /* 设置按钮悬停背景颜色 */
-    transform: translateY(-3px); /* 设置按钮悬停提升效果 */
+    background-color: #E0E0E0;
+    transform: translateY(-3px);
 }
 
+/* 图片 */
 .image-container img {
     width: 100%;
     height: auto;
-    max-height: 300px;
-    border-radius: 5px; /* 设置图片圆角 */
-    margin-bottom: 15px;
+    max-height: 200px; /* 优化图片高度以适应手机屏幕 */
+    border-radius: 5px;
+    margin-bottom: 10px;
 }
 
+/* 文本容器 */
 .text-container {
     flex: 1;
     overflow-y: auto;
-    padding: 15px;
+    padding: 10px;
     background-color: #FBFBFB;
     border: 1px solid #E6E6E6;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05); /* 设置内阴影 */
-    border-radius: 5px; /* 设置容器圆角 */
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    max-height: calc(100% - 60px); /* 优化最大高度 */
 }
 
+/* 控件 */
 .controls input[type="text"] {
-    width: calc(100% - 20px);
+    width: 100%;
     padding: 10px;
     margin: 10px auto;
     border: 1px solid #D9D9D9; 
     border-radius: 5px;
     background-color: #FFFFFF; 
     color: #333333;
-    font-size: 16px; /* 设置输入框文字大小 */
+    font-size: 16px;
 }
 
-@media (max-width: 600px) {
-    .container {
-        max-width: 100%;
-        height: 100%;
-    }
-
-    .image-container img {
-        max-height: 200px;
-    }
+/* 章节选择 */
+#sections h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
 }
 
-#sections, #story {
-    display: none;
+#sections .section {
+    margin: 10px 0;
 }
 
+#sections .section img {
+    max-height: 150px; /* 优化章节缩略图的最大高度 */
+}
+
+/* 加载动画 */
 .loading {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 18px; /* 加载动画文字大小 */
-    padding: 10px 20px; /* 内边距 */
+    font-size: 18px;
+    padding: 10px 20px;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 5px;
     z-index: 1000;
     text-align: center;
+}
+
+/* 添加媒体查询 */
+@media (max-width: 767px) {
+    body {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .container {
+        max-width: 100%;
+        height: auto;
+        padding: 10px;
+    }
+
+    .button {
+        padding: 10px 15px;
+        font-size: 16px;
+    }
+
+    .image-container img {
+        max-height: 150px;
+    }
+
+    .text-container {
+        max-height: calc(100% - 40px); /* 优化高度 */
+        padding: 5px; /* 缩小内间距 */
+    }
+
+    .controls input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        font-size: 14px; /* 调整输入框文字大小 */
+    }
 }

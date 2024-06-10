@@ -146,11 +146,12 @@ function updateDisplay(role, messageContent) {
         messageElement.innerHTML = `<i>${messageContent}</i>`;
     } else if (role === 'assistant') {
         messageElement.textContent = messageContent;
-    } else if (role === 'info') { // 新 role 用于显示额外信息
+    } else if (role === 'info') {
         messageElement.innerHTML = messageContent;
     }
 
     storyContentDiv.appendChild(messageElement);
+    storyContentDiv.scrollTop = storyContentDiv.scrollHeight; // 自动滚动到底部
 }
 
 function ensureCorrectApiUrl(apiUrl) {
