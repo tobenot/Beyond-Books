@@ -1,6 +1,9 @@
 let isSubmitting = false;
+let isCooldown = false;
 let conversationHistory = [];
 let selectedCharacter = '罗伯特';
+
+const COOLDOWN_TIME = 1000; // 冷却时间，单位为毫秒
 
 async function initializeConversation(section) {
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
@@ -59,7 +62,7 @@ async function initializeConversation(section) {
 }
 
 async function submitUserInput() {
-    if (isSubmitting) return;
+    if (isSubmitting || isCooldown) return;
 
     const submitButton = document.getElementById('submitInputButton');
     const userInputField = document.getElementById('userInput');
@@ -88,14 +91,13 @@ async function submitUserInput() {
     console.log("提交给模型的对话历史:", messages);
 
     isSubmitting = true;
+    isCooldown = true; // 开始冷却
 
     loadingDiv.style.display = 'block';
     userInputField.style.display = 'none';
     submitButton.style.display = 'none';
     
     try {
-        // 现在这样子会触发跨域，直接写网址先
-        // const correctApiUrl = ensureCorrectApiUrl(settings.apiUrl);
         const response = await fetch("https://openkey.cloud/v1/chat/completions", {
             method: 'POST',
             headers: {
@@ -128,6 +130,11 @@ async function submitUserInput() {
         userInputField.style.display = 'block';
         submitButton.style.display = 'block';
         isSubmitting = false;
+
+        // 启动定时器，解除冷却状态
+        setTimeout(() => {
+            isCooldown = false;
+        }, COOLDOWN_TIME);
     }
 }
 
