@@ -59,6 +59,15 @@
 
             // 禁止默认的触摸滚动行为
             document.addEventListener('touchmove', function(event) {
+                // 获取触发事件的元素
+                let targetElement = event.target;
+
+                // 允许所有非body和html的元素滚动
+                if (targetElement !== document.body && targetElement !== document.documentElement) {
+                    return; // 不阻止默认事件
+                }
+
+                // 对于其他元素，依然禁止滚动
                 event.preventDefault();
             }, { passive: false });
         });
