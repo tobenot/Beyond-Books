@@ -1,5 +1,5 @@
 /* styles.css */
-/* 现在只管竖屏排版了！*/
+/* 通用样式 */
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #F2F2F2;
@@ -19,6 +19,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
+    max-width: 450px; /* 限制最大宽度 */
     height: 100%;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -44,11 +45,11 @@ h2 {
 /* 按钮 */
 .button {
     display: block;
-    width: 100%;
+    width: 80%; /* 调整按钮宽度 */
     padding: 10px 20px;
-    font-size: 18px;
+    font-size: 16px; /* 调整按钮字体大小避免溢出 */
     font-weight: 600;
-    margin: 10px 0;
+    margin: 10px auto;  /* 中间对齐 */
     color: #333333;
     background-color: #FFFFFF;
     border: 1px solid #D9D9D9;
@@ -152,6 +153,7 @@ h2 {
     .button {
         padding: 10px 15px;
         font-size: 16px;
+        width: 90%; /* 在小屏幕上让按钮更宽 */
     }
 
     .image-container img {
