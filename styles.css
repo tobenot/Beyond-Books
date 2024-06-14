@@ -1,6 +1,6 @@
 /* styles.css */
 /* 通用样式 */
-body {
+body, html {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #F2F2F2;
     color: #333333;
@@ -9,23 +9,24 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden; /* 隐藏溢出内容 */
+    overflow: hidden; /* 禁止滚动 */
+    width: 100%;
+    height: 100%;
 }
 
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
     width: 100%;
-    max-width: 450px; /* 限制最大宽度 */
     height: 100%;
+    overflow: hidden; /* 禁止滚动 */
+    max-width: 450px; /* 限制最大宽度 */
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     text-align: center;
-    overflow-y: auto; /* 允许垂直滚动 */
 }
 
 /* 标题 */
