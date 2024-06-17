@@ -38,6 +38,13 @@ async function initializeConversation(section) {
         本桥段产生后续影响的点：
         ${influencePointsText}
         你需要生成非主角角色的反应和发生的事情，直到主角的决策点，到主角说话或决策的部分，你需要询问玩家，并等玩家做出决策再描绘。
+        请按照以下JSON格式回复：
+        {
+            "analysis": "不限格式，以旁白角度分析玩家是否能做到他要做的事。",
+            "mechanism": "不限格式，以旁白角度描述隐藏运行的游戏机制内容，比如非玩家角色的想法，接下来谁将会做出什么行动。这部分内容只有你自己看得到。",
+            "display": "单个字符串，以第二人称角度向玩家描述玩家看到听到的东西，比如表情动作、玩家能听到的话。也可以从旁白角度和玩家沟通，在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
+            "endSceneFlag": "布尔值，是否满足了桥段结束条件，是的话将进入桥段复盘环节。"
+        }
     `;
 
     // 初始化对话历史记录
@@ -98,7 +105,7 @@ async function submitUserInput() {
     submitButton.style.display = 'none';
     
     try {
-        const response = await fetch("https://openkey.cloud/v1/chat/completions", {
+        const response = await fetch(settings.apiUrl+'chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -112,19 +119,36 @@ async function submitUserInput() {
 
         document.getElementById('userInput').value = '';
         const modelResponse = response.choices[0].message['content'];
-
         console.log("模型的回复:", modelResponse);
 
-        // 记录并显示大模型的回复
-        conversationHistory.push({
-            role: "assistant",
-            content: modelResponse
-        });
+        // 处理模型的回复，试图解析 JSON
+        let parsedResponse;
+        try {
+            parsedResponse = JSON.parse(modelResponse);
+        } catch (error) {
+            console.error("解析模型回复时出错:", error);
+            alert("模型回复解析失败，请稍后再试。");
+            // 显示模型的原始回复
+            updateDisplay('assistant', modelResponse);
+        }
 
-        updateDisplay('assistant', modelResponse); 
+        if (parsedResponse) {
+            // 记录并显示大模型的回复
+            conversationHistory.push({
+                role: "assistant",
+                content: modelResponse
+            });
 
+            // 更新显示内容
+            updateDisplay('assistant', parsedResponse.display);
+
+            // 检查桥段是否结束
+            if (parsedResponse.endSceneFlag) {
+                handleOutcome(currentSection.id, "目标完成");
+            }
+        }
     } catch (error) {
-        console.error("Failed to fetch:", error);
+        console.error("请求失败:", error);
     } finally {
         loadingDiv.style.display = 'none';
         userInputField.style.display = 'block';

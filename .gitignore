@@ -4,6 +4,7 @@ node_modules
 package-lock.json
 package.json
 sections_original
+sections/hashRecord.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
