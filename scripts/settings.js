@@ -4,6 +4,7 @@ const FREE_TRIAL_KEY_FLAG = "freeTrialKey"; // 用于标识当前的Key是否为
 function saveSettings() {
     const apiKey = document.getElementById('api-key').value;
     const apiUrl = document.getElementById('api-url').value;
+    const selectedModel = document.getElementById('model-select').value;
 
     // 清除免费试玩Key的标识
     localStorage.setItem(FREE_TRIAL_KEY_FLAG, 'false');
@@ -11,6 +12,7 @@ function saveSettings() {
     const settings = {
         apiKey: apiKey,
         apiUrl: apiUrl,
+        model: selectedModel, // 保存选定的模型
         isFreeTrialKey: false // 标记已存储的Key为用户输入的Key
     };
 
@@ -24,6 +26,9 @@ function loadSettings() {
         // 如果是免费试玩的Key，则不显示在输入框中
         document.getElementById('api-key').value = savedSettings.isFreeTrialKey ? "" : savedSettings.apiKey;
         document.getElementById('api-url').value = savedSettings.apiUrl;
+        
+        // 加载保存的模型选择
+        document.getElementById('model-select').value = savedSettings.model || 'gpt-3.5-turbo';
     }
 }
 

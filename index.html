@@ -105,6 +105,14 @@
         <input type="text" id="api-key" placeholder="输入你的API Key">
         <label for="api-url">API URL</label>
         <input type="text" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
+        
+        <!-- 新增模型选择 -->
+        <label for="model-select">选择模型</label>
+        <select id="model-select">
+            <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+            <option value="gpt-4">gpt-4</option>
+        </select>
+        
         <button class="button" id="saveButton" onclick="saveSettings()">保存设置</button>
         <button class="button" id="freeTrialButton" onclick="getFreeTrialKey()">免费试玩key</button>
         <button class="button" id="exitButton" onclick="hideSettings()">退出</button>

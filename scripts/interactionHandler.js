@@ -40,10 +40,10 @@ async function initializeConversation(section) {
         你需要生成非主角角色的反应和发生的事情，直到主角的决策点，到主角说话或决策的部分，你需要询问玩家，并等玩家做出决策再描绘。
         请按照以下JSON格式回复：
         {
-            "analysis": "不限格式，以旁白角度分析玩家是否能做到他要做的事。",
-            "mechanism": "不限格式，以旁白角度描述隐藏运行的游戏机制内容，比如非玩家角色的想法，接下来谁将会做出什么行动。这部分内容只有你自己看得到。",
-            "display": "单个字符串，以第二人称角度向玩家描述玩家看到听到的东西，比如表情动作、玩家能听到的话。也可以从旁白角度和玩家沟通，在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
-            "endSceneFlag": "布尔值，是否满足了桥段结束条件，是的话将进入桥段复盘环节。"
+            "analysis": "玩家是否能做到他要做的事？",
+            "mechanism": "这个字段对玩家隐藏。非玩家角色的想法是什么样的？接下来他们将会做出什么行动？",
+            "display": "单个字符串，玩家看到听到了什么？比如表情动作、玩家能听到的话。作为游戏主持人你有超越游戏的事要和玩家沟通吗？在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
+            "endSceneFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节。"
         }
     `;
 
@@ -105,14 +105,14 @@ async function submitUserInput() {
     submitButton.style.display = 'none';
     
     try {
-        const response = await fetch(settings.apiUrl+'chat/completions', {
+        const response = await fetch(settings.apiUrl + 'chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${settings.apiKey}`
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",
+                model: settings.model, // 使用选择的模型
                 messages: messages
             })
         }).then(res => res.json());
