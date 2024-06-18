@@ -28,7 +28,7 @@ async function initializeConversation(section) {
         .join('\n');
     
     let influencePointsText = section.influencePoints
-        .map((point, index) => `${index + 1}. ${point}`)
+        .map((point, index) => `${index + 1}. ${point.description}`)
         .join('\n');
 
     const systemPrompt = `请你做主持人来主持一场游戏的一个桥段。
@@ -170,7 +170,10 @@ async function submitUserInput() {
 async function getSectionSummary(sectionId, conversationHistory, section) {
     const settings = JSON.parse(localStorage.getItem('settings'));
 
-    // 构建 systemPrompt，重新提示目标和影响点
+    const influencePointsText = section.influencePoints
+        .map((point, index) => `${index + 1}. ${point.description}`)
+        .join('\n');
+
     const systemPrompt = `
         请基于以下对话历史，对完成度做出总结。
         对话历史：
@@ -178,12 +181,12 @@ async function getSectionSummary(sectionId, conversationHistory, section) {
         以上是对话历史。
         本桥段目标：${section.objective}
         影响点：
-        ${section.influencePoints.map((point, index) => `${index + 1}. ${point}`).join('\n')}
+        ${influencePointsText}
         请按照以下JSON格式回复：
         {
             "objective": "是否达成了桥段目标，布尔值",
             "influencePoints": [
-                {"point": 影响点内容, "influence": "是否，布尔值"}
+                {"name": 影响点英文别名, "influence": "是否，布尔值"}
             ],
             "summary": "总结的内容，单个字符串，可以写详细一点，包括对玩家行为的评价。"
         }

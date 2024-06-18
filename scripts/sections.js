@@ -4,6 +4,7 @@ let sectionsIndex = {};
 let currentSectionId = null;
 let completedSections = [];
 let unlockedSections = [];
+let globalInfluencePoints = [];
 
 function decryptJSONText(encryptedText, secretKey) {
     const bytes = CryptoJS.AES.decrypt(encryptedText, secretKey);
@@ -115,12 +116,15 @@ function displaySection(section) {
     
     initializeConversation(section); // 初始化对话
   }
-  
+
   async function handleOutcome(sectionId, summary, section) {
     const { objective, influencePoints } = summary;
-    const defaultInfluencePoints = section.influencePointsDefault || [];
+
+    // 获取默认的影响点
+    const defaultInfluencePoints = section.influencePoints.map(point => point.default);
     let changedInfluencePoints = 0;
 
+    // 检查影响点是否与默认值不同
     influencePoints.forEach((point, index) => {
         if (point.influence !== defaultInfluencePoints[index]) {
             changedInfluencePoints += 1;
@@ -128,6 +132,8 @@ function displaySection(section) {
     });
 
     if (objective) {
+        // 桥段目标达成也算影响点
+        changedInfluencePoints += 1;
         // 仅在目标达成时更新游戏状态
         updateGameState(sectionId, {
             objectiveAchieved: objective,
@@ -154,6 +160,7 @@ function displaySection(section) {
         const resultText = `
             <p>桥段目标未达成</p>
             <p>影响点改变数：${changedInfluencePoints}</p>
+            <p>因未达成目标，影响未产生</p>
         `;
         document.getElementById('storyContent').innerHTML += resultText;
 
@@ -175,34 +182,72 @@ function returnToSectionSelection() {
     document.getElementById('storyContent').innerHTML = ''; // 清空故事内容用于下次显示
 }
 
-function updateGameState(sectionId, result) {
-    console.log('Updating game state:', { sectionId, result });
-
-    const completedSectionIndex = completedSections.findIndex(
-        section => section.sectionId === sectionId
-    );
-
-    if (completedSectionIndex !== -1) {
-        // 更新已完成部分的结果
-        completedSections[completedSectionIndex].result = result;
-    } else {
-        // 添加新的完成记录
-        completedSections.push({ sectionId, result });
-    }
-
+function checkUnlockConditions() {
     sectionsIndex.sections.forEach(section => {
-        if (section.preconditions.every(cond =>
-            completedSections.some(comp => comp.sectionId === cond.sectionId && comp.result === cond.result))) {
-            if (!unlockedSections.includes(section.id)) {
-                unlockedSections.push(section.id);
-            }
+        const allPreconditionsMet = section.preconditions.every(precondition => {
+            const globalConditionMet = globalInfluencePoints.some(globalPoint => globalPoint.name === precondition.condition && globalPoint.influence === precondition.result);
+            const sectionConditionMet = completedSections.some(comp => comp.sectionId === precondition.sectionId && comp.result.some(point => point.name === precondition.condition && point.influence === precondition.result));
+
+            return globalConditionMet || sectionConditionMet;
+        });
+
+        if (allPreconditionsMet && !unlockedSections.includes(section.id)) {
+            unlockedSections.push(section.id);
         }
     });
 
     saveGame({
+        currentSectionId: currentSectionId,
+        completedSections,
+        unlockedSections,
+        globalInfluencePoints
+    });
+
+    setupSections();
+}
+
+function updateGameState(sectionId, result) {
+    console.log('Updating game state:', { sectionId, result });
+
+    const completedSectionIndex = completedSections.findIndex(section => section.sectionId === sectionId);
+
+    if (completedSectionIndex !== -1) {
+        completedSections[completedSectionIndex].result = result.influencePoints;
+    } else {
+        completedSections.push({ sectionId, result: result.influencePoints });
+    }
+
+    result.influencePoints.forEach(point => {
+        if (point.global) {
+            const globalPointIndex = globalInfluencePoints.findIndex(globalPoint => globalPoint.name === point.name);
+
+            if (globalPointIndex !== -1) {
+                if (!globalInfluencePoints[globalPointIndex].influence) {
+                    globalInfluencePoints[globalPointIndex].influence = point.influence;
+                }
+            } else {
+                globalInfluencePoints.push(point);
+            }
+        } else {
+            let targetPoints = completedSections[completedSectionIndex]?.result;
+            if (targetPoints) {
+                const localPointIndex = targetPoints.findIndex(localPoint => localPoint.name === point.name);
+                if (localPointIndex !== -1) {
+                    targetPoints[localPointIndex].influence = point.influence;
+                } else {
+                    targetPoints.push(point);
+                }
+            }
+        }
+    });
+
+    checkUnlockConditions();
+
+    saveGame({
         currentSectionId: sectionId,
         completedSections,
-        unlockedSections
+        unlockedSections,
+        globalInfluencePoints
     });
 
     setupSections();
@@ -213,10 +258,12 @@ function initializeGameState(savedData = null) {
         currentSectionId = savedData.currentSectionId;
         completedSections = savedData.completedSections;
         unlockedSections = savedData.unlockedSections;
+        globalInfluencePoints = savedData.globalInfluencePoints || [];
     } else {
         currentSectionId = null;
         completedSections = [];
         unlockedSections = [1];
+        globalInfluencePoints = [];
     }
 
     loadSectionsIndex();
