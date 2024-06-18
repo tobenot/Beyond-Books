@@ -5,73 +5,12 @@
     <title></title>
     <link rel="stylesheet" href="styles.css?v=${new Date().getTime()}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
     <style>
-        /* 确保其他容器一开始是隐藏的 */
         #sections, #story, #settings {
             display: none;
         }
     </style>
-    <script>
-        async function loadPyodideAndPackages() {
-            window.pyodide = await loadPyodide({
-                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.18.1/full/"
-            });
-            console.log('Pyodide loaded');
-        }
-
-        loadPyodideAndPackages().then(() => {
-            console.log('Pyodide loaded and packages installed');
-        });
-
-        async function loadScript(url) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = `${url}?v=${new Date().getTime()}`;
-                script.defer = true;
-                script.onload = () => resolve(url);
-                script.onerror = () => reject(url);
-                document.body.appendChild(script);
-            });
-        }
-
-        async function initializeApp() {
-            // 加载 crypto 库
-            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js');
-            // 加载语言文件
-            await loadScript('scripts/loadLanguage.js');
-
-            // 加载其余的脚本
-            await loadScript('scripts/sections.js');
-            await loadScript('scripts/saveLoad.js');
-            await loadScript('scripts/interactionHandler.js');
-            await loadScript('scripts/ui.js');
-            await loadScript('scripts/settings.js');
-
-            // 初始化UI和游戏设置
-            initializeUI();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeApp().catch(err => {
-                console.error("Error loading scripts: ", err);
-            });
-
-            // 禁止默认的触摸滚动行为
-            document.addEventListener('touchmove', function(event) {
-                // 获取触发事件的元素
-                let targetElement = event.target;
-
-                // 允许所有非body和html的元素滚动
-                if (targetElement !== document.body && targetElement !== document.documentElement) {
-                    return; // 不阻止默认事件
-                }
-
-                // 对于其他元素，依然禁止滚动
-                event.preventDefault();
-            }, { passive: false });
-        });
-    </script>
+    <script src="scripts/startup.js"></script>
 </head>
 <body>
     <div class="container" id="menu">
@@ -102,10 +41,9 @@
     <div class="container" id="settings" style="display: none;">
         <h2>设置</h2>
         <label for="api-key">API Key</label>
-        <input type="text" id="api-key" placeholder="输入你的API Key">
+        <input type="password" id="api-key" placeholder="输入你的API Key">
         <label for="api-url">API URL</label>
         <input type="text" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
-        
         <!-- 新增模型选择 -->
         <label for="model-select">选择模型</label>
         <select id="model-select">

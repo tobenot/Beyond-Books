@@ -71,6 +71,21 @@ function getFreeTrialKey() {
         });
 }
 
+function showSettings() {
+    const savedSettings = JSON.parse(localStorage.getItem('settings'));
+    if (savedSettings) {
+        // 如果是免费试玩的Key，则不显示在输入框中
+        document.getElementById('api-key').value = savedSettings.isFreeTrialKey ? "" : savedSettings.apiKey;
+        // 设置API Key输入框类型为密码
+        document.getElementById('api-key').type = "password";
+
+        document.getElementById('api-url').value = savedSettings.apiUrl;
+        document.getElementById('model-select').value = savedSettings.model || 'gpt-3.5-turbo';
+    }
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('settings').style.display = 'flex';
+}
+
 function hideSettings() {
     document.getElementById('settings').style.display = 'none';
     document.getElementById('menu').style.display = 'flex';

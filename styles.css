@@ -81,8 +81,8 @@ h2 {
     border: 1px solid #E6E6E6;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
     border-radius: 5px;
-    max-height: 300px; /* 固定最大高度 */
-    min-height: 150px; /* 固定最小高度 */
+    max-height: 900px; /* 固定最大高度 */
+    min-height: 450px; /* 固定最小高度 */
 }
 
 /* 控件 */
@@ -162,8 +162,8 @@ h2 {
     }
 
     .text-container {
-        max-height: 200px; /* 优化高度 */
-        min-height: 150px; /* 固定最小高度 */
+        max-height: 600px; /* 优化高度 */
+        min-height: 450px; /* 固定最小高度 */
         padding: 5px; /* 缩小内间距 */
     }
 
