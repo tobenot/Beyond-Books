@@ -1,19 +1,28 @@
 const ENCRYPTION_KEY = "YourEncryptionKey";
 const FREE_TRIAL_KEY_FLAG = "freeTrialKey"; // 用于标识当前的Key是否为免费试玩的Key
+const FREE_TRIAL_KEY_STORAGE = "freeTrialKeyStorage"; // 存储免费试玩Key
 
 function saveSettings() {
-    const apiKey = document.getElementById('api-key').value;
+    const apiKeyInput = document.getElementById('api-key').value;
     const apiUrl = document.getElementById('api-url').value;
     const selectedModel = document.getElementById('model-select').value;
+    const isFreeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_FLAG) === 'true';
+    const freeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_STORAGE);
 
-    // 清除免费试玩Key的标识
-    localStorage.setItem(FREE_TRIAL_KEY_FLAG, 'false');
+    let apiKey = apiKeyInput;
+    if (isFreeTrialKey && !apiKeyInput) {
+        // 如果是免费试用Key且没有输入新的Key，则继续使用免费试用Key
+        apiKey = freeTrialKey;
+    } else {
+        // 清除免费试玩Key的标识
+        localStorage.setItem(FREE_TRIAL_KEY_FLAG, 'false');
+        localStorage.removeItem(FREE_TRIAL_KEY_STORAGE);
+    }
 
     const settings = {
         apiKey: apiKey,
         apiUrl: apiUrl,
-        model: selectedModel, // 保存选定的模型
-        isFreeTrialKey: false // 标记已存储的Key为用户输入的Key
+        model: selectedModel // 保存选定的模型
     };
 
     localStorage.setItem('settings', JSON.stringify(settings));
@@ -22,13 +31,20 @@ function saveSettings() {
 
 function loadSettings() {
     const savedSettings = JSON.parse(localStorage.getItem('settings'));
+    const isFreeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_FLAG) === 'true';
+    const freeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_STORAGE);
+
     if (savedSettings) {
         // 如果是免费试玩的Key，则不显示在输入框中
-        document.getElementById('api-key').value = savedSettings.isFreeTrialKey ? "" : savedSettings.apiKey;
+        document.getElementById('api-key').value = isFreeTrialKey ? "" : savedSettings.apiKey;
         document.getElementById('api-url').value = savedSettings.apiUrl;
         
         // 加载保存的模型选择
         document.getElementById('model-select').value = savedSettings.model || 'gpt-3.5-turbo';
+    }
+
+    if (isFreeTrialKey && freeTrialKey) {
+        document.getElementById('freeTrialButton').innerText = '更新免费key';
     }
 }
 
@@ -54,13 +70,7 @@ function getFreeTrialKey() {
             trialStatus.innerText = '';
 
             // 存储免费试用 Key 并标记
-            const settings = {
-                apiKey: decryptedKey,
-                apiUrl: document.getElementById('api-url').value,
-                isFreeTrialKey: true
-            };
-
-            localStorage.setItem('settings', JSON.stringify(settings));
+            localStorage.setItem(FREE_TRIAL_KEY_STORAGE, decryptedKey);
             localStorage.setItem(FREE_TRIAL_KEY_FLAG, 'true');
 
             alert('免费试用 Key 已成功获取并保存');
@@ -73,15 +83,23 @@ function getFreeTrialKey() {
 
 function showSettings() {
     const savedSettings = JSON.parse(localStorage.getItem('settings'));
+    const isFreeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_FLAG) === 'true';
+    const freeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_STORAGE);
+
     if (savedSettings) {
         // 如果是免费试玩的Key，则不显示在输入框中
-        document.getElementById('api-key').value = savedSettings.isFreeTrialKey ? "" : savedSettings.apiKey;
+        document.getElementById('api-key').value = isFreeTrialKey ? "" : savedSettings.apiKey;
         // 设置API Key输入框类型为密码
         document.getElementById('api-key').type = "password";
 
         document.getElementById('api-url').value = savedSettings.apiUrl;
         document.getElementById('model-select').value = savedSettings.model || 'gpt-3.5-turbo';
     }
+
+    if (isFreeTrialKey && freeTrialKey) {
+        document.getElementById('freeTrialButton').innerText = '更新免费key';
+    }
+
     document.getElementById('menu').style.display = 'none';
     document.getElementById('settings').style.display = 'flex';
 }

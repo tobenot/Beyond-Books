@@ -60,7 +60,7 @@ async function initializeConversation(section) {
 
     const firstAssistantMessage = `
             ${section.startEvent}
-            你要怎么做？
+            ${section.autoComplete ? '': "你要怎么做？"}
         `
     conversationHistory.push({
         role: "assistant",
