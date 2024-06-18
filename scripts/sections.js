@@ -19,7 +19,8 @@ function decryptJSONText(encryptedText, secretKey) {
 }
 
 function loadSectionsIndex() {
-    fetch('sections/sections.bbs')
+    const timestamp = new Date().getTime();
+    fetch(`sections/sections.bbs?v=${timestamp}`)
         .then(response => response.text())
         .then(encryptedText => {
             const secretKey = 'ReadingThisIsASpoilerForYourself';
@@ -182,19 +183,35 @@ function returnToSectionSelection() {
     document.getElementById('storyContent').innerHTML = ''; // 清空故事内容用于下次显示
 }
 
+
 function checkUnlockConditions() {
+    console.log('Checking Unlock Conditions');
     sectionsIndex.sections.forEach(section => {
+        console.log('Checking Section:', section.id);
         const allPreconditionsMet = section.preconditions.every(precondition => {
-            const globalConditionMet = globalInfluencePoints.some(globalPoint => globalPoint.name === precondition.condition && globalPoint.influence === precondition.result);
-            const sectionConditionMet = completedSections.some(comp => comp.sectionId === precondition.sectionId && comp.result.some(point => point.name === precondition.condition && point.influence === precondition.result));
+            console.log('Checking Precondition:', precondition);
+            const globalConditionMet = globalInfluencePoints.some(globalPoint => {
+                const met = globalPoint.name === precondition.condition && globalPoint.influence === precondition.result;
+                console.log(`Global Condition Met for point ${globalPoint.name}:`, met);
+                return met;
+            });
+            const sectionConditionMet = completedSections.some(comp => {
+                const met = comp.sectionId === precondition.sectionId && comp.result.some(point => point.name === precondition.condition && point.influence === precondition.result);
+                console.log(`Section Condition Met for section ${comp.sectionId}:`, met);
+                return met;
+            });
 
             return globalConditionMet || sectionConditionMet;
         });
+
+        console.log('All Preconditions Met:', allPreconditionsMet);
 
         if (allPreconditionsMet && !unlockedSections.includes(section.id)) {
             unlockedSections.push(section.id);
         }
     });
+
+    console.log('Unlocked Sections:', unlockedSections);
 
     saveGame({
         currentSectionId: currentSectionId,
@@ -209,17 +226,48 @@ function checkUnlockConditions() {
 function updateGameState(sectionId, result) {
     console.log('Updating game state:', { sectionId, result });
 
+    // 建立基于result.influencePoints索引位置的名称映射
+    const originalNameMapping = {};
+    console.log('Current section influence points:', currentSection.influencePoints);
+    result.influencePoints.forEach((point, index) => {
+        // 确保索引在currentSection.influencePoints的范围内
+        if (index < currentSection.influencePoints.length) {
+            const originalPointName = currentSection.influencePoints[index].name;
+            originalNameMapping[point.name] = originalPointName;
+        } else {
+            // 当索引超出范围时，直接使用point.name作为映射的值
+            originalNameMapping[point.name] = point.name;
+        }
+    });
+
+    console.log('Original name mapping:', originalNameMapping);
+
+    // 使用映射转换影响点别名
+    const remappedInfluencePoints = result.influencePoints.map(point => ({
+        name: originalNameMapping[point.name] || point.name,
+        influence: point.influence
+    }));
+
+    console.log('Remapped Influence Points:', remappedInfluencePoints);
+
     const completedSectionIndex = completedSections.findIndex(section => section.sectionId === sectionId);
+    console.log('Completed Section Index:', completedSectionIndex);
 
     if (completedSectionIndex !== -1) {
-        completedSections[completedSectionIndex].result = result.influencePoints;
+        completedSections[completedSectionIndex].result = remappedInfluencePoints;
     } else {
-        completedSections.push({ sectionId, result: result.influencePoints });
+        completedSections.push({ sectionId, result: remappedInfluencePoints });
     }
 
-    result.influencePoints.forEach(point => {
+    console.log('Completed Sections after update:', completedSections);
+
+    remappedInfluencePoints.forEach(point => {
+        console.log('Processing point:', point);
         if (point.global) {
+            console.log('Global Point:', point);
             const globalPointIndex = globalInfluencePoints.findIndex(globalPoint => globalPoint.name === point.name);
+
+            console.log('Global Point Index:', globalPointIndex);
 
             if (globalPointIndex !== -1) {
                 if (!globalInfluencePoints[globalPointIndex].influence) {
@@ -231,7 +279,9 @@ function updateGameState(sectionId, result) {
         } else {
             let targetPoints = completedSections[completedSectionIndex]?.result;
             if (targetPoints) {
+                console.log('Target Points:', targetPoints);
                 const localPointIndex = targetPoints.findIndex(localPoint => localPoint.name === point.name);
+                console.log('Local Point Index:', localPointIndex);
                 if (localPointIndex !== -1) {
                     targetPoints[localPointIndex].influence = point.influence;
                 } else {

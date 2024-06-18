@@ -71,6 +71,31 @@ async function initializeConversation(section) {
 
     // 在页面上显示启动事件
     updateDisplay('assistant', firstAssistantMessage);
+
+    // 检测桥段是否应该立即结束
+    if (section.autoComplete) {
+        const summary = {
+            objective: true,
+            influencePoints: section.influencePoints.map(point => ({
+                name: point.name,
+                influence: point.default
+            })),
+            summary: `${section.title}桥段不需要玩家参与，自动完成。`
+        };
+        handleOutcome(section.id, summary, section).then(() => {
+            // 桥段结束后禁用输入框和提交按钮
+            document.getElementById('userInput').style.display = 'none';
+            document.getElementById('submitInputButton').style.display = 'none';
+            document.getElementById('userInput').disabled = true;
+            document.getElementById('submitInputButton').disabled = true;
+
+            const completeButton = document.createElement('button');
+            completeButton.className = 'button';
+            completeButton.innerText = '返回桥段选择';
+            completeButton.onclick = returnToSectionSelection;
+            document.getElementById('storyContent').appendChild(completeButton);
+        });
+    }
 }
 
 async function submitUserInput() {
