@@ -43,7 +43,7 @@ async function initializeConversation(section) {
             "analysis": "玩家要做什么？玩家的角色能做到吗？",
             "mechanism": "这个字段对玩家隐藏。非玩家角色的想法是什么样的？接下来他们将会做出什么行动？",
             "display": "单个字符串，玩家看到听到了什么？比如表情动作、玩家能听到的话。作为游戏主持人你有超越游戏的事要和玩家沟通吗？在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
-            "endSceneFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节。"
+            "endSectionFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节。"
         }
     `;
 
@@ -113,7 +113,9 @@ async function submitUserInput() {
             },
             body: JSON.stringify({
                 model: settings.model, // 使用选择的模型
-                messages: messages
+                messages: messages,
+                response_format: {"type": "json_object"},
+                max_tokens: 4096,
             })
         }).then(res => res.json());
 
@@ -127,9 +129,9 @@ async function submitUserInput() {
             parsedResponse = JSON.parse(modelResponse);
         } catch (error) {
             console.error("解析模型回复时出错:", error);
-            alert("模型回复解析失败，请稍后再试。");
-            // 显示模型的原始回复
-            updateDisplay('assistant', modelResponse);
+            alert("模型回复解析失败。");
+            // 不显示模型的原始回复
+            // updateDisplay('assistant', modelResponse);
         }
 
         if (parsedResponse) {
@@ -143,7 +145,7 @@ async function submitUserInput() {
             updateDisplay('assistant', parsedResponse.display);
 
             // 检查桥段是否结束
-            if (parsedResponse.endSceneFlag) {
+            if (parsedResponse.endSectionFlag) {
                 handleOutcome(currentSection.id, "目标完成");
             }
         }
