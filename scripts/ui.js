@@ -26,8 +26,9 @@ function startGame() {
 }
 
 function readMore() {
-    document.getElementById('story').style.display = 'none';
-    document.getElementById('sections').style.display = 'flex';
+    // 不再在这里切换到桥段选择界面
+    // document.getElementById('story').style.display = 'none';
+    // document.getElementById('sections').style.display = 'flex';
 }
 
 function showSettings() {

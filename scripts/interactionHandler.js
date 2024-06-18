@@ -2,10 +2,13 @@ let isSubmitting = false;
 let isCooldown = false;
 let conversationHistory = [];
 let selectedCharacter = '罗伯特';
+let currentSection = null;
+
 
 const COOLDOWN_TIME = 1000; // 冷却时间，单位为毫秒
 
 async function initializeConversation(section) {
+    currentSection = section; // 存储当前章节
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
 
     // 生成玩家角色信息
@@ -47,6 +50,8 @@ async function initializeConversation(section) {
         }
     `;
 
+    conversationHistory = []
+
     // 初始化对话历史记录
     conversationHistory.push({
         role: "system",
@@ -81,7 +86,6 @@ async function submitUserInput() {
         return;
     }
 
-    // 记录玩家的输入
     userInput = `${selectedCharacter}：${userInput}`;
     conversationHistory.push({
         role: "user",
@@ -92,13 +96,12 @@ async function submitUserInput() {
 
     const settings = JSON.parse(localStorage.getItem('settings'));
 
-    // 组织对话历史作为消息
     const messages = conversationHistory;
 
     console.log("提交给模型的对话历史:", messages);
 
     isSubmitting = true;
-    isCooldown = true; // 开始冷却
+    isCooldown = true;
 
     loadingDiv.style.display = 'block';
     userInputField.style.display = 'none';
@@ -112,7 +115,7 @@ async function submitUserInput() {
                 'Authorization': `Bearer ${settings.apiKey}`
             },
             body: JSON.stringify({
-                model: settings.model, // 使用选择的模型
+                model: settings.model,
                 messages: messages,
                 response_format: {"type": "json_object"},
                 max_tokens: 4096,
@@ -123,30 +126,31 @@ async function submitUserInput() {
         const modelResponse = response.choices[0].message['content'];
         console.log("模型的回复:", modelResponse);
 
-        // 处理模型的回复，试图解析 JSON
         let parsedResponse;
         try {
             parsedResponse = JSON.parse(modelResponse);
         } catch (error) {
             console.error("解析模型回复时出错:", error);
             alert("模型回复解析失败。");
-            // 不显示模型的原始回复
-            // updateDisplay('assistant', modelResponse);
         }
 
         if (parsedResponse) {
-            // 记录并显示大模型的回复
             conversationHistory.push({
                 role: "assistant",
                 content: modelResponse
             });
 
-            // 更新显示内容
             updateDisplay('assistant', parsedResponse.display);
 
-            // 检查桥段是否结束
             if (parsedResponse.endSectionFlag) {
-                handleOutcome(currentSection.id, "目标完成");
+                const summary = await getSectionSummary(currentSection.id, conversationHistory, currentSection);
+                handleOutcome(currentSection.id, summary, currentSection);
+
+                // 桥段结束后禁用输入框和提交按钮
+                userInputField.style.display = 'none';
+                submitButton.style.display = 'none';
+                userInputField.disabled = true;
+                submitButton.disabled = true;
             }
         }
     } catch (error) {
@@ -157,17 +161,77 @@ async function submitUserInput() {
         submitButton.style.display = 'block';
         isSubmitting = false;
 
-        // 启动定时器，解除冷却状态
         setTimeout(() => {
             isCooldown = false;
         }, COOLDOWN_TIME);
     }
 }
 
+async function getSectionSummary(sectionId, conversationHistory, section) {
+    const settings = JSON.parse(localStorage.getItem('settings'));
+
+    // 构建 systemPrompt，重新提示目标和影响点
+    const systemPrompt = `
+        请基于以下对话历史，对完成度做出总结。
+        对话历史：
+        ${conversationHistory.map(message => `${message.role}: ${message.content}`).join('\n')}
+        以上是对话历史。
+        本桥段目标：${section.objective}
+        影响点：
+        ${section.influencePoints.map((point, index) => `${index + 1}. ${point}`).join('\n')}
+        请按照以下JSON格式回复：
+        {
+            "objective": "是否达成了桥段目标，布尔值",
+            "influencePoints": [
+                {"point": 影响点内容, "influence": "是否，布尔值"}
+            ],
+            "summary": "总结的内容，单个字符串，可以写详细一点，包括对玩家行为的评价。"
+        }
+        注意influencePoints要严格按照原顺序，方便系统保存。
+    `;
+
+    console.log("Debug getSectionSummary提交给模型:", systemPrompt);
+
+    try {
+        const response = await fetch(settings.apiUrl + 'chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${settings.apiKey}`
+            },
+            body: JSON.stringify({
+                model: settings.model,
+                messages: [
+                    { role: "system", content: systemPrompt }
+                ],
+                response_format: { "type": "json_object" },
+                max_tokens: 4096
+            })
+        }).then(res => res.json());
+
+        const summaryResponse = response.choices[0].message.content;
+        console.log("大模型的总结回复:", summaryResponse);
+
+        let summary;
+        try {
+            summary = JSON.parse(summaryResponse);
+        } catch (error) {
+            console.error("解析总结回复时出错:", error);
+            alert("总结回复解析失败。");
+        }
+
+        return summary;
+    } catch (error) {
+        console.error("请求总结失败:", error);
+        alert("生成总结请求失败。");
+        return null;
+    }
+}
+
 function updateDisplay(role, messageContent) {
     const storyContentDiv = document.getElementById('storyContent');
     const messageElement = document.createElement('p');
-    
+
     if (role === 'user') {
         messageElement.innerHTML = `<i>${messageContent}</i>`;
     } else if (role === 'assistant') {
@@ -177,7 +241,7 @@ function updateDisplay(role, messageContent) {
     }
 
     storyContentDiv.appendChild(messageElement);
-    storyContentDiv.scrollTop = storyContentDiv.scrollHeight; // 自动滚动到底部
+    messageElement.scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 
 function ensureCorrectApiUrl(apiUrl) {

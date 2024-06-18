@@ -76,6 +76,11 @@ function chooseSection(fileName) {
         alert("此桥段已完成，不能重复进入。");
         return;
     }
+    
+    // 重置当前章节ID和输入框状态
+    currentSectionId = null;
+    document.getElementById('userInput').disabled = false;
+    document.getElementById('submitInputButton').disabled = false;
   
     // 添加时间戳来避免缓存
     const timestamp = new Date().getTime();
@@ -84,12 +89,13 @@ function chooseSection(fileName) {
         .then(encryptedText => {
             const secretKey = 'ReadingThisIsASpoilerForYourself';
             const sectionContent = decryptJSONText(encryptedText, secretKey);
+            console.log("桥段剧本：", sectionContent);
             displaySection(sectionContent);
         })
         .catch(error => console.error('加载或解密章节数据时出错:', error));
-  }
-  
-  function displaySection(section) {
+}
+
+function displaySection(section) {
     document.getElementById('sections').style.display = 'none';
   
     const storyContent = `
@@ -109,17 +115,83 @@ function chooseSection(fileName) {
     
     initializeConversation(section); // 初始化对话
   }
+  
+  async function handleOutcome(sectionId, summary, section) {
+    const { objective, influencePoints } = summary;
+    const defaultInfluencePoints = section.influencePointsDefault || [];
+    let changedInfluencePoints = 0;
 
-function handleOutcome(sectionId, result) {
-    updateGameState(sectionId, result);
-    readMore();
+    influencePoints.forEach((point, index) => {
+        if (point.influence !== defaultInfluencePoints[index]) {
+            changedInfluencePoints += 1;
+        }
+    });
+
+    if (objective) {
+        // 仅在目标达成时更新游戏状态
+        updateGameState(sectionId, {
+            objectiveAchieved: objective,
+            influencePoints
+        });
+
+        const resultText = `
+            <p>桥段目标达成</p>
+            <p>影响点改变数：${changedInfluencePoints}</p>
+        `;
+        document.getElementById('storyContent').innerHTML += resultText;
+
+        document.getElementById('userInput').style.display = 'none';
+        document.getElementById('submitInputButton').style.display = 'none';
+        document.getElementById('userInput').disabled = true;
+        document.getElementById('submitInputButton').disabled = true;
+        const completeButton = document.createElement('button');
+        completeButton.className = 'button';
+        completeButton.innerText = '返回桥段选择';
+        completeButton.onclick = () => returnToSectionSelection();
+        document.getElementById('storyContent').appendChild(completeButton);
+    } else {
+        // 当目标未达成时显示重新开始按钮
+        const resultText = `
+            <p>桥段目标未达成</p>
+            <p>影响点改变数：${changedInfluencePoints}</p>
+        `;
+        document.getElementById('storyContent').innerHTML += resultText;
+
+        document.getElementById('userInput').style.display = 'none';
+        document.getElementById('submitInputButton').style.display = 'none';
+        document.getElementById('userInput').disabled = true;
+        document.getElementById('submitInputButton').disabled = true;
+        const retryButton = document.createElement('button');
+        retryButton.className = 'button';
+        retryButton.innerText = '重新开始桥段';
+        retryButton.onclick = () => restartSection(sectionId);
+        document.getElementById('storyContent').appendChild(retryButton);
+    }
+}
+
+function returnToSectionSelection() {
+    document.getElementById('story').style.display = 'none';
+    document.getElementById('sections').style.display = 'flex';
+    document.getElementById('storyContent').innerHTML = ''; // 清空故事内容用于下次显示
 }
 
 function updateGameState(sectionId, result) {
-    completedSections.push({ sectionId, result });
+    console.log('Updating game state:', { sectionId, result });
+
+    const completedSectionIndex = completedSections.findIndex(
+        section => section.sectionId === sectionId
+    );
+
+    if (completedSectionIndex !== -1) {
+        // 更新已完成部分的结果
+        completedSections[completedSectionIndex].result = result;
+    } else {
+        // 添加新的完成记录
+        completedSections.push({ sectionId, result });
+    }
 
     sectionsIndex.sections.forEach(section => {
-        if (section.preconditions.every(cond => 
+        if (section.preconditions.every(cond =>
             completedSections.some(comp => comp.sectionId === cond.sectionId && comp.result === cond.result))) {
             if (!unlockedSections.includes(section.id)) {
                 unlockedSections.push(section.id);
@@ -132,6 +204,7 @@ function updateGameState(sectionId, result) {
         completedSections,
         unlockedSections
     });
+
     setupSections();
 }
 
@@ -147,4 +220,14 @@ function initializeGameState(savedData = null) {
     }
 
     loadSectionsIndex();
+}
+
+function restartSection(sectionId) {
+    const section = sectionsIndex.sections.find(sect => sect.id === sectionId);
+    if (section) {
+        chooseSection(section.file);
+    } else {
+        console.error('未能找到要重新开始的桥段');
+        alert('重新开始桥段时出错');
+    }
 }
