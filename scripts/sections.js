@@ -48,15 +48,21 @@ function setupSections() {
     sectionsIndex.sections.forEach(section => {
         const sectionDiv = document.createElement('div');
         sectionDiv.className = 'section';
-        
+
         if (completedSections.some(item => item.sectionId === section.id)) {
             sectionDiv.className += ' completed';
-            sectionDiv.innerText = `${section.title}（已完成）`;
+
+            // 添加重玩按钮
+            const replayButton = document.createElement('button');
+            replayButton.className = 'button';
+            replayButton.innerText = `${section.title}（已完成） - 重玩`;
+            replayButton.onclick = () => chooseSection(section.file, true); // 设置isReplay为true
+            sectionDiv.appendChild(replayButton);
         } else if (unlockedSections.includes(section.id)) {
             const button = document.createElement('button');
             button.className = 'button';
             button.innerText = section.title;
-            button.onclick = () => chooseSection(section.file);
+            button.onclick = () => chooseSection(section.file, false); // 设置isReplay为false
 
             const image = document.createElement('img');
             image.src = section.image;
@@ -73,17 +79,12 @@ function setupSections() {
     });
 }
 
-function chooseSection(fileName) {
-    if (completedSections.some(section => section.fileName === fileName)) {
-        alert("此桥段已完成，不能重复进入。");
-        return;
-    }
-    
+function chooseSection(fileName, isReplay = false) {
     // 重置当前章节ID和输入框状态
     currentSectionId = null;
     document.getElementById('userInput').disabled = false;
     document.getElementById('submitInputButton').disabled = false;
-  
+
     // 添加时间戳来避免缓存
     const timestamp = new Date().getTime();
     fetch(`sections/${fileName}?v=${timestamp}`)
@@ -92,33 +93,33 @@ function chooseSection(fileName) {
             const secretKey = 'ReadingThisIsASpoilerForYourself';
             const sectionContent = decryptJSONText(encryptedText, secretKey);
             console.log("桥段剧本：", sectionContent);
-            displaySection(sectionContent);
+            // 将 `isReplay` 参数传递给 `displaySection`
+            displaySection(sectionContent, isReplay);
         })
         .catch(error => console.error('加载或解密章节数据时出错:', error));
 }
 
-function displaySection(section) {
+function displaySection(section, isReplay = false) {
     document.getElementById('sections').style.display = 'none';
-  
+
     const storyContent = `
         <h2>${section.title}</h2>
         <p><b>目标：${section.objective}</b></p>
         <p>${section.backgroundInfo}</p>
     `;
-    
-    document.getElementById('storyContent').innerHTML = storyContent;
-  
-    document.getElementById('sectionImage').src = section.image;
-  
-    document.querySelector('.controls').style.display = 'flex';
-  
-    document.getElementById('story').style.display = 'flex';
-    currentSection = section; // 设定当前章节为 global 变量
-    
-    initializeConversation(section); // 初始化对话
-  }
 
-  async function handleOutcome(sectionId, summary, section) {
+    document.getElementById('storyContent').innerHTML = storyContent;
+    document.getElementById('sectionImage').src = section.image;
+
+    document.querySelector('.controls').style.display = 'flex';
+    document.getElementById('story').style.display = 'flex';
+    
+    // 将 `isReplay` 参数传递给 `initializeConversation`
+    initializeConversation(section, isReplay);
+    currentSection = section; // 设定当前章节为 global 变量
+}
+
+async function handleOutcome(sectionId, summary, section, isReplay = false) {
     const { objective, influencePoints } = summary;
 
     // 获取默认的影响点
@@ -135,11 +136,14 @@ function displaySection(section) {
     if (objective) {
         // 桥段目标达成也算影响点
         changedInfluencePoints += 1;
-        // 仅在目标达成时更新游戏状态
-        updateGameState(sectionId, {
-            objectiveAchieved: objective,
-            influencePoints
-        });
+        
+        // 只有在非重玩模式下更新游戏状态
+        if (!isReplay) {
+            updateGameState(sectionId, {
+                objectiveAchieved: objective,
+                influencePoints
+            });
+        }
 
         const resultText = `
             <p>桥段目标达成</p>

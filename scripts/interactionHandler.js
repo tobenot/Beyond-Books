@@ -7,7 +7,7 @@ let currentSection = null;
 
 const COOLDOWN_TIME = 1000; // 冷却时间，单位为毫秒
 
-async function initializeConversation(section) {
+async function initializeConversation(section, isReplay = false) {
     currentSection = section; // 存储当前章节
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
 
@@ -82,7 +82,7 @@ async function initializeConversation(section) {
             })),
             summary: `${section.title}桥段不需要玩家参与，自动完成。`
         };
-        handleOutcome(section.id, summary, section).then(() => {
+        handleOutcome(section.id, summary, section, isReplay).then(() => {
             // 桥段结束后禁用输入框和提交按钮
             document.getElementById('userInput').style.display = 'none';
             document.getElementById('submitInputButton').style.display = 'none';
