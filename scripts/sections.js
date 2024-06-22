@@ -145,10 +145,15 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
             });
         }
 
-        const resultText = `
+        const resultText = isReplay ? `
+            <p>桥段目标完成</p>
+            <p>原本应造成后续影响数量：${changedInfluencePoints}</p>
+            <p>但此次为重玩，不会改变影响</p>
+        ` : `
             <p>桥段目标达成</p>
-            <p>影响点改变数：${changedInfluencePoints}</p>
+            <p>造成后续影响数量：${changedInfluencePoints}</p>
         `;
+
         document.getElementById('storyContent').innerHTML += resultText;
 
         document.getElementById('userInput').style.display = 'none';
@@ -164,7 +169,7 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         // 当目标未达成时显示重新开始按钮
         const resultText = `
             <p>桥段目标未达成</p>
-            <p>影响点改变数：${changedInfluencePoints}</p>
+            <p>造成后续影响数量：${changedInfluencePoints}</p>
             <p>因未达成目标，影响未产生</p>
         `;
         document.getElementById('storyContent').innerHTML += resultText;
