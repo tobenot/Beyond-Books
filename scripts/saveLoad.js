@@ -24,7 +24,6 @@ function newGame() {
     startGame();
 }
 
-// 继续游戏
 function continueGame() {
     const save = loadSave(); // 从本地存储中读取存档数据
     if (save) {

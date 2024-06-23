@@ -31,6 +31,7 @@ function loadSectionsIndex() {
                 console.error('加载章节索引时出错：无效的章节数据');
             }
             setupSections();
+            checkUnlockConditions(); // 检查桥段解锁情况
         })
         .catch(error => console.error('加载或解密章节索引时出错:', error));
 }
@@ -134,9 +135,6 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
     });
 
     if (objective) {
-        // 桥段目标达成也算影响点
-        changedInfluencePoints += 1;
-        
         // 只有在非重玩模式下更新游戏状态
         if (!isReplay) {
             updateGameState(sectionId, {

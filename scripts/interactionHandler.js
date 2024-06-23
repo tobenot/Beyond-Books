@@ -38,6 +38,8 @@ async function initializeConversation(section, isReplay = false) {
         主角桥段目标：${section.objective}
         桥段人物和剧本：
         ${otherCharactersDescriptions}
+        特别提示：
+        ${section.GMDetails}
         本桥段产生后续影响的点：
         ${influencePointsText}
         你需要生成非主角角色的反应和发生的事情，直到主角的决策点，到主角说话或决策的部分，你需要询问玩家，并等玩家做出决策再描绘。
@@ -60,7 +62,6 @@ async function initializeConversation(section, isReplay = false) {
 
     const firstAssistantMessage = `
             ${section.startEvent}
-            ${section.autoComplete ? '': "你要怎么做？"}
         `
     conversationHistory.push({
         role: "assistant",

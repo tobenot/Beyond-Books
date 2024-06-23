@@ -51,6 +51,16 @@ while ($true) {
         Write-Host "HTTP server stopped."
         break
     } elseif ($input -eq 'r') {
+        Write-Host "Executing encrypt_files.ps1 script..."
+        try {
+            # 执行加密文件的脚本
+            .\dev-tool\encrypt_files.ps1
+            Write-Host "Script executed successfully."
+        } catch {
+            Write-Host "Failed to execute script."
+            continue
+        }
+        
         Write-Host "Restarting HTTP server..."
         Stop-Job -Id $job.Id
         Remove-Job -Id $job.Id
