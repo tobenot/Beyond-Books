@@ -63,13 +63,14 @@ h2 {
     transform: translateY(-3px);
 }
 
-/* 图片 */
 .image-container img {
     width: 100%;
     height: auto;
-    max-height: 200px; /* 优化图片高度以适应手机屏幕 */
+    max-height: 512px;
+    max-width: 512px;
     border-radius: 5px;
     margin-bottom: 10px;
+    object-fit: cover;
 }
 
 /* 文本容器 */
@@ -81,7 +82,7 @@ h2 {
     border: 1px solid #E6E6E6;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
     border-radius: 5px;
-    max-height: 900px; /* 固定最大高度 */
+    max-height: 600px; /* 固定最大高度 */
     min-height: 450px; /* 固定最小高度 */
 }
 
@@ -120,7 +121,8 @@ h2 {
 }
 
 #sections .section img {
-    max-height: 150px; /* 优化章节缩略图的最大高度 */
+    max-height: 256px;
+    max-width: 256px;
 }
 
 /* 加载动画 */
@@ -158,7 +160,8 @@ h2 {
     }
 
     .image-container img {
-        max-height: 150px;
+        max-height: 512px;
+        max-width: 512px;
     }
 
     .text-container {

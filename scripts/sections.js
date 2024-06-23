@@ -105,19 +105,20 @@ function displaySection(section, isReplay = false) {
 
     const storyContent = `
         <h2>${section.title}</h2>
+        <div class="image-container">
+            <img src="${section.image}" alt="${section.title}">
+        </div>
         <p><b>目标：${section.objective}</b></p>
         <p>${section.backgroundInfo}</p>
     `;
-
+    
     document.getElementById('storyContent').innerHTML = storyContent;
-    document.getElementById('sectionImage').src = section.image;
 
     document.querySelector('.controls').style.display = 'flex';
     document.getElementById('story').style.display = 'flex';
     
-    // 将 `isReplay` 参数传递给 `initializeConversation`
     initializeConversation(section, isReplay);
-    currentSection = section; // 设定当前章节为 global 变量
+    currentSection = section;
 }
 
 async function handleOutcome(sectionId, summary, section, isReplay = false) {

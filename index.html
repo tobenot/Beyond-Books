@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel="stylesheet" href="styles.css?v=${new Date().getTime()}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const timestamp = new Date().getTime();
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = `styles.css?v=${timestamp}`;
+            document.head.appendChild(link);
+        });
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
         #sections, #story, #settings {
@@ -27,9 +35,6 @@
     <div class="container" id="sections"></div>
 
     <div class="container" id="story">
-        <div class="image-container">
-            <img id="sectionImage" src="" alt="章节图片">
-        </div>
         <div class="text-container" id="storyContent"></div>
         <div class="controls">
             <input type="text" id="userInput" placeholder="你要怎么做？" />
