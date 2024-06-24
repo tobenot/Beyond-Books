@@ -124,6 +124,8 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
     });
 
     if (objective) {
+        changedInfluencePoints += 1;
+        
         // 只有在非重玩模式下更新游戏状态
         if (!isReplay) {
             updateGameState(sectionId, {
