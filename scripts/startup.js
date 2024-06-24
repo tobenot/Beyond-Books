@@ -1,5 +1,5 @@
 // pyodideLoader
-(async function loadPyodideAndPackages() {
+/*(async function loadPyodideAndPackages() {
     try {
         window.pyodide = await loadPyodide({
             indexURL: "https://cdn.jsdelivr.net/pyodide/v0.18.1/full/"
@@ -9,7 +9,8 @@
     } catch (error) {
         console.error("Failed to load Pyodide:", error);
     }
-})();
+})();*/
+
 // scriptLoader
 async function loadScript(url) {
     return new Promise((resolve, reject) => {
@@ -35,25 +36,33 @@ async function initializeApp() {
             'scripts/saveLoad.js',
             'scripts/interactionHandler.js',
             'scripts/ui.js',
-            'scripts/settings.js'
+            'scripts/settings.js',
+            'scripts/termsHandler.js'
         ];
 
         for (const script of scripts) {
             await loadScript(script);
         }
-
-        // 初始化UI和游戏设置
+        // 'scripts/ui.js',
         initializeUI();
+        // 'scripts/sections.js',
+        initializeGameState(loadSave()); // 加载存档中的游戏状态
+        loadSectionsIndex(); // 加载章节索引
+        // 'scripts/saveLoad.js',
+        // 'scripts/interactionHandler.js',     
+        // 'scripts/settings.js',
+        loadSettings();
+        // 'scripts/termsHandler.js'
+        loadColorsConfig();
+        loadTermsConfig();
+        // 'scripts/loadLanguage.js'
+        loadLanguageFile('zh-CN');
+
     } catch (error) {
         console.error("Error loading scripts: ", error);
     }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeApp().catch(err => {
-        console.error("Error initializing app: ", err);
-    });
-
+    console.log('startup.js initializeApp finished');
     // 禁止默认的触摸滚动行为
     document.addEventListener('touchmove', function (event) {
         // 获取触发事件的元素
@@ -67,8 +76,4 @@ document.addEventListener('DOMContentLoaded', () => {
         // 对于其他元素，依然禁止滚动
         event.preventDefault();
     }, { passive: false });
-});
-
-eventListeners.js
-document.getElementById("submitInputButton").addEventListener("click", submitUserInput);
-document.getElementById("settingsButton").innerText = "设置";
+}

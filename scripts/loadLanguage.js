@@ -42,15 +42,3 @@ function updateUIWithLanguage(data) {
         freeChoiceInput.setAttribute('placeholder', data.inputPlaceholder);
     }
 }
-
-// 这个不会触发，可能是加载方式不对
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('loadLanguage.js DOM fully loaded and parsed');
-    loadLanguageFile('zh-CN');
-});
-
-// onload能触发，不过触发的很晚
-window.onload = function() {
-    console.log('loadLanguage.js Window loaded');
-    loadLanguageFile('zh-CN');
-};

@@ -102,18 +102,6 @@ function chooseSection(fileName, isReplay = false) {
 
 function displaySection(section, isReplay = false) {
     document.getElementById('sections').style.display = 'none';
-
-    const storyContent = `
-        <h2>${section.title}</h2>
-        <div class="image-container">
-            <img src="${section.image}" alt="${section.title}">
-        </div>
-        <p><b>目标：${section.objective}</b></p>
-        <p>${section.backgroundInfo}</p>
-    `;
-    
-    document.getElementById('storyContent').innerHTML = storyContent;
-
     document.querySelector('.controls').style.display = 'flex';
     document.getElementById('story').style.display = 'flex';
     

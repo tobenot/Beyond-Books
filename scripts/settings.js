@@ -30,6 +30,7 @@ function saveSettings() {
 }
 
 function loadSettings() {
+    console.log('loadSettings');
     const savedSettings = JSON.parse(localStorage.getItem('settings'));
     const isFreeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_FLAG) === 'true';
     const freeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_STORAGE);
@@ -108,6 +109,3 @@ function hideSettings() {
     document.getElementById('settings').style.display = 'none';
     document.getElementById('menu').style.display = 'flex';
 }
-
-/* 游戏初始化时加载设置 */
-document.addEventListener('DOMContentLoaded', loadSettings);
