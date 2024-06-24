@@ -276,14 +276,14 @@ function updateDisplay(role, messageContent) {
     const storyContentDiv = document.getElementById('storyContent');
     const messageElement = document.createElement('p');
 
-    // 要对messageContent进行高亮显示
-    const highlightedContent = highlightSpecialTerms(messageContent);
-
     if (role === 'user') {
-        messageElement.innerHTML = `<i>${highlightedContent}</i>`;
+        // 玩家打的字不高亮
+        messageElement.innerHTML = `<i>${messageContent}</i>`;
     } else if (role === 'assistant') {
+        const highlightedContent = highlightSpecialTerms(messageContent);
         messageElement.innerHTML = highlightedContent;
     } else if (role === 'info') {
+        const highlightedContent = highlightSpecialTerms(messageContent);
         messageElement.innerHTML = highlightedContent;
     }
 

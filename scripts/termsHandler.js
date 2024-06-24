@@ -28,12 +28,30 @@ function highlightSpecialTerms(text) {
     const terms = termsConfig.terms;
     const colors = colorsConfig.colors;
 
+    // 用于存储所有需要替换的名词及其位置
+    const replacements = [];
+
+    // 遍历所有名词，记录其位置
     Object.keys(terms).forEach(term => {
         const color = colors[terms[term].color] || terms[term].color; // 从色盘中获取颜色，如果找不到则使用原始颜色名
         const regex = new RegExp(term, 'g');
-        
-        // 修改高亮词的 HTML 结构，增加 click 事件处理函数
-        text = text.replace(regex, `<span class="special-term" style="font-weight: bold; color: ${color};" data-description="${terms[term].description}">${term}</span>`);
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            replacements.push({
+                term: term,
+                start: match.index,
+                end: match.index + term.length,
+                color: color
+            });
+        }
+    });
+
+    // 按照位置从后向前进行替换，避免干扰
+    replacements.sort((a, b) => b.start - a.start);
+    replacements.forEach(replacement => {
+        text = text.slice(0, replacement.start) + 
+            `<span class="special-term" style="font-weight: bold; color: ${replacement.color};" data-term="${replacement.term}">${replacement.term}</span>` + 
+            text.slice(replacement.end);
     });
 
     return text;
@@ -46,16 +64,6 @@ function showTermDescription(event, description) {
     // 高亮浮框内的文字
     const highlightedDescription = highlightSpecialTerms(description);
     termTooltip.innerHTML = `<span>${highlightedDescription}</span>`;
-    
-    // 设置浮框样式
-    termTooltip.style.position = 'absolute';
-    termTooltip.style.zIndex = '9999'; // 确保浮框在最上层
-    termTooltip.style.padding = '10px';
-    termTooltip.style.backgroundColor = '#fff';
-    termTooltip.style.border = '1px solid #ccc';
-    termTooltip.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
-    termTooltip.style.maxWidth = '200px'; // 限制最大宽度
-    termTooltip.style.wordWrap = 'break-word'; // 自动换行
     
     // 计算浮框的位置
     let top = event.clientY + 10;
@@ -93,13 +101,13 @@ function showTermDescription(event, description) {
 // 初始化解释框元素并添加到文档中
 const termTooltip = document.createElement('div');
 termTooltip.id = 'term-tooltip';
-termTooltip.style.display = 'none';
 document.body.appendChild(termTooltip);
 
 // 监听特殊词汇的点击事件
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('special-term')) {
-        const description = event.target.getAttribute('data-description');
+        const term = event.target.getAttribute('data-term');
+        const description = termsConfig.terms[term].description;
         showTermDescription(event, description);
     }
 });

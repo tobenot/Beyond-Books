@@ -139,16 +139,32 @@ h2 {
 }
 
 .special-term {
+    font-weight: bold;
     text-shadow: 
-        -1px -1px 0 #000,  
-         1px -1px 0 #000,
-        -1px  1px 0 #000,
-         1px  1px 0 #000; /* 设置文字的描边效果，可以根据需要调整偏移量和颜色 */
+        -1px -1px 2px #000,  
+         1px -1px 2px #000,
+        -1px  1px 2px #000,
+         1px  1px 2px #000; /* 减少偏移量并添加模糊效果，使描边既柔和又不过于粗重 */
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 /* 添加对hover的支持，便于观察 */
 .special-term:hover {
     background-color: #f0f0f0; /* 背景颜色变化 */
+}
+
+/* styles.css */
+#term-tooltip {
+    display: none;
+    position: absolute;
+    z-index: 9999;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 200px;
+    word-wrap: break-word;
 }
 
 /* 添加媒体查询 */
