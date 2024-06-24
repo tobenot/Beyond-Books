@@ -69,7 +69,8 @@ async function initializeConversation(section, isReplay = false) {
         <p><b>目标：${section.objective}</b></p>
         <p>${section.backgroundInfo}</p>
     `;
-    document.getElementById('storyContent').innerHTML = storyContent;
+
+    updateDisplay('info', storyContent);
 
     // 生成玩家角色信息
     const playerInfo = `
@@ -275,16 +276,19 @@ function updateDisplay(role, messageContent) {
     const storyContentDiv = document.getElementById('storyContent');
     const messageElement = document.createElement('p');
 
+    // 要对messageContent进行高亮显示
+    const highlightedContent = highlightSpecialTerms(messageContent);
+
     if (role === 'user') {
-        messageElement.innerHTML = `<i>${messageContent}</i>`;
+        messageElement.innerHTML = `<i>${highlightedContent}</i>`;
     } else if (role === 'assistant') {
-        messageElement.textContent = messageContent;
+        messageElement.innerHTML = highlightedContent;
     } else if (role === 'info') {
-        messageElement.innerHTML = messageContent;
+        messageElement.innerHTML = highlightedContent;
     }
 
     storyContentDiv.appendChild(messageElement);
-    messageElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+    messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function ensureCorrectApiUrl(apiUrl) {

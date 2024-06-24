@@ -1,7 +1,7 @@
 /* styles.css */
 /* 通用样式 */
 body, html {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
     background-color: #F2F2F2;
     color: #333333;
     margin: 0;
@@ -136,6 +136,19 @@ h2 {
     border-radius: 5px;
     z-index: 1000;
     text-align: center;
+}
+
+.special-term {
+    text-shadow: 
+        -1px -1px 0 #000,  
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000; /* 设置文字的描边效果，可以根据需要调整偏移量和颜色 */
+}
+
+/* 添加对hover的支持，便于观察 */
+.special-term:hover {
+    background-color: #f0f0f0; /* 背景颜色变化 */
 }
 
 /* 添加媒体查询 */
