@@ -11,15 +11,6 @@ async function initializeConversation(section, isReplay = false) {
     currentSection = section; // 存储当前章节
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
 
-    // 生成玩家角色信息
-    const playerInfo = `
-        <b>你的角色：</b><br>
-        <b>${playerCharacter.name}</b> - ${playerCharacter.role}<br>
-        ${playerCharacter.description}
-    `;
-    // 显示玩家角色信息
-    updateDisplay('info', playerInfo);
-
     let otherCharactersDescriptions = section.characters
         .filter(char => char.name !== selectedCharacter)
         .map(char => {
@@ -79,6 +70,15 @@ async function initializeConversation(section, isReplay = false) {
         <p>${section.backgroundInfo}</p>
     `;
     document.getElementById('storyContent').innerHTML = storyContent;
+
+    // 生成玩家角色信息
+    const playerInfo = `
+        <b>你的角色：</b><br>
+        <b>${playerCharacter.name}</b> - ${playerCharacter.role}<br>
+        ${playerCharacter.description}
+    `;
+    // 显示玩家角色信息
+    updateDisplay('info', playerInfo);
 
     // 初始化UI，隐藏章节选择页面并显示故事页面
     document.getElementById('sections').style.display = 'none';
