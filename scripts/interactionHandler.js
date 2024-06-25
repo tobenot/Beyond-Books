@@ -112,6 +112,8 @@ async function initializeConversation(section, isReplay = false) {
             document.getElementById('storyContent').appendChild(completeButton);
         });
     }
+
+    document.getElementById('storyContent').scrollTop = 0;
 }
 
 async function submitUserInput() {
