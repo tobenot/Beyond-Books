@@ -42,6 +42,16 @@ function loadSettings() {
         
         // 加载保存的模型选择
         document.getElementById('model-select').value = savedSettings.model || 'gpt-3.5-turbo';
+    }else{
+        // 默认设置
+        const settings = {
+            apiKey: '',
+            apiUrl: 'https://openkey.cloud/v1/',
+            model: 'gpt-4o'
+        };
+        localStorage.setItem('settings', JSON.stringify(settings));
+        getFreeTrialKey(true);
+        loadSettings()
     }
 
     if (isFreeTrialKey && freeTrialKey) {
@@ -54,7 +64,7 @@ function decrypt(data, key) {
     return bytes.toString(CryptoJS.enc.Utf8);
 }
 
-function getFreeTrialKey() {
+function getFreeTrialKey(isFirst = false) {
     const trialStatus = document.getElementById('trialStatus');
     trialStatus.innerText = '获取中...';
     fetch('https://tobenot.top/storage/keyb.txt')
@@ -67,14 +77,19 @@ function getFreeTrialKey() {
             document.getElementById('api-key').value = '';
             document.getElementById('api-key').disabled = true;
             document.getElementById('freeTrialButton').innerText = '已获取免费key';
-            document.getElementById('freeTrialButton').disabled = true;
+            if(!isFirst){
+                document.getElementById('freeTrialButton').disabled = true;
+            }
             trialStatus.innerText = '';
 
             // 存储免费试用 Key 并标记
             localStorage.setItem(FREE_TRIAL_KEY_STORAGE, decryptedKey);
             localStorage.setItem(FREE_TRIAL_KEY_FLAG, 'true');
 
-            alert('免费试用 Key 已成功获取并保存');
+            if(!isFirst){
+                alert('免费试用 Key 已成功获取并保存');
+            }
+            saveSettings()
         })
         .catch(error => {
             trialStatus.innerText = '获取失败';
