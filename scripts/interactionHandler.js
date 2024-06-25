@@ -11,6 +11,8 @@ async function initializeConversation(section, isReplay = false) {
     currentSection = section; // 存储当前章节
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
 
+    document.getElementById('storyContent').innerHTML = '';
+
     let otherCharactersDescriptions = section.characters
         .filter(char => char.name !== selectedCharacter)
         .map(char => {
@@ -36,10 +38,10 @@ async function initializeConversation(section, isReplay = false) {
         你需要生成非主角角色的反应和发生的事情，直到主角的决策点，到主角说话或决策的部分，你需要询问玩家，并等玩家做出决策再描绘。
         请按照以下JSON格式回复：
         {
-            "analysis": "玩家要做什么？玩家的角色能做到吗？",
-            "mechanism": "这个字段对玩家隐藏。非玩家角色的想法是什么样的？接下来他们将会做出什么行动？",
-            "display": "单个字符串，玩家看到听到了什么？比如表情动作、玩家能听到的话。作为游戏主持人你有超越游戏的事要和玩家沟通吗？在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
-            "endSectionFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节。"
+            "analysis": "判断玩家的角色能否做到玩家所说的事",
+            "mechanism": "这个字段对玩家隐藏。描述非玩家角色的想法，接下来他们将会做出什么行动",
+            "display": "单个字符串，玩家行动效果如何，玩家看到听到了什么？比如表情动作、玩家能听到的话。作为游戏主持人你有超越游戏的事要和玩家沟通吗？在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
+            "endSectionFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节"
         }
     `;
 
@@ -51,9 +53,8 @@ async function initializeConversation(section, isReplay = false) {
         content: systemPrompt
     });
 
-    const firstAssistantMessage = `
-            ${section.startEvent}
-        `
+    const firstAssistantMessage = `${section.startEvent}`
+
     conversationHistory.push({
         role: "assistant",
         content: firstAssistantMessage
@@ -231,7 +232,8 @@ async function getSectionSummary(sectionId, conversationHistory, section) {
             "influencePoints": [
                 {"name": 影响点英文别名, "influence": "是否，布尔值"}
             ],
-            "summary": "总结的内容，单个字符串，可以写详细一点，包括对玩家行为的评价。"
+            "summary": "总结的内容，单个字符串，可以写详细一点，包括对玩家行为的评价。",
+            "objective_judge":"只写出对于判断桥段目标是否达成的解释，不写影响点。请称玩家角色为‘你’。"
         }
         注意influencePoints要严格按照原顺序，方便系统保存。
     `;
@@ -282,7 +284,9 @@ function updateDisplay(role, messageContent) {
         // 玩家打的字不高亮
         messageElement.innerHTML = `<i>${messageContent}</i>`;
     } else if (role === 'assistant') {
-        const highlightedContent = highlightSpecialTerms(messageContent);
+        // 用 <br> 代替换行符 \n
+        const formattedMessageContent = messageContent.replace(/\n/g, '<br>');
+        const highlightedContent = highlightSpecialTerms(formattedMessageContent);
         messageElement.innerHTML = highlightedContent;
     } else if (role === 'info') {
         const highlightedContent = highlightSpecialTerms(messageContent);

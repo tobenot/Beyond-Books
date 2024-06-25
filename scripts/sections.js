@@ -110,7 +110,7 @@ function displaySection(section, isReplay = false) {
 }
 
 async function handleOutcome(sectionId, summary, section, isReplay = false) {
-    const { objective, influencePoints } = summary;
+    const { objective, influencePoints, objective_judge } = summary;
 
     // 获取默认的影响点
     const defaultInfluencePoints = section.influencePoints.map(point => point.default);
@@ -135,10 +135,12 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         }
 
         const resultText = isReplay ? `
+            <p>${objective_judge}</p>
             <p>桥段目标完成</p>
             <p>原本应造成后续影响数量：${changedInfluencePoints}</p>
             <p>但此次为重玩，不会改变影响</p>
         ` : `
+            <p>${objective_judge}</p>
             <p>桥段目标达成</p>
             <p>造成后续影响数量：${changedInfluencePoints}</p>
         `;
@@ -157,6 +159,7 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
     } else {
         // 当目标未达成时显示重新开始按钮
         const resultText = `
+            <p>${objective_judge}</p>
             <p>桥段目标未达成</p>
             <p>造成后续影响数量：${changedInfluencePoints}</p>
             <p>因未达成目标，影响未产生</p>
