@@ -45,7 +45,7 @@ async function initializeConversation(section, isReplay = false) {
         }
     `;
 
-    conversationHistory = []
+    conversationHistory = [];
 
     // 初始化对话历史记录
     conversationHistory.push({
@@ -53,7 +53,7 @@ async function initializeConversation(section, isReplay = false) {
         content: systemPrompt
     });
 
-    const firstAssistantMessage = `${section.startEvent}`
+    const firstAssistantMessage = `${section.startEvent}`;
 
     conversationHistory.push({
         role: "assistant",
@@ -72,6 +72,11 @@ async function initializeConversation(section, isReplay = false) {
     `;
 
     updateDisplay('info', storyContent);
+
+    // 检查并添加音乐播放器
+    if (section.musicUrl) {
+        addMusicPlayer(section.musicUrl);
+    }
 
     // 生成玩家角色信息
     const playerInfo = `

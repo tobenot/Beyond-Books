@@ -38,6 +38,7 @@ async function initializeApp() {
             'scripts/ui.js',
             'scripts/settings.js',
             'scripts/termsHandler.js'
+            ,'scripts/multimediaHandler.js'
         ];
 
         for (const script of scripts) {
@@ -55,6 +56,7 @@ async function initializeApp() {
         // 'scripts/termsHandler.js'
         loadColorsConfig();
         loadTermsConfig();
+        // 'scripts/multimediaHandler.js'
         // 'scripts/loadLanguage.js'
         loadLanguageFile('zh-CN');
 
