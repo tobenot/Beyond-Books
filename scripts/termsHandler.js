@@ -73,13 +73,17 @@ function showTermDescription(event, description) {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
+    // 设置浮框的最小宽度
+    termTooltip.style.minWidth = '150px';  // 可以根据需要调整
+    
     // 浮框的宽度和高度
     const tooltipWidth = termTooltip.offsetWidth;
     const tooltipHeight = termTooltip.offsetHeight;
     
     // 调整浮框的位置，确保不会超出视窗边界
     if (left + tooltipWidth > viewportWidth) {
-        left = viewportWidth - tooltipWidth - 10;
+        // 设置一个最大左边界，确保浮框不会太窄
+        left = Math.max(10, viewportWidth - tooltipWidth - 10);
     }
     if (top + tooltipHeight > viewportHeight) {
         top = viewportHeight - tooltipHeight - 10;
