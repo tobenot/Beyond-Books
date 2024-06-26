@@ -35,7 +35,13 @@
         "辛尼亚": "#FF00FF",
         "图尔斯": "#BBBBBB",
         "苍穹缝隙": "#00FFFF",
-        "芯铁消逝": "#BBBBBB"
+        "芯铁消逝": "#BBBBBB",
+        "内能构建": "#FF4500",
+        "衔羽展翼": "#FFD700",
+        "冰雪风暴": "#ADD8E6",
+        "斯图尔特": "#FF4500",
+        "克莱门特": "#FFD700",
+        "琼": "#ADD8E6"
     },
     "comment:":"https://www.sojson.com/web/panel.html"
 }
