@@ -111,6 +111,11 @@ h2 {
 }
 
 /* 章节选择 */
+#sections {
+    overflow-y: auto; /* 使章节选择区域可滚动 */
+    max-height: 90%;
+}
+
 #sections h2 {
     font-size: 20px;
     margin-bottom: 10px;
