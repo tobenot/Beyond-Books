@@ -154,7 +154,7 @@ h2 {
     background-color: #f0f0f0; /* 背景颜色变化 */
 }
 
-/* styles.css */
+/* 术语解释 */
 #term-tooltip {
     display: none;
     position: absolute;
@@ -165,6 +165,66 @@ h2 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     max-width: 200px;
     word-wrap: break-word;
+}
+
+/* 桥段回顾 */
+#reviewContainer, 
+#reviewDetailContainer {
+    display: none; /* 默认隐藏 */
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto; /* 使容器可以上下滚动 */
+    max-height: 90vh; /* 限制最大高度，避免溢出 */
+}
+
+#reviewContainer h2, 
+#reviewDetailContainer h2 {
+    margin-bottom: 20px;
+}
+
+#reviewContainer ul {
+    list-style-type: none;
+    padding: 0;
+    overflow-y: auto;
+    max-height: 90vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#reviewContainer li {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #FBFBFB;
+    border: 1px solid #E6E6E6;
+    border-radius: 5px;
+    width: 90%;
+}
+
+#reviewContainer li span {
+    flex-grow: 2;
+    text-align: center;
+}
+
+#reviewContainer li .button {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+#reviewDetailContainer pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%; /* 使预览内容充满容器 */
+    max-width: 600px;
+    overflow: auto;
 }
 
 /* 添加媒体查询 */

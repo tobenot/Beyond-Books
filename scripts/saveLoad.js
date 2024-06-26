@@ -38,10 +38,14 @@ function continueGame() {
 
 // 导出存档
 function exportSave() {
-    const data = JSON.stringify(loadSave());
-    const encryptedData = CryptoJS.AES.encrypt(data, EXPORT_SECRET_KEY).toString();
-    
-    const blob = new Blob([encryptedData], { type: 'text/plain;charset=utf-8' });
+    const gameData = JSON.stringify(loadSave());
+    const reviewData = JSON.stringify(loadReviews());
+    const combinedData = JSON.stringify({
+        gameData: CryptoJS.AES.encrypt(gameData, EXPORT_SECRET_KEY).toString(),
+        reviewData: CryptoJS.AES.encrypt(reviewData, EXPORT_SECRET_KEY).toString()
+    });
+
+    const blob = new Blob([combinedData], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
@@ -56,20 +60,23 @@ function exportSave() {
 function importSave(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
-    reader.onload = function(e) {
-        const encryptedData = e.target.result;
-        let decryptedData;
+    reader.onload = function (e) {
+        const combinedData = e.target.result;
+        let decryptedGameData, decryptedReviewData;
         
         try {
-            const bytes = CryptoJS.AES.decrypt(encryptedData, EXPORT_SECRET_KEY);
-            decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            const data = JSON.parse(combinedData);
+            decryptedGameData = JSON.parse(CryptoJS.AES.decrypt(data.gameData, EXPORT_SECRET_KEY).toString(CryptoJS.enc.Utf8));
+            decryptedReviewData = JSON.parse(CryptoJS.AES.decrypt(data.reviewData, EXPORT_SECRET_KEY).toString(CryptoJS.enc.Utf8));
         } catch (error) {
-            console.error('Error decrypting save data:', error);
+            console.error('解密存档数据时出错:', error);
             alert('导入失败，密钥不匹配或数据损坏');
             return;
         }
-        
-        localStorage.setItem(SAVE_KEY, JSON.stringify(decryptedData));
+
+        localStorage.setItem(SAVE_KEY, JSON.stringify(decryptedGameData));
+        localStorage.setItem(REVIEW_KEY, JSON.stringify(decryptedReviewData));
+
         initializeGameState();
         alert('存档已成功导入');
     };

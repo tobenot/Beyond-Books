@@ -39,6 +39,7 @@ async function initializeApp() {
             'scripts/settings.js',
             'scripts/termsHandler.js'
             ,'scripts/multimediaHandler.js'
+            ,'scripts/reviewHandler.js'
         ];
 
         for (const script of scripts) {

@@ -147,6 +147,9 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
 
         document.getElementById('storyContent').innerHTML += resultText;
 
+        // 保存HTML内容和完整记录
+        const storyHtmlContent = document.getElementById('storyContent').innerHTML;
+
         document.getElementById('userInput').style.display = 'none';
         document.getElementById('submitInputButton').style.display = 'none';
         document.getElementById('userInput').disabled = true;
@@ -156,6 +159,9 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         completeButton.innerText = '返回桥段选择';
         completeButton.onclick = () => returnToSectionSelection();
         document.getElementById('storyContent').appendChild(completeButton);
+
+        // 存储桥段回顾记录
+        await storeSectionReview(sectionId, conversationHistory, storyHtmlContent);
     } else {
         // 当目标未达成时显示重新开始按钮
         const resultText = `
@@ -166,6 +172,9 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         `;
         document.getElementById('storyContent').innerHTML += resultText;
 
+        // 保存HTML内容和完整记录
+        const storyHtmlContent = document.getElementById('storyContent').innerHTML;
+
         document.getElementById('userInput').style.display = 'none';
         document.getElementById('submitInputButton').style.display = 'none';
         document.getElementById('userInput').disabled = true;
@@ -175,6 +184,9 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         retryButton.innerText = '重新开始桥段';
         retryButton.onclick = () => restartSection(sectionId);
         document.getElementById('storyContent').appendChild(retryButton);
+
+        // 存储桥段回顾记录
+        await storeSectionReview(sectionId, conversationHistory, storyHtmlContent);
     }
 }
 

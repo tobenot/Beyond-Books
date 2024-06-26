@@ -40,6 +40,7 @@
         <button class="button" id="exportSaveButton" onclick="exportSave()"></button>
         <button class="button" id="importSaveButton" onclick="document.getElementById('fileInput').click()"></button>
         <button class="button" id="settingsButton" onclick="showSettings()"></button>
+        <button class="button" id="reviewButton" onclick="showReviewRecords()">回顾记录</button>
         <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
     </div>
     
@@ -48,7 +49,7 @@
     <div class="container" id="story">
         <div class="text-container" id="storyContent"></div>
         <div class="controls">
-            <input type="text" id="userInput" placeholder="你要怎么做？" />
+            <input type="text" maxlength="150" id="userInput" placeholder="你要怎么做？" />
             <button class="button" id="submitInputButton" onclick="submitUserInput()">开始</button>
         </div>
         <div id="loading" class="loading" style="display: none;">万物运行...</div>
@@ -57,9 +58,9 @@
     <div class="container" id="settings" style="display: none;">
         <h2>设置</h2>
         <label for="api-key">API Key</label>
-        <input type="password" id="api-key" placeholder="输入你的API Key">
+        <input type="password" maxlength="50" id="api-key" placeholder="输入你的API Key">
         <label for="api-url">API URL</label>
-        <input type="text" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
+        <input type="text" maxlength="100" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
         <!-- 新增模型选择 -->
         <label for="model-select">选择模型</label>
         <select id="model-select">
@@ -73,5 +74,8 @@
         <p id="trialStatus"></p>
         <p id="downloadStatus"></p>
     </div>
+
+    <div class="container" id="reviewContainer" style="display: none;"></div>
+    <div class="container" id="reviewDetailContainer" style="display: none;"></div>
 </body>
 </html>

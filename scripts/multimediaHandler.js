@@ -20,5 +20,5 @@ function addMusicPlayer(sourceUrl) {
 }
 
 // 调用示例
-//addMusicPlayer("//player.bilibili.com/player.html?isOutside=true&aid=515189599&bvid=BV1Gg411S78v&cid=823617666&p=1");
-//addMusicPlayer("//music.163.com/outchain/player?type=2&id=2097545136&auto=0&height=66");
+//addMusicPlayer("https://player.bilibili.com/player.html?isOutside=true&aid=515189599&bvid=BV1Gg411S78v&cid=823617666&p=1");
+//addMusicPlayer("https://music.163.com/outchain/player?type=2&id=2097545136&auto=0&height=66");
