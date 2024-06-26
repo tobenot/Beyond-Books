@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+    <link rel="shortcut icon" href="assets/BeyondBooksIcon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
         #sections, #story, #settings {
             display: none;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #ccc;
         }
     </style>
     <script>
@@ -35,6 +42,7 @@
     <div class="container" id="menu">
         <h1 id="mainTitle"></h1>
         <h2 id="subTitle"></h2>
+        <p id="gameDescription">大语言模型驱动的文字互动小说</p>
         <button class="button" id="newGameButton" onclick="newGame()"></button>
         <button class="button" id="continueGameButton" onclick="continueGame()"></button>
         <button class="button" id="exportSaveButton" onclick="exportSave()"></button>
@@ -42,6 +50,10 @@
         <button class="button" id="settingsButton" onclick="showSettings()"></button>
         <button class="button" id="reviewButton" onclick="showReviewRecords()">回顾记录</button>
         <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
+        <div class="footer">
+            <p>游戏社区QQ群：<a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">731682071</a> (目前1人)</p>
+            <p><a href="https://space.bilibili.com/23122362" target="_blank">B站地址</a> 欢迎私信留言~</p>
+        </div>
     </div>
     
     <div class="container" id="sections"></div>
