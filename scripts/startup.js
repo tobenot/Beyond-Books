@@ -51,6 +51,7 @@ async function initializeApp() {
         initializeGameState(loadSave()); // 加载存档中的游戏状态
         loadSectionsIndex(); // 加载章节索引
         // 'scripts/saveLoad.js',
+        checkSaveStatus();
         // 'scripts/interactionHandler.js',     
         // 'scripts/settings.js',
         loadSettings();

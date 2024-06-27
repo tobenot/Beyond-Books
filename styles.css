@@ -110,6 +110,35 @@ h2 {
     padding: 10px 20px; /* 调整按钮内填充 */
 }
 
+.menu-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 80%;
+    padding: 10px 20px;
+}
+
+.control-pair {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+}
+
+.settings-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 10px auto;  /* 中间对齐 */
+    color: #333333;
+    background-color: #FFFFFF;
+}
+
 /* 章节选择 */
 #sections {
     overflow-y: auto; /* 使章节选择区域可滚动 */

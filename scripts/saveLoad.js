@@ -82,3 +82,16 @@ function importSave(event) {
     };
     reader.readAsText(file);
 }
+
+function checkSaveStatus() {
+    const hasSave = loadSave() !== null;
+    document.getElementById('gameProgressButtons').style.display = hasSave ? 'flex' : 'none';
+    document.getElementById('newGameButton').style.display = hasSave ? 'none' : 'block';
+    document.getElementById('deleteSaveButton').style.display = hasSave ? 'block' : 'none';
+    document.getElementById('exportSaveButton').style.display = hasSave ? 'block' : 'none';
+}
+
+function deleteSave() {
+    clearSave(); // 移除存档
+    location.reload(); // 刷新页面
+}

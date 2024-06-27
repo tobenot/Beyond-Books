@@ -1,7 +1,6 @@
 // scripts/ui.js
 
 function initializeUI() {
-    document.getElementById('settingsButton').innerText = "设置";
     console.log('initializeUI');
     setupInitialView();
 }

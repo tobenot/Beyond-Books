@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel="shortcut icon" href="assets/BeyondBooksIcon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/icon/BeyondBooksIcon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
         #sections, #story, #settings {
@@ -43,12 +43,32 @@
         <h1 id="mainTitle"></h1>
         <h2 id="subTitle"></h2>
         <p id="gameDescription">大语言模型驱动的文字互动小说</p>
-        <button class="button" id="newGameButton" onclick="newGame()"></button>
-        <button class="button" id="continueGameButton" onclick="continueGame()"></button>
-        <button class="button" id="exportSaveButton" onclick="exportSave()"></button>
-        <button class="button" id="importSaveButton" onclick="document.getElementById('fileInput').click()"></button>
-        <button class="button" id="settingsButton" onclick="showSettings()"></button>
-        <button class="button" id="reviewButton" onclick="showReviewRecords()">回顾记录</button>
+        <!-- 新增的按钮容器 -->
+        <div class="menu-controls">
+            <!-- 开始新游戏按钮，默认显示 -->
+            <button class="button" id="newGameButton" onclick="newGame()">开始新游戏</button>
+            
+            <!-- 继续游戏和回顾记录按钮 -->
+            <div class="control-pair" id="gameProgressButtons" style="display: none;">
+                <button class="button" id="continueGameButton" onclick="continueGame()">继续游戏</button>
+                <button class="button" id="reviewButton" onclick="showReviewRecords()">回顾记录</button>
+            </div>
+            
+            <!-- 导入和导出存档按钮 -->
+            <div class="control-pair" id="saveControlButtons">
+                <button class="button" id="importSaveButton" onclick="document.getElementById('fileInput').click()">导入存档</button>
+                <button class="button" id="exportSaveButton" onclick="exportSave()">导出存档</button>
+            </div>
+            
+            <!-- 设置按钮，使用小图标 -->
+            <div class="control-pair" id="gameProgressButtons">
+                <button class="button" id="settingsButton" onclick="showSettings()">
+                    <img src="assets/icon/settings-icon.png" alt="" style="vertical-align: middle; margin-right: 5px;"/>设置
+                </button>
+                <button class="button" id="deleteSaveButton" style="display: none;" onclick="deleteSave()">删除存档</button>
+            </div>
+        </div>
+        
         <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
         <div class="footer">
             <p>游戏社区QQ群：<a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">731682071</a> (目前1人)</p>
