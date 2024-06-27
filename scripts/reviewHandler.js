@@ -159,7 +159,7 @@ function exportReviewAsHTML(id) {
             return match;
         } else {
             // 否则，替换为完整路径
-            const imageUrl = "https://tobenot.top/Beyond-Books/" + p1;
+            const imageUrl = "https://tobenot.github.io/Beyond-Books/" + p1;
             return `<img src="${imageUrl}"`;
         }
     });

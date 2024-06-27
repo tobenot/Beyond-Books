@@ -18,7 +18,8 @@
         },
         "罗伯特": {
             "color": "罗伯特",
-            "description": "Robert是银月寺的保安，异能为【苍穹缝隙】。"
+            "description": "Robert是银月寺的保安，异能为【苍穹缝隙】。",
+            "imageUrl": "assets/portrait/罗伯特.png"
         },
         "贝利斯": {
             "color": "贝利斯",

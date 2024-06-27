@@ -87,7 +87,7 @@ function getFreeTrialKey(isFirst = false) {
             localStorage.setItem(FREE_TRIAL_KEY_FLAG, 'true');
 
             if(!isFirst){
-                alert('免费试用 Key 已成功获取并保存');
+                alert('免费试用 Key 已成功获取并保存\n请使用https://openkey.cloud/v1/作为API URL。');
             }
             saveSettings()
         })

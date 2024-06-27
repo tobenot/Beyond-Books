@@ -57,13 +57,16 @@ function highlightSpecialTerms(text) {
     return text;
 }
 
-// 显示特定名词的解释浮框
-function showTermDescription(event, description) {
+function showTermDescription(event, description, imageUrl) {
     const termTooltip = document.getElementById('term-tooltip');
     
     // 高亮浮框内的文字
     const highlightedDescription = highlightSpecialTerms(description);
-    termTooltip.innerHTML = `<span>${highlightedDescription}</span>`;
+
+    // 如果有图片URL，则在文字底部添加图片
+    const imageHtml = imageUrl ? `<img src="${imageUrl}" class="term-tooltip-image" alt="角色立绘">` : '';
+
+    termTooltip.innerHTML = `<span>${highlightedDescription}</span> ${imageHtml}`;
     
     // 计算浮框的位置
     let top = event.clientY + 10;
@@ -75,14 +78,13 @@ function showTermDescription(event, description) {
     
     // 设置浮框的最小宽度
     termTooltip.style.minWidth = '150px';  // 可以根据需要调整
-    
+
     // 浮框的宽度和高度
     const tooltipWidth = termTooltip.offsetWidth;
     const tooltipHeight = termTooltip.offsetHeight;
     
     // 调整浮框的位置，确保不会超出视窗边界
     if (left + tooltipWidth > viewportWidth) {
-        // 设置一个最大左边界，确保浮框不会太窄
         left = Math.max(10, viewportWidth - tooltipWidth - 10);
     }
     if (top + tooltipHeight > viewportHeight) {
@@ -111,7 +113,7 @@ document.body.appendChild(termTooltip);
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('special-term')) {
         const term = event.target.getAttribute('data-term');
-        const description = termsConfig.terms[term].description;
-        showTermDescription(event, description);
+        const { description, imageUrl } = termsConfig.terms[term]; // 获取描述和图片URL
+        showTermDescription(event, description, imageUrl); // 传递描述和图片URL
     }
 });

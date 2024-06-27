@@ -197,8 +197,15 @@ h2 {
     background-color: #fff;
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 200px;
+    max-width: 256px;
     word-wrap: break-word;
+}
+
+.term-tooltip-image {
+    max-width: 256px; /* 根据需求调整宽度 */
+    max-height: 384px; /* 根据需求调整高度 */
+    margin-top: 10px; /* 图片与文字之间的间距 */
+    justify-content: center;
 }
 
 /* 桥段回顾 */
