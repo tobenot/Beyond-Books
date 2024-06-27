@@ -31,7 +31,8 @@
         },
         "田中连": {
             "color": "田中连",
-            "description": "Tolinia是贝利斯集团的新任领导。"
+            "description": "Tolinia是贝利斯集团的新任领导。",
+            "imageUrl": "assets/portrait/田中连.png"
         },
         "艾琳": {
             "color": "艾琳",
@@ -55,19 +56,23 @@
         },
         "珂茵": {
             "color": "珂茵",
-            "description": "Corn是银月寺的保安，具有用光弓射出微弱伤害的光箭并瞬移到光箭位置的异能。"
+            "description": "Corn是银月寺的保安，具有用光弓射出微弱伤害的光箭并瞬移到光箭位置的异能。",
+            "imageUrl": "assets/portrait/珂茵.png"
         },
         "诺顿": {
             "color": "诺顿",
-            "description": "Norton是银月寺的保安，无特殊异能，但也有灵能盾，棍术也很厉害。"
+            "description": "Norton是银月寺的保安，无特殊异能，但也有灵能盾，棍术也很厉害。",
+            "imageUrl": "assets/portrait/诺顿.png"
         },
         "辛妮亚": {
             "color": "辛妮亚",
-            "description": "Xinea是银月寺的新任保安，珂茵的闺蜜，具有使周围不能传播声音的异能。"
+            "description": "Xinea是银月寺的新任保安，珂茵的闺蜜，具有使周围不能传播声音的异能。",
+            "imageUrl": "assets/portrait/辛妮亚.png"
         },
         "图尔斯": {
             "color": "图尔斯",
-            "description": "Tours是贝利斯雇佣兵，罗伯特的初中同学，异能为【芯铁消逝】。"
+            "description": "Tours是贝利斯雇佣兵，罗伯特的初中同学，异能为【芯铁消逝】。",
+            "imageUrl": "assets/portrait/图尔斯.png"
         },
         "【苍穹缝隙】": {
             "color": "苍穹缝隙",
@@ -79,7 +84,8 @@
         },
         "斯图尔特": {
             "color": "斯图尔特",
-            "description": "Stewart是贝利斯雇佣兵，异能是【内能构建】。他背上嵌入了钢铁羽翼。"
+            "description": "Stewart是贝利斯雇佣兵，异能是【内能构建】。他背上嵌入了钢铁羽翼。",
+            "imageUrl": "assets/portrait/斯图尔特.png"
         },
         "克莱门特": {
             "color": "克莱门特",
