@@ -182,17 +182,24 @@ h2 {
 }
 
 .section img {
-    max-height: 384px;
-    max-width: 384px;
+    max-height: 256px;
+    max-width: 256px;
 }
 
 .section .button {
     max-width: 384px;
 }
 
-#storyContainer {
+.storyContainer {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+    align-items: center;
     width: 100%;
-    overflow: hidden; /* 禁止滚动 */
+    height: auto;
+    max-width: 100%;
+    text-align: center;
 }
 
 /* 修改settings按钮容器的样式 */
