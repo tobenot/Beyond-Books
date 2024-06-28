@@ -6,7 +6,7 @@
     <link rel="shortcut icon" href="assets/icon/BeyondBooksIcon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
-        #sections, #story, #settings {
+        #sectionsContainer, #storyContainer, #settings {
             display: none;
         }
         .footer {
@@ -39,7 +39,11 @@
     </script>
 </head>
 <body>
-    <div class="container" id="menu">
+    <div id="loadingIndicator" style="display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%;">
+        <div class="loader"></div>
+    </div>
+
+    <div class="container" id="menu" style="display: none;">
         <h1 id="mainTitle"></h1>
         <h2 id="subTitle"></h2>
         <p id="gameDescription">大语言模型驱动的文字互动小说</p>
@@ -76,12 +80,16 @@
         </div>
     </div>
     
-    <div class="container" id="sections"></div>
+    <div id="sectionsContainer" class="container" style="display: none;">
+        <h2 id="sectionTitle">选择章节</h2>
+        <div id="sections"></div>
+    </div>
 
-    <div class="container" id="story">
+    <div id="storyContainer" class="container" style="display: none;">
+        <h2 id="storyTitle"></h2>
         <div class="text-container" id="storyContent"></div>
         <div class="controls">
-            <input type="text" maxlength="150" id="userInput" placeholder="你要怎么做？" />
+            <input type="text" maxlength="150" id="userInput" placeholder="你要怎么做？"/>
             <button class="button" id="submitInputButton" onclick="submitUserInput()">开始</button>
         </div>
         <div id="loading" class="loading" style="display: none;">万物运行...</div>
@@ -89,22 +97,27 @@
 
     <div class="container" id="settings" style="display: none;">
         <h2>设置</h2>
-        <label for="api-key">API Key</label>
-        <input type="password" maxlength="50" id="api-key" placeholder="输入你的API Key">
-        <label for="api-url">API URL</label>
-        <input type="text" maxlength="100" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
-        <!-- 新增模型选择 -->
-        <label for="model-select">选择模型</label>
-        <select id="model-select">
-            <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-            <option value="gpt-4o">gpt-4o</option>
-        </select>
-        
-        <button class="button" id="saveButton" onclick="saveSettings()">保存设置</button>
-        <button class="button" id="freeTrialButton" onclick="getFreeTrialKey()">免费试玩key</button>
-        <button class="button" id="exitButton" onclick="hideSettings()">不保存退出</button>
-        <p id="trialStatus"></p>
-        <p id="downloadStatus"></p>
+        <div id="settingsContainer">
+            <label for="api-key">API Key</label>
+            <input type="password" class="settings-input" id="api-key" placeholder="输入你的API Key">
+            
+            <label for="api-url">API URL</label>
+            <input type="text" class="settings-input" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
+    
+            <label for="model-select">模型指定gpt4o</label>
+            <select id="model-select" class="settings-input" style="display: none;">
+                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                <option value="gpt-4o" selected>gpt-4o</option>
+            </select>
+            <div class="button-container">
+                <button class="button" id="saveButton" onclick="saveSettings()">保存设置</button>
+                <button class="button" id="publicKeyButton" onclick="getPublicKey()">已获取公共key</button>
+                <button class="button" id="resetSettingsButton" onclick="resetSettings()">恢复默认设置</button>
+                <button class="button" id="exitButton" onclick="hideSettings()">不保存退出</button>
+            </div>
+            <p id="trialStatus"></p>
+            <p id="downloadStatus"></p>
+        </div>
     </div>
 
     <div class="container" id="reviewContainer" style="display: none;"></div>

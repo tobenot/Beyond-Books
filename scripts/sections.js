@@ -36,10 +36,9 @@ function loadSectionsIndex() {
         .catch(error => console.error('加载或解密章节索引时出错:', error));
 }
 
-
 function setupSections() {
     const sectionsContainer = document.getElementById('sections');
-    sectionsContainer.innerHTML = '<h2>选择章节</h2>';
+    sectionsContainer.innerHTML = '';
 
     if (!sectionsIndex.sections || sectionsIndex.sections.length === 0) {
         console.error('章节索引无效或空');
@@ -52,18 +51,16 @@ function setupSections() {
 
         if (completedSections.some(item => item.sectionId === section.id)) {
             sectionDiv.className += ' completed';
-
-            // 添加重玩按钮
             const replayButton = document.createElement('button');
             replayButton.className = 'button';
             replayButton.innerText = `${section.title}（已完成） - 重玩`;
-            replayButton.onclick = () => chooseSection(section.file, true); // 设置isReplay为true
+            replayButton.onclick = () => chooseSection(section.file, true);
             sectionDiv.appendChild(replayButton);
         } else if (unlockedSections.includes(section.id)) {
             const button = document.createElement('button');
             button.className = 'button';
             button.innerText = section.title;
-            button.onclick = () => chooseSection(section.file, false); // 设置isReplay为false
+            button.onclick = () => chooseSection(section.file, false);
 
             const image = document.createElement('img');
             image.src = section.image;
@@ -100,11 +97,19 @@ function chooseSection(fileName, isReplay = false) {
         .catch(error => console.error('加载或解密章节数据时出错:', error));
 }
 
+
 function displaySection(section, isReplay = false) {
-    document.getElementById('sections').style.display = 'none';
-    document.querySelector('.controls').style.display = 'flex';
-    document.getElementById('story').style.display = 'flex';
-    
+    const storyContainer = document.getElementById('storyContainer');
+    const sectionsContainer = document.getElementById('sectionsContainer');
+    const storyTitle = document.getElementById('storyTitle');
+    const storyContent = document.getElementById('storyContent');
+
+    storyTitle.innerHTML = section.title; // 设置桥段名称
+    storyContent.innerHTML = ''; // 清空之前的故事内容
+
+    sectionsContainer.style.display = 'none'; // 隐藏章节选择
+    storyContainer.style.display = 'flex';  // 显示故事内容
+
     initializeConversation(section, isReplay);
     currentSection = section;
 }
@@ -200,24 +205,18 @@ function returnToSectionSelection() {
 function checkUnlockConditions() {
     console.log('Checking Unlock Conditions');
     sectionsIndex.sections.forEach(section => {
-        console.log('Checking Section:', section.id);
         const allPreconditionsMet = section.preconditions.every(precondition => {
-            console.log('Checking Precondition:', precondition);
             const globalConditionMet = globalInfluencePoints.some(globalPoint => {
                 const met = globalPoint.name === precondition.condition && globalPoint.influence === precondition.result;
-                console.log(`Global Condition Met for point ${globalPoint.name}:`, met);
                 return met;
             });
             const sectionConditionMet = completedSections.some(comp => {
                 const met = comp.sectionId === precondition.sectionId && comp.result.some(point => point.name === precondition.condition && point.influence === precondition.result);
-                console.log(`Section Condition Met for section ${comp.sectionId}:`, met);
                 return met;
             });
 
             return globalConditionMet || sectionConditionMet;
         });
-
-        console.log('All Preconditions Met:', allPreconditionsMet);
 
         if (allPreconditionsMet && !unlockedSections.includes(section.id)) {
             unlockedSections.push(section.id);
@@ -239,9 +238,8 @@ function checkUnlockConditions() {
 function updateGameState(sectionId, result) {
     console.log('Updating game state:', { sectionId, result });
 
-    // 建立基于result.influencePoints索引位置的名称映射
     const originalNameMapping = {};
-    console.log('Current section influence points:', currentSection.influencePoints);
+
     result.influencePoints.forEach((point, index) => {
         // 确保索引在currentSection.influencePoints的范围内
         if (index < currentSection.influencePoints.length) {
@@ -253,18 +251,13 @@ function updateGameState(sectionId, result) {
         }
     });
 
-    console.log('Original name mapping:', originalNameMapping);
-
     // 使用映射转换影响点别名
     const remappedInfluencePoints = result.influencePoints.map(point => ({
         name: originalNameMapping[point.name] || point.name,
         influence: point.influence
     }));
 
-    console.log('Remapped Influence Points:', remappedInfluencePoints);
-
     const completedSectionIndex = completedSections.findIndex(section => section.sectionId === sectionId);
-    console.log('Completed Section Index:', completedSectionIndex);
 
     if (completedSectionIndex !== -1) {
         completedSections[completedSectionIndex].result = remappedInfluencePoints;
@@ -275,13 +268,8 @@ function updateGameState(sectionId, result) {
     console.log('Completed Sections after update:', completedSections);
 
     remappedInfluencePoints.forEach(point => {
-        console.log('Processing point:', point);
         if (point.global) {
-            console.log('Global Point:', point);
             const globalPointIndex = globalInfluencePoints.findIndex(globalPoint => globalPoint.name === point.name);
-
-            console.log('Global Point Index:', globalPointIndex);
-
             if (globalPointIndex !== -1) {
                 if (!globalInfluencePoints[globalPointIndex].influence) {
                     globalInfluencePoints[globalPointIndex].influence = point.influence;
@@ -292,9 +280,7 @@ function updateGameState(sectionId, result) {
         } else {
             let targetPoints = completedSections[completedSectionIndex]?.result;
             if (targetPoints) {
-                console.log('Target Points:', targetPoints);
                 const localPointIndex = targetPoints.findIndex(localPoint => localPoint.name === point.name);
-                console.log('Local Point Index:', localPointIndex);
                 if (localPointIndex !== -1) {
                     targetPoints[localPointIndex].influence = point.influence;
                 } else {

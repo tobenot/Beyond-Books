@@ -90,7 +90,7 @@ async function initializeConversation(section, isReplay = false) {
 
     // 初始化UI，隐藏章节选择页面并显示故事页面
     document.getElementById('sections').style.display = 'none';
-    document.getElementById('story').style.display = 'flex';
+    document.getElementById('storyContainer').style.display = 'flex';
 
     // 在页面上显示启动事件
     updateDisplay('assistant', firstAssistantMessage);
@@ -148,7 +148,7 @@ async function submitUserInput() {
 
     const messages = conversationHistory;
 
-    console.log("提交给模型的对话历史:", messages);
+    console.log("提交给模型的对话:", messages);
 
     isSubmitting = true;
     isCooldown = true;
@@ -170,12 +170,22 @@ async function submitUserInput() {
                 response_format: {"type": "json_object"},
                 max_tokens: 4096,
             })
-        }).then(res => res.json());
-
+        });
+    
+        // 检查 HTTP 响应状态
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            console.error("错误响应内容:", errorResponse);
+            alert(`请求失败: ${JSON.stringify(errorResponse)}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
+        const responseData = await response.json();
+    
         document.getElementById('userInput').value = '';
-        const modelResponse = response.choices[0].message['content'];
+        const modelResponse = responseData.choices[0].message['content'];
         console.log("模型的回复:", modelResponse);
-
+    
         let parsedResponse;
         try {
             parsedResponse = JSON.parse(modelResponse);
@@ -183,19 +193,19 @@ async function submitUserInput() {
             console.error("解析模型回复时出错:", error);
             alert("模型回复解析失败。");
         }
-
+    
         if (parsedResponse) {
             conversationHistory.push({
                 role: "assistant",
                 content: modelResponse
             });
-
+    
             updateDisplay('assistant', parsedResponse.display);
-
+    
             if (parsedResponse.endSectionFlag) {
                 const summary = await getSectionSummary(currentSection.id, conversationHistory, currentSection);
                 handleOutcome(currentSection.id, summary, currentSection);
-
+    
                 // 桥段结束后禁用输入框和提交按钮
                 userInputField.style.display = 'none';
                 submitButton.style.display = 'none';
@@ -210,11 +220,11 @@ async function submitUserInput() {
         userInputField.style.display = 'block';
         submitButton.style.display = 'block';
         isSubmitting = false;
-
+    
         setTimeout(() => {
             isCooldown = false;
         }, COOLDOWN_TIME);
-    }
+    }    
 }
 
 async function getSectionSummary(sectionId, conversationHistory, section) {

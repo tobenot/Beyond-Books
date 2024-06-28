@@ -59,11 +59,7 @@ function highlightSpecialTerms(text) {
 
 function showTermDescription(event, description, imageUrl) {
     const termTooltip = document.getElementById('term-tooltip');
-    
-    // 高亮浮框内的文字
     const highlightedDescription = highlightSpecialTerms(description);
-
-    // 如果有图片URL，则在文字底部添加图片
     const imageHtml = imageUrl ? `<img src="${imageUrl}" class="term-tooltip-image" alt="角色立绘">` : '';
 
     termTooltip.innerHTML = `<span>${highlightedDescription}</span> ${imageHtml}`;
@@ -71,22 +67,26 @@ function showTermDescription(event, description, imageUrl) {
     // 计算浮框的位置
     let top = event.clientY + 10;
     let left = event.clientX + 10;
-    
-    // 获取视窗的宽度和高度
+
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
-    // 设置浮框的最小宽度
-    termTooltip.style.minWidth = '150px';  // 可以根据需要调整
+    termTooltip.style.minWidth = '150px';
 
-    // 浮框的宽度和高度
     const tooltipWidth = termTooltip.offsetWidth;
     const tooltipHeight = termTooltip.offsetHeight;
     
-    // 调整浮框的位置，确保不会超出视窗边界
     if (left + tooltipWidth > viewportWidth) {
         left = Math.max(10, viewportWidth - tooltipWidth - 10);
     }
+
+    // 调整浮框展开方向
+    if ((event.clientX / viewportWidth) > 0.5) {
+        left = event.clientX - tooltipWidth - 10;
+    } else {
+        left = event.clientX + 10;
+    }
+
     if (top + tooltipHeight > viewportHeight) {
         top = viewportHeight - tooltipHeight - 10;
     }
@@ -95,7 +95,6 @@ function showTermDescription(event, description, imageUrl) {
     termTooltip.style.left = `${left}px`;
     termTooltip.style.display = 'block';
 
-    // 点击浮框外部自动关闭
     document.addEventListener('click', function closeTooltip(e) {
         if (e.target !== termTooltip && !termTooltip.contains(e.target) && !e.target.classList.contains('special-term')) {
             termTooltip.style.display = 'none';
