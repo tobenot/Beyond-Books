@@ -89,7 +89,7 @@ async function initializeConversation(section, isReplay = false) {
     updateDisplay('info', playerInfo);
 
     // 初始化UI，隐藏章节选择页面并显示故事页面
-    document.getElementById('sections').style.display = 'none';
+    document.getElementById('sectionsContainer').style.display = 'none';
     document.getElementById('storyContainer').style.display = 'flex';
 
     // 在页面上显示启动事件

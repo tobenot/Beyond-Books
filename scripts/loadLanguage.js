@@ -28,7 +28,7 @@ function updateUIWithLanguage(data) {
     document.getElementById('importSaveButton').innerText = data.importSaveButton;
 
     // 设置章节选择标题
-    document.getElementById('sections').innerHTML = `<h2>${data.chooseSection}</h2>`;
+    document.getElementById('sectionTitle').innerHTML = `<h2>${data.chooseSection}</h2>`;
 
     // 设置阅读完成按钮文本
     const readMoreButton = document.querySelector('button[onclick="readMore()"]');

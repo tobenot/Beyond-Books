@@ -196,8 +196,8 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
 }
 
 function returnToSectionSelection() {
-    document.getElementById('story').style.display = 'none';
-    document.getElementById('sections').style.display = 'flex';
+    document.getElementById('storyContainer').style.display = 'none';
+    document.getElementById('sectionsContainer').style.display = 'flex';
     document.getElementById('storyContent').innerHTML = ''; // 清空故事内容用于下次显示
 }
 

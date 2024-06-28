@@ -19,7 +19,7 @@ function startGame() {
 
 function readMore() {
     // 不再在这里切换到桥段选择界面
-    // document.getElementById('story').style.display = 'none';
+    // document.getElementById('storyContainer').style.display = 'none';
     // document.getElementById('sections').style.display = 'flex';
 }
 
