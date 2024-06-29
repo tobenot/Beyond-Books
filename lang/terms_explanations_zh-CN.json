@@ -36,7 +36,8 @@
         },
         "艾琳": {
             "color": "艾琳",
-            "description": "Irene是银月寺内的银月大学的新生，当然也是异能者。"
+            "description": "Irene是银月寺内的银月大学的新生，当然也是异能者。",
+            "imageUrl": "assets/portrait/艾琳.png"
         },
         "【折射】": {
             "color": "折射",
@@ -93,7 +94,8 @@
         },
         "琼": {
             "color": "琼",
-            "description": "Joan长得如同精灵般。使用生成冰的能力。"
+            "description": "Joan长得如同精灵般。使用生成冰的能力。",
+            "imageUrl": "assets/portrait/琼.png"
         },
         "【内能构建】": {
             "color": "内能构建",
