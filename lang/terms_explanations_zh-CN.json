@@ -57,7 +57,7 @@
         },
         "珂茵": {
             "color": "珂茵",
-            "description": "Corn是银月寺的保安，具有用光弓射出微弱伤害的光箭并瞬移到光箭位置的异能。",
+            "description": "Corn是银月寺的保安，具有用光弓射出光箭并瞬移到光箭位置的异能。",
             "imageUrl": "assets/portrait/珂茵.png"
         },
         "诺顿": {
@@ -94,7 +94,7 @@
         },
         "琼": {
             "color": "琼",
-            "description": "Joan长得如同精灵般。使用生成冰的能力。",
+            "description": "Joan使用生成冰的能力。",
             "imageUrl": "assets/portrait/琼.png"
         },
         "【内能构建】": {
