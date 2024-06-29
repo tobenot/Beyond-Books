@@ -174,14 +174,7 @@ function createSystemPrompt(section, playerCharacter, otherCharactersDescription
 }
 
 function createStoryContent(section, playerCharacter) {
-    return `
-        <h2>${section.title}</h2>
-        <div class="image-container">
-            <img src="${section.image}" alt="桥段图片">
-        </div>
-        <p><b>目标：${section.objective}</b></p>
-        <p>${section.backgroundInfo}</p>
-    `;
+    return `<h2>${section.title}</h2><div class="image-container"><img src="${section.image}" alt="桥段图片"></div><p><b>目标：${section.objective}</b></p><p>${section.backgroundInfo}</p>`;
 }
 
 function toggleSectionVisibility() {
@@ -190,10 +183,9 @@ function toggleSectionVisibility() {
 }
 
 function createPlayerInfo(playerCharacter) {
-    return `<b>你的角色：</b><br>
-        <b>${playerCharacter.name}</b> - ${playerCharacter.role}<br>
-        ${playerCharacter.description}
-    `;
+    return `<b>你的角色：</b>
+    <b>${playerCharacter.name}</b> - ${playerCharacter.role}
+    ${playerCharacter.description}`;
 }
 
 function createAutoCompleteSummary(section) {
@@ -212,6 +204,15 @@ function disableInput() {
     const submitButton = document.getElementById('submitInputButton');
     userInputField.disabled = true;
     submitButton.disabled = true;
+}
+
+function enableInput() {
+    const userInputField = document.getElementById('userInput');
+    const submitButton = document.getElementById('submitInputButton');
+    userInputField.disabled = false;
+    submitButton.disabled = false;
+    userInputField.style.display = "flex";
+    submitButton.style.display = "flex";
 }
 
 function createCompleteButton() {

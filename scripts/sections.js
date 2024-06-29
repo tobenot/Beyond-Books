@@ -93,8 +93,7 @@ function chooseSection(fileName, isReplay = false) {
 
             if (isCarrotTest()) console.log("Debug: 桥段剧本：", sectionContent);
 
-            document.getElementById('userInput').disabled = false;
-            document.getElementById('submitInputButton').disabled = false;
+            enableInput()
 
             displaySection(sectionContent, isReplay);
         })
@@ -158,10 +157,7 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         // 保存HTML内容和完整记录
         const storyHtmlContent = document.getElementById('storyContent').innerHTML;
 
-        document.getElementById('userInput').style.display = 'none';
-        document.getElementById('submitInputButton').style.display = 'none';
-        document.getElementById('userInput').disabled = true;
-        document.getElementById('submitInputButton').disabled = true;
+        disableInput();
 
         // 添加返回桥段选择按钮
         const completeButton = document.createElement('button');
@@ -200,10 +196,7 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         // 保存HTML内容和完整记录
         const storyHtmlContent = document.getElementById('storyContent').innerHTML;
 
-        document.getElementById('userInput').style.display = 'none';
-        document.getElementById('submitInputButton').style.display = 'none';
-        document.getElementById('userInput').disabled = true;
-        document.getElementById('submitInputButton').disabled = true;
+        disableInput();
 
         const retryButton = document.createElement('button');
         retryButton.className = 'button';
