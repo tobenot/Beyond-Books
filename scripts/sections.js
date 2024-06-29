@@ -37,8 +37,8 @@ function loadSectionsIndex() {
 }
 
 function setupSections() {
-    const sectionsContainer = document.getElementById('sections');
-    sectionsContainer.innerHTML = '';
+    const sectionsList = document.getElementById('sections');
+    sectionsList.innerHTML = '';
 
     if (!sectionsIndex.sections || sectionsIndex.sections.length === 0) {
         console.error('章节索引无效或空');
@@ -73,16 +73,16 @@ function setupSections() {
             sectionDiv.innerText = `${section.title}（未解锁）`;
         }
 
-        sectionsContainer.appendChild(sectionDiv);
+        sectionsList.appendChild(sectionDiv);
     });
 }
 
-function chooseSection(fileName, isReplay = false) {
-    // 重置当前章节ID和输入框状态
-    currentSectionId = null;
-    document.getElementById('userInput').disabled = false;
-    document.getElementById('submitInputButton').disabled = false;
+function returnToMenu() {
+    document.getElementById('sectionsContainer').style.display = 'none';
+    document.getElementById('menu').style.display = 'flex';
+}
 
+function chooseSection(fileName, isReplay = false) {
     // 添加时间戳来避免缓存
     const timestamp = new Date().getTime();
     fetch(`sections/${fileName}?v=${timestamp}`)
@@ -90,13 +90,16 @@ function chooseSection(fileName, isReplay = false) {
         .then(encryptedText => {
             const secretKey = 'ReadingThisIsASpoilerForYourself';
             const sectionContent = decryptJSONText(encryptedText, secretKey);
-            console.log("桥段剧本：", sectionContent);
-            // 将 `isReplay` 参数传递给 `displaySection`
+
+            if (isCarrotTest()) console.log("Debug: 桥段剧本：", sectionContent);
+
+            document.getElementById('userInput').disabled = false;
+            document.getElementById('submitInputButton').disabled = false;
+
             displaySection(sectionContent, isReplay);
         })
         .catch(error => console.error('加载或解密章节数据时出错:', error));
 }
-
 
 function displaySection(section, isReplay = false) {
     const storyContainer = document.getElementById('storyContainer');
@@ -143,7 +146,7 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
             <p>${objective_judge}</p>
             <p>桥段目标完成</p>
             <p>原本应造成后续影响数量：${changedInfluencePoints}</p>
-            <p>但此次为重玩，不会改变影响</p>
+            <p>此次为重玩，默认不改变存档</p>
         ` : `
             <p>${objective_judge}</p>
             <p>桥段目标达成</p>
@@ -159,13 +162,30 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         document.getElementById('submitInputButton').style.display = 'none';
         document.getElementById('userInput').disabled = true;
         document.getElementById('submitInputButton').disabled = true;
+
+        // 添加返回桥段选择按钮
         const completeButton = document.createElement('button');
         completeButton.className = 'button';
         completeButton.innerText = '返回桥段选择';
         completeButton.onclick = () => returnToSectionSelection();
         document.getElementById('storyContent').appendChild(completeButton);
 
-        // 存储桥段回顾记录
+        // 判断是否需要显示覆盖影响选项
+        if (isReplay) {
+            const overwriteButton = document.createElement('button');
+            overwriteButton.className = 'button';
+            overwriteButton.innerText = '覆盖原影响（不会锁后面的桥段）';
+            overwriteButton.onclick = async () => {
+                completeButton.style.display = 'none';
+                overwriteButton.style.display = 'none';
+                updateGameState(sectionId, {
+                    objectiveAchieved: objective,
+                    influencePoints
+                });
+                returnToSectionSelection();
+            };
+            document.getElementById('storyContent').appendChild(overwriteButton);
+        }
         await storeSectionReview(sectionId, conversationHistory, storyHtmlContent);
     } else {
         // 当目标未达成时显示重新开始按钮
@@ -184,6 +204,7 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         document.getElementById('submitInputButton').style.display = 'none';
         document.getElementById('userInput').disabled = true;
         document.getElementById('submitInputButton').disabled = true;
+
         const retryButton = document.createElement('button');
         retryButton.className = 'button';
         retryButton.innerText = '重新开始桥段';
@@ -200,7 +221,6 @@ function returnToSectionSelection() {
     document.getElementById('sectionsContainer').style.display = 'flex';
     document.getElementById('storyContent').innerHTML = ''; // 清空故事内容用于下次显示
 }
-
 
 function checkUnlockConditions() {
     console.log('Checking Unlock Conditions');
@@ -301,6 +321,7 @@ function updateGameState(sectionId, result) {
 
     setupSections();
 }
+
 
 function initializeGameState(savedData = null) {
     if (savedData) {

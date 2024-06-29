@@ -3,12 +3,14 @@ let isCooldown = false;
 let conversationHistory = [];
 let selectedCharacter = '罗伯特';
 let currentSection = null;
-
+let currentIsReplay = false
 
 const COOLDOWN_TIME = 1000; // 冷却时间，单位为毫秒
 
 async function initializeConversation(section, isReplay = false) {
+
     currentSection = section; // 存储当前章节
+    currentIsReplay = isReplay; // 存储是否重玩
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
 
     document.getElementById('storyContent').innerHTML = '';
@@ -61,7 +63,7 @@ async function initializeConversation(section, isReplay = false) {
         content: firstAssistantMessage
     });
 
-    console.log("对话初始化:", conversationHistory);
+    if (isCarrotTest()) console.log("Debug 对话初始化:", conversationHistory);
 
     const storyContent = `
         <h2>${section.title}</h2>
@@ -107,8 +109,6 @@ async function initializeConversation(section, isReplay = false) {
         };
         handleOutcome(section.id, summary, section, isReplay).then(() => {
             // 桥段结束后禁用输入框和提交按钮
-            document.getElementById('userInput').style.display = 'none';
-            document.getElementById('submitInputButton').style.display = 'none';
             document.getElementById('userInput').disabled = true;
             document.getElementById('submitInputButton').disabled = true;
 
@@ -148,7 +148,7 @@ async function submitUserInput() {
 
     const messages = conversationHistory;
 
-    console.log("提交给模型的对话:", messages);
+    if (isCarrotTest()) console.log("Debug 提交给模型的对话:", messages);
 
     isSubmitting = true;
     isCooldown = true;
@@ -184,7 +184,7 @@ async function submitUserInput() {
     
         document.getElementById('userInput').value = '';
         const modelResponse = responseData.choices[0].message['content'];
-        console.log("模型的回复:", modelResponse);
+        if (isCarrotTest()) console.log("Debug 模型的回复:", modelResponse);
     
         let parsedResponse;
         try {
@@ -204,7 +204,7 @@ async function submitUserInput() {
     
             if (parsedResponse.endSectionFlag) {
                 const summary = await getSectionSummary(currentSection.id, conversationHistory, currentSection);
-                handleOutcome(currentSection.id, summary, currentSection);
+                handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
     
                 // 桥段结束后禁用输入框和提交按钮
                 userInputField.style.display = 'none';
@@ -254,7 +254,7 @@ async function getSectionSummary(sectionId, conversationHistory, section) {
         注意influencePoints要严格按照原顺序，方便系统保存。
     `;
 
-    console.log("Debug getSectionSummary提交给模型:", systemPrompt);
+    if (isCarrotTest()) console.log("Debug getSectionSummary提交给模型:", systemPrompt);
 
     try {
         const response = await fetch(settings.apiUrl + 'chat/completions', {
@@ -274,7 +274,7 @@ async function getSectionSummary(sectionId, conversationHistory, section) {
         }).then(res => res.json());
 
         const summaryResponse = response.choices[0].message.content;
-        console.log("大模型的总结回复:", summaryResponse);
+        if (isCarrotTest()) console.log("Debug 大模型的总结回复:", summaryResponse);
 
         let summary;
         try {

@@ -40,7 +40,13 @@
 </head>
 <body>
     <div id="loadingIndicator" style="display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%;">
-        <div class="loader"></div>
+        <div class="loader">
+            <div class="loaderSpin"></div>
+            <div id="progressText">正在加载...</div>
+            <div id="loadingBar">
+                <div id="progress" style="width: 0;"></div>
+            </div>
+        </div>
     </div>
 
     <div class="container" id="menu" style="display: none;">
@@ -83,6 +89,7 @@
     <div id="sectionsContainer" class="container" style="display: none;">
         <h2 id="sectionTitle"></h2>
         <div id="sections"></div>
+        <button class="button" id="returnToMenuButton" onclick="returnToMenu()">返回主菜单</button>
     </div>
 
     <div id="storyContainer" class="storyContainer" style="display: none;">

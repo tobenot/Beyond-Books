@@ -39,13 +39,10 @@ function continueGame() {
 function exportSave() {
     const gameData = JSON.stringify(loadSave());
     const reviewData = JSON.stringify(loadReviews());
-    console.log("Debug: Game Data to Encrypt:", gameData);
-    console.log("Debug: Review Data to Encrypt:", reviewData);
     const combinedData = JSON.stringify({
         gameData: CryptoJS.AES.encrypt(gameData, EXPORT_SECRET_KEY).toString(),
         reviewData: CryptoJS.AES.encrypt(reviewData, EXPORT_SECRET_KEY).toString()
     });
-    console.log("Debug: Encrypted Combined Data:", combinedData);
     const blob = new Blob([combinedData], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
 
@@ -71,6 +68,9 @@ function exportSave() {
 }
 
 function importSave(event) {
+    if (!confirm('您确定要导入并覆盖存档吗？此操作无法撤销。您可以先导出自己的存档进行备份。')) {
+        return;
+    }
     var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (isMobile) {
         alert("请注意：在手机浏览器上，导入存档会触发浏览器文件上传功能，如果浏览器没有权限，它可能会向您申请。");
@@ -79,17 +79,12 @@ function importSave(event) {
     const reader = new FileReader();
     reader.onload = function (e) {
         const combinedData = e.target.result;
-        console.log("Debug: Loaded combinedData:", combinedData);
         let decryptedGameData, decryptedReviewData;
         
         try {
             const data = JSON.parse(combinedData);
             decryptedGameData = JSON.parse(CryptoJS.AES.decrypt(data.gameData, EXPORT_SECRET_KEY).toString(CryptoJS.enc.Utf8));
             decryptedReviewData = JSON.parse(CryptoJS.AES.decrypt(data.reviewData, EXPORT_SECRET_KEY).toString(CryptoJS.enc.Utf8));
-            console.log("Debug: Decrypted Game Data:");
-            console.table(decryptedGameData); // 使用 console.table() 打印结构化数据
-            console.log("Debug: Decrypted Review Data:");
-            console.table(decryptedReviewData); // 使用 console.table() 打印结构化数据
         } catch (error) {
             console.error('解密存档数据时出错:', error);
             alert('导入失败，密钥不匹配或数据损坏');
@@ -115,6 +110,8 @@ function checkSaveStatus() {
 }
 
 function deleteSave() {
-    clearSave(); // 移除存档
-    location.reload(); // 刷新页面
+    if (confirm('您确定要删除存档吗？此操作无法撤销。')) {
+        clearSave(); // 移除存档
+        location.reload(); // 刷新页面
+    }
 }
