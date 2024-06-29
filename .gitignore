@@ -5,6 +5,7 @@ package-lock.json
 package.json
 sections_original
 sections/hashRecord.json
+start_game-carrot.ps1
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
