@@ -19,14 +19,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const timestamp = new Date().getTime();
-            
-            // 动态加载CSS文件并添加时间戳
+
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = `styles.css?v=${timestamp}`;
             document.head.appendChild(link);
 
-            // 动态加载并执行 startup.js 脚本
             const script = document.createElement('script');
             script.src = `scripts/startup.js?v=${timestamp}`;
             script.onload = () => {
@@ -53,32 +51,23 @@
         <h1 id="mainTitle"></h1>
         <h2 id="subTitle"></h2>
         <p id="gameDescription">大语言模型驱动的文字互动小说</p>
-        <!-- 新增的按钮容器 -->
         <div class="menu-controls">
-            <!-- 开始新游戏按钮，默认显示 -->
             <button class="button" id="newGameButton" onclick="newGame()">开始新游戏</button>
-            
-            <!-- 继续游戏和回顾记录按钮 -->
             <div class="control-pair" id="gameProgressButtons" style="display: none;">
                 <button class="button" id="continueGameButton" onclick="continueGame()">继续游戏</button>
                 <button class="button" id="reviewButton" onclick="showReviewRecords()">回顾记录</button>
             </div>
-            
-            <!-- 导入和导出存档按钮 -->
-            <div class="control-pair" id="saveControlButtons">
+            <div class="control-pair" id="saveLoadButtons">
                 <button class="button" id="importSaveButton" onclick="document.getElementById('fileInput').click()">导入存档</button>
                 <button class="button" id="exportSaveButton" onclick="exportSave()">导出存档</button>
             </div>
-            
-            <!-- 设置按钮，使用小图标 -->
-            <div class="control-pair" id="gameProgressButtons">
+            <div class="control-pair" id="settingsButtons">
                 <button class="button" id="settingsButton" onclick="showSettings()">
                     <img src="assets/icon/settings-icon.png" alt="" style="vertical-align: middle; margin-right: 5px;"/>设置
                 </button>
                 <button class="button" id="deleteSaveButton" style="display: none;" onclick="deleteSave()">删除存档</button>
             </div>
         </div>
-        
         <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
         <div class="footer">
             <p>游戏社区QQ群：<a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">731682071</a> (目前1人)</p>
@@ -107,15 +96,9 @@
         <div id="settingsContainer">
             <label for="api-key">API Key</label>
             <input type="password" class="settings-input" id="api-key" placeholder="输入你的API Key">
-            
             <label for="api-url">API URL</label>
             <input type="text" class="settings-input" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
-    
             <label for="model-select">模型指定gpt4o</label>
-            <select id="model-select" class="settings-input" style="display: none;">
-                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                <option value="gpt-4o" selected>gpt-4o</option>
-            </select>
             <div class="button-container">
                 <button class="button" id="saveButton" onclick="saveSettings()">保存设置</button>
                 <button class="button" id="publicKeyButton" onclick="getPublicKey()">已获取公共key</button>

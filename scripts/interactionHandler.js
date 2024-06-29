@@ -3,30 +3,154 @@ let isCooldown = false;
 let conversationHistory = [];
 let selectedCharacter = '罗伯特';
 let currentSection = null;
-let currentIsReplay = false
+let currentIsReplay = false;
 
 const COOLDOWN_TIME = 1000; // 冷却时间，单位为毫秒
 
-async function initializeConversation(section, isReplay = false) {
+// 配置项集中管理
+const settings = JSON.parse(localStorage.getItem('settings'));
+const API_URL = settings.apiUrl + 'chat/completions';
+const API_KEY = settings.apiKey;
+const MODEL = settings.model;
 
+async function initializeConversation(section, isReplay = false) {
     currentSection = section; // 存储当前章节
     currentIsReplay = isReplay; // 存储是否重玩
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
 
     document.getElementById('storyContent').innerHTML = '';
 
-    let otherCharactersDescriptions = section.characters
-        .filter(char => char.name !== selectedCharacter)
-        .map(char => {
-            return `${char.name}：${char.role}，${char.description || ''} ${char.details?.join(' ') || ''}`.trim();
-        })
-        .join('\n');
-    
-    let influencePointsText = section.influencePoints
-        .map((point, index) => `${index + 1}. ${point.description}`)
-        .join('\n');
+    let otherCharactersDescriptions = formatOtherCharactersDescriptions(section.characters);
+    let influencePointsText = formatInfluencePointsText(section.influencePoints);
 
-    const systemPrompt = `请你做主持人来主持一场游戏的一个桥段。
+    const systemPrompt = createSystemPrompt(section, playerCharacter, otherCharactersDescriptions, influencePointsText);
+
+    conversationHistory = [];
+    conversationHistory.push({ role: "system", content: systemPrompt });
+
+    const firstAssistantMessage = `${section.startEvent}`;
+    conversationHistory.push({ role: "assistant", content: firstAssistantMessage });
+
+    if (isCarrotTest()) console.log("Debug 对话初始化:", conversationHistory);
+
+    const storyContent = createStoryContent(section, playerCharacter);
+
+    updateDisplay('info', storyContent);
+
+    // 检查并添加音乐播放器
+    if (section.musicUrl) {
+        addMusicPlayer(section.musicUrl);
+    }
+
+    // 生成玩家角色信息
+    const playerInfo = createPlayerInfo(playerCharacter);
+    updateDisplay('info', playerInfo);
+
+    toggleSectionVisibility();
+
+    // 在页面上显示启动事件
+    updateDisplay('assistant', firstAssistantMessage);
+
+    // 检测桥段是否应该立即结束
+    if (section.autoComplete) {
+        const summary = createAutoCompleteSummary(section);
+        handleOutcome(section.id, summary, section, isReplay).then(() => {
+            disableInput();
+
+            const completeButton = createCompleteButton();
+            document.getElementById('storyContent').appendChild(completeButton);
+        });
+    }
+
+    document.getElementById('storyContent').scrollTop = 0;
+}
+
+async function submitUserInput() {
+    if (isSubmitting || isCooldown) return;
+
+    const { submitButton, userInputField, loadingDiv } = getElements();
+    
+    let userInput = userInputField.value;
+
+    if (userInput.trim() === "") {
+        alert("输入不能为空");
+        return;
+    }
+
+    userInput = `${selectedCharacter}：${userInput}`;
+    conversationHistory.push({ role: "user", content: userInput });
+
+    updateDisplay('user', userInput);
+
+    if (isCarrotTest()) console.log("Debug 提交给模型的对话:", conversationHistory);
+
+    toggleSubmittingState(true, loadingDiv, userInputField, submitButton);
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({ model: MODEL, messages: conversationHistory, response_format: { "type": "json_object" }, max_tokens: 4096 })
+        });
+    
+        const responseData = await handleApiResponse(response);
+    
+        processModelResponse(responseData, userInputField, submitButton);
+    } catch (error) {
+        console.error("请求失败:", error);
+    } finally {
+        toggleSubmittingState(false, loadingDiv, userInputField, submitButton);
+
+        setTimeout(() => {
+            isCooldown = false;
+        }, COOLDOWN_TIME);
+    }    
+}
+
+async function getSectionSummary(sectionId, conversationHistory, section) {
+    const influencePointsText = formatInfluencePointsText(section.influencePoints);
+
+    const systemPrompt = createSectionSummaryPrompt(section, conversationHistory, influencePointsText);
+
+    if (isCarrotTest()) console.log("Debug getSectionSummary提交给模型:", systemPrompt);
+
+    return fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({ model: MODEL, messages: [{ role: "system", content: systemPrompt }], response_format: { "type": "json_object" }, max_tokens: 4096 })
+    })
+    .then(response => response.json())
+    .then(response => parseSectionSummaryResponse(response))
+    .catch(error => handleSummaryRequestError(error));
+}
+
+function updateDisplay(role, messageContent) {
+    const storyContentDiv = document.getElementById('storyContent');
+    const messageElement = document.createElement('p');
+    messageElement.innerHTML = formatContent(role, messageContent);
+    storyContentDiv.appendChild(messageElement);
+    messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function formatOtherCharactersDescriptions(characters) {
+    return characters
+        .filter(char => char.name !== selectedCharacter)
+        .map(char => `${char.name}：${char.role}，${char.description || ''} ${char.details?.join(' ') || ''}`.trim())
+        .join('\n');
+}
+
+function formatInfluencePointsText(influencePoints) {
+    return influencePoints.map((point, index) => `${index + 1}. ${point.description}`).join('\n');
+}
+
+function createSystemPrompt(section, playerCharacter, otherCharactersDescriptions, influencePointsText) {
+    return `请你做主持人来主持一场游戏的一个桥段。
         桥段背景介绍：${section.backgroundInfo}
         主角和剧本：
         ${playerCharacter.name}：${playerCharacter.role}，${playerCharacter.description}
@@ -47,25 +171,10 @@ async function initializeConversation(section, isReplay = false) {
             "endSectionFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节"
         }
     `;
+}
 
-    conversationHistory = [];
-
-    // 初始化对话历史记录
-    conversationHistory.push({
-        role: "system",
-        content: systemPrompt
-    });
-
-    const firstAssistantMessage = `${section.startEvent}`;
-
-    conversationHistory.push({
-        role: "assistant",
-        content: firstAssistantMessage
-    });
-
-    if (isCarrotTest()) console.log("Debug 对话初始化:", conversationHistory);
-
-    const storyContent = `
+function createStoryContent(section, playerCharacter) {
+    return `
         <h2>${section.title}</h2>
         <div class="image-container">
             <img src="${section.image}" alt="桥段图片">
@@ -73,168 +182,107 @@ async function initializeConversation(section, isReplay = false) {
         <p><b>目标：${section.objective}</b></p>
         <p>${section.backgroundInfo}</p>
     `;
+}
 
-    updateDisplay('info', storyContent);
+function toggleSectionVisibility() {
+    document.getElementById('sectionsContainer').style.display = 'none';
+    document.getElementById('storyContainer').style.display = 'flex';
+}
 
-    // 检查并添加音乐播放器
-    if (section.musicUrl) {
-        addMusicPlayer(section.musicUrl);
-    }
-
-    // 生成玩家角色信息
-    const playerInfo = `
-        <b>你的角色：</b><br>
+function createPlayerInfo(playerCharacter) {
+    return `<b>你的角色：</b><br>
         <b>${playerCharacter.name}</b> - ${playerCharacter.role}<br>
         ${playerCharacter.description}
     `;
-    // 显示玩家角色信息
-    updateDisplay('info', playerInfo);
-
-    // 初始化UI，隐藏章节选择页面并显示故事页面
-    document.getElementById('sectionsContainer').style.display = 'none';
-    document.getElementById('storyContainer').style.display = 'flex';
-
-    // 在页面上显示启动事件
-    updateDisplay('assistant', firstAssistantMessage);
-
-    // 检测桥段是否应该立即结束
-    if (section.autoComplete) {
-        const summary = {
-            objective: true,
-            influencePoints: section.influencePoints.map(point => ({
-                name: point.name,
-                influence: point.default
-            })),
-            summary: `${section.title}桥段不需要玩家参与，自动完成。`
-        };
-        handleOutcome(section.id, summary, section, isReplay).then(() => {
-            // 桥段结束后禁用输入框和提交按钮
-            document.getElementById('userInput').disabled = true;
-            document.getElementById('submitInputButton').disabled = true;
-
-            const completeButton = document.createElement('button');
-            completeButton.className = 'button';
-            completeButton.innerText = '返回桥段选择';
-            completeButton.onclick = returnToSectionSelection;
-            document.getElementById('storyContent').appendChild(completeButton);
-        });
-    }
-
-    document.getElementById('storyContent').scrollTop = 0;
 }
 
-async function submitUserInput() {
-    if (isSubmitting || isCooldown) return;
+function createAutoCompleteSummary(section) {
+    return {
+        objective: true,
+        influencePoints: section.influencePoints.map(point => ({
+            name: point.name,
+            influence: point.default
+        })),
+        summary: `${section.title}桥段不需要玩家参与，自动完成。`
+    };
+}
 
-    const submitButton = document.getElementById('submitInputButton');
+function disableInput() {
     const userInputField = document.getElementById('userInput');
-    const loadingDiv = document.getElementById('loading'); 
-    let userInput = userInputField.value;
+    const submitButton = document.getElementById('submitInputButton');
+    userInputField.disabled = true;
+    submitButton.disabled = true;
+}
 
-    if (userInput.trim() === "") {
-        alert("输入不能为空");
-        return;
-    }
+function createCompleteButton() {
+    const completeButton = document.createElement('button');
+    completeButton.className = 'button';
+    completeButton.innerText = '返回桥    段选择';
+    completeButton.onclick = returnToSectionSelection;
 
-    userInput = `${selectedCharacter}：${userInput}`;
-    conversationHistory.push({
-        role: "user",
-        content: userInput
-    });
+    return completeButton;
+}
 
-    updateDisplay('user', userInput);
+function getElements() {
+    return {
+        submitButton: document.getElementById('submitInputButton'),
+        userInputField: document.getElementById('userInput'),
+        loadingDiv: document.getElementById('loading')
+    };
+}
 
-    const settings = JSON.parse(localStorage.getItem('settings'));
-
-    const messages = conversationHistory;
-
-    if (isCarrotTest()) console.log("Debug 提交给模型的对话:", messages);
-
-    isSubmitting = true;
+function toggleSubmittingState(isSubmittingFlag, loadingDiv, userInputField, submitButton) {
+    isSubmitting = isSubmittingFlag;
     isCooldown = true;
 
-    loadingDiv.style.display = 'block';
-    userInputField.style.display = 'none';
-    submitButton.style.display = 'none';
-    
+    loadingDiv.style.display = isSubmittingFlag ? 'block' : 'none';
+    userInputField.style.display = isSubmittingFlag ? 'none' : 'block';
+    submitButton.style.display = isSubmittingFlag ? 'none' : 'block';
+}
+
+async function handleApiResponse(response) {
+    if (!response.ok) {
+        const errorResponse = await response.json();
+        console.error("错误响应内容:", errorResponse);
+        alert(`请求失败: ${JSON.stringify(errorResponse)}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+}
+
+function processModelResponse(responseData, userInputField, submitButton) {
+    document.getElementById('userInput').value = '';
+    const modelResponse = responseData.choices[0].message['content'];
+    if (isCarrotTest()) console.log("Debug 模型的回复:", modelResponse);
+
+    let parsedResponse;
     try {
-        const response = await fetch(settings.apiUrl + 'chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${settings.apiKey}`
-            },
-            body: JSON.stringify({
-                model: settings.model,
-                messages: messages,
-                response_format: {"type": "json_object"},
-                max_tokens: 4096,
-            })
-        });
-    
-        // 检查 HTTP 响应状态
-        if (!response.ok) {
-            const errorResponse = await response.json();
-            console.error("错误响应内容:", errorResponse);
-            alert(`请求失败: ${JSON.stringify(errorResponse)}`);
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    
-        const responseData = await response.json();
-    
-        document.getElementById('userInput').value = '';
-        const modelResponse = responseData.choices[0].message['content'];
-        if (isCarrotTest()) console.log("Debug 模型的回复:", modelResponse);
-    
-        let parsedResponse;
-        try {
-            parsedResponse = JSON.parse(modelResponse);
-        } catch (error) {
-            console.error("解析模型回复时出错:", error);
-            alert("模型回复解析失败。");
-        }
-    
-        if (parsedResponse) {
-            conversationHistory.push({
-                role: "assistant",
-                content: modelResponse
-            });
-    
-            updateDisplay('assistant', parsedResponse.display);
-    
-            if (parsedResponse.endSectionFlag) {
-                const summary = await getSectionSummary(currentSection.id, conversationHistory, currentSection);
+        parsedResponse = JSON.parse(modelResponse);
+    } catch (error) {
+        console.error("解析模型回复时出错:", error);
+        alert("模型回复解析失败。");
+    }
+
+    if (parsedResponse) {
+        conversationHistory.push({ role: "assistant", content: modelResponse });
+        updateDisplay('assistant', parsedResponse.display);
+
+        if (parsedResponse.endSectionFlag) {
+            getSectionSummary(currentSection.id, conversationHistory, currentSection).then(summary => {
                 handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
-    
+
                 // 桥段结束后禁用输入框和提交按钮
                 userInputField.style.display = 'none';
                 submitButton.style.display = 'none';
                 userInputField.disabled = true;
                 submitButton.disabled = true;
-            }
+            });
         }
-    } catch (error) {
-        console.error("请求失败:", error);
-    } finally {
-        loadingDiv.style.display = 'none';
-        userInputField.style.display = 'block';
-        submitButton.style.display = 'block';
-        isSubmitting = false;
-    
-        setTimeout(() => {
-            isCooldown = false;
-        }, COOLDOWN_TIME);
-    }    
+    }
 }
 
-async function getSectionSummary(sectionId, conversationHistory, section) {
-    const settings = JSON.parse(localStorage.getItem('settings'));
-
-    const influencePointsText = section.influencePoints
-        .map((point, index) => `${index + 1}. ${point.description}`)
-        .join('\n');
-
-    const systemPrompt = `
+function createSectionSummaryPrompt(section, conversationHistory, influencePointsText) {
+    return `
         请基于以下对话历史，对完成度做出总结。
         对话历史：
         ${conversationHistory.map(message => `${message.role}: ${message.content}`).join('\n')}
@@ -253,82 +301,32 @@ async function getSectionSummary(sectionId, conversationHistory, section) {
         }
         注意influencePoints要严格按照原顺序，方便系统保存。
     `;
+}
 
-    if (isCarrotTest()) console.log("Debug getSectionSummary提交给模型:", systemPrompt);
+function parseSectionSummaryResponse(response) {
+    const summaryResponse = response.choices[0].message.content;
+    if (isCarrotTest()) console.log("Debug 大模型的总结回复:", summaryResponse);
 
     try {
-        const response = await fetch(settings.apiUrl + 'chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${settings.apiKey}`
-            },
-            body: JSON.stringify({
-                model: settings.model,
-                messages: [
-                    { role: "system", content: systemPrompt }
-                ],
-                response_format: { "type": "json_object" },
-                max_tokens: 4096
-            })
-        }).then(res => res.json());
-
-        const summaryResponse = response.choices[0].message.content;
-        if (isCarrotTest()) console.log("Debug 大模型的总结回复:", summaryResponse);
-
-        let summary;
-        try {
-            summary = JSON.parse(summaryResponse);
-        } catch (error) {
-            console.error("解析总结回复时出错:", error);
-            alert("总结回复解析失败。");
-        }
-
-        return summary;
+        return JSON.parse(summaryResponse);
     } catch (error) {
-        console.error("请求总结失败:", error);
-        alert("生成总结请求失败。");
+        console.error("解析总结回复时出错:", error);
+        alert("总结回复解析失败。");
         return null;
     }
 }
 
-function updateDisplay(role, messageContent) {
-    const storyContentDiv = document.getElementById('storyContent');
-    const messageElement = document.createElement('p');
+function handleSummaryRequestError(error) {
+    console.error("请求总结失败:", error);
+    alert("生成总结请求失败。");
+    return null;
+}
 
+function formatContent(role, content) {
     if (role === 'user') {
-        // 玩家打的字不高亮
-        messageElement.innerHTML = `<i>${messageContent}</i>`;
-    } else if (role === 'assistant') {
-        // 用 <br> 代替换行符 \n
-        const formattedMessageContent = messageContent.replace(/\n/g, '<br>');
-        const highlightedContent = highlightSpecialTerms(formattedMessageContent);
-        messageElement.innerHTML = highlightedContent;
-    } else if (role === 'info') {
-        const highlightedContent = highlightSpecialTerms(messageContent);
-        messageElement.innerHTML = highlightedContent;
+        return `<i>${content}</i>`;
+    } else {
+        const formattedContent = content.replace(/\n/g, '<br>');
+        return highlightSpecialTerms(formattedContent);
     }
-
-    storyContentDiv.appendChild(messageElement);
-    messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-
-function ensureCorrectApiUrl(apiUrl) {
-    // 确保url以http:// 或 https:// 开始
-    apiUrl = apiUrl.startsWith('http://') || apiUrl.startsWith('https://') ? apiUrl : 'http://' + apiUrl;
-    
-    // 移除末尾多余的斜线
-    apiUrl = apiUrl.replace(/\/+$/, '');
-    
-    // 确保url包含`v1/`
-    if (!apiUrl.endsWith('/v1')) {
-        apiUrl += '/v1';
-    }
-
-    // 保证`v1/`后面只有一个斜线
-    apiUrl += apiUrl.endsWith('/v1') ? '/chat/completions/' : 'chat/completions/';
-
-    return apiUrl;
-}
-
-document.getElementById("submitInputButton").addEventListener("click", submitUserInput);

@@ -43,9 +43,7 @@ function loadSettings() {
         // 如果是公共Key，则不显示在输入框中
         document.getElementById('api-key').value = isPublicKey ? "" : savedSettings.apiKey;
         document.getElementById('api-url').value = savedSettings.apiUrl;
-        
-        // 加载保存的模型选择
-        document.getElementById('model-select').value = savedSettings.model || 'gpt-3.5-turbo';
+
     }else{
         // 默认设置
         const settings = {
@@ -126,7 +124,6 @@ function showSettings() {
         document.getElementById('api-key').type = "password";
 
         document.getElementById('api-url').value = savedSettings.apiUrl;
-        document.getElementById('model-select').value = savedSettings.model || 'gpt-3.5-turbo';
     }
 
     if (isPublicKey && publicKey) {
