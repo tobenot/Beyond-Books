@@ -6,10 +6,11 @@ async function loadTermsConfig() {
     try {
         const response = await fetch('lang/terms_explanations_zh-CN.json?v=' + new Date().getTime());
         termsConfig = await response.json();
-        console.log('Loaded terms config:', termsConfig);
+        if (isCarrotTest()) console.log('Loaded terms config:', termsConfig);
     } catch (error) {
         console.error('加载名词配置文件时出错:', error);
     }
+    preloadTermsImages();
 }
 
 // 从配置文件中加载色盘
@@ -60,47 +61,70 @@ function highlightSpecialTerms(text) {
 function showTermDescription(event, description, imageUrl) {
     const termTooltip = document.getElementById('term-tooltip');
     const highlightedDescription = highlightSpecialTerms(description);
-    const imageHtml = imageUrl ? `<img src="${imageUrl}" class="term-tooltip-image" alt="角色立绘">` : '';
+    const imageHtml = imageUrl ? `<img id="term-tooltip-image" src="${imageUrl}" class="term-tooltip-image" alt="术语图片">` : '';
 
     termTooltip.innerHTML = `<span>${highlightedDescription}</span> ${imageHtml}`;
-    
-    // 计算浮框的位置
-    let top = event.clientY + 10;
-    let left = event.clientX + 10;
 
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    
-    termTooltip.style.minWidth = '150px';
-
-    const tooltipWidth = termTooltip.offsetWidth;
-    const tooltipHeight = termTooltip.offsetHeight;
-    
-    if (left + tooltipWidth > viewportWidth) {
-        left = Math.max(10, viewportWidth - tooltipWidth - 10);
-    }
-
-    // 调整浮框展开方向
-    if ((event.clientX / viewportWidth) > 0.5) {
-        left = event.clientX - tooltipWidth - 10;
-    } else {
-        left = event.clientX + 10;
-    }
-
-    if (top + tooltipHeight > viewportHeight) {
-        top = viewportHeight - tooltipHeight - 10;
-    }
-    
-    termTooltip.style.top = `${top}px`;
-    termTooltip.style.left = `${left}px`;
+    // 强制浏览器重绘，以确保 offsetWidth 和 offsetHeight 正确
     termTooltip.style.display = 'block';
-
+    termTooltip.style.minWidth = '150px';
+    
+    // 初次设置位置
+    setTooltipPosition(event);
+    
+    if (imageUrl) {
+        const img = document.getElementById('term-tooltip-image');
+        img.onload = () => setTooltipPosition(event);
+    }
+    
     document.addEventListener('click', function closeTooltip(e) {
         if (e.target !== termTooltip && !termTooltip.contains(e.target) && !e.target.classList.contains('special-term')) {
             termTooltip.style.display = 'none';
             document.removeEventListener('click', closeTooltip);
         }
     });
+}
+
+function setTooltipPosition(event) {
+    const termTooltip = document.getElementById('term-tooltip');
+    
+    // 获取 termTooltip 的宽高
+    const tooltipWidth = termTooltip.offsetWidth;
+    const tooltipHeight = termTooltip.offsetHeight;
+    
+    // 获取 storyContainer 的位置和尺寸
+    const storyContainer = document.getElementById('storyContainer');
+    const containerRect = storyContainer.getBoundingClientRect();
+    
+    // 计算浮框的位置相对于 storyContainer
+    let top = event.clientY - containerRect.top + 10;
+    let left = event.clientX - containerRect.left + 10;
+
+    const containerWidth = storyContainer.clientWidth;
+    const containerHeight = storyContainer.clientHeight;
+
+    const thirdWidth = document.documentElement.clientWidth / 3;
+    const cursorX = event.clientX;
+
+    // 判断浮框展开方向
+    if (cursorX <= thirdWidth) {
+        // 在屏幕的左侧三分之一
+        left = event.clientX - containerRect.left + 10;
+    } else if (cursorX >= 2 * thirdWidth) {
+        // 在屏幕的右侧三分之一
+        left = event.clientX - containerRect.left - tooltipWidth - 10;
+    } else {
+        // 在屏幕的中间三分之一
+        left = Math.max(10, (event.clientX - containerRect.left - tooltipWidth / 2));
+    }
+
+    // 调整顶部边界
+    if (top + tooltipHeight > containerHeight) {
+        top = containerHeight - tooltipHeight - 10;
+    }
+
+    termTooltip.style.top = `${top}px`;
+    termTooltip.style.left = `${left}px`;
 }
 
 // 初始化解释框元素并添加到文档中
@@ -116,3 +140,32 @@ document.addEventListener('click', function (event) {
         showTermDescription(event, description, imageUrl); // 传递描述和图片URL
     }
 });
+
+async function preloadTermsImages() {
+    const imageUrls = [];
+
+    // 遍历 termsConfig，收集所有的 imageUrl
+    Object.values(termsConfig.terms).forEach(term => {
+        if (term.imageUrl) {
+            imageUrls.push(term.imageUrl);
+        }
+    });
+
+    // 创建一个 Promise 数组，用于异步加载所有图片
+    const loadPromises = imageUrls.map(url => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = url;
+            img.onload = () => resolve(url);
+            img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+        });
+    });
+
+    try {
+        // 等待所有图片加载完成
+        await Promise.all(loadPromises);
+        console.log('All images preloaded successfully');
+    } catch (error) {
+        console.error('Error preloading images:', error);
+    }
+}

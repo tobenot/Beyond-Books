@@ -4,7 +4,7 @@ async function loadLanguageFile(lang) {
     try {
         const response = await fetch(`lang/${lang}.json?v=${new Date().getTime()}`);
         const data = await response.json();
-        console.log('Loaded language data:', data); // 添加这行日志
+        console.log('Loaded language data');
         updateUIWithLanguage(data);
     } catch (error) {
         console.error('加载语言文件时出错:', error);
@@ -12,7 +12,7 @@ async function loadLanguageFile(lang) {
 }
 
 function updateUIWithLanguage(data) {
-    console.log('Updating UI with language data:', data); // 添加这行日志
+    console.log('Updating UI with language data');
 
     // 设置页面标题
     document.title = data.title;

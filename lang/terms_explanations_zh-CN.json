@@ -98,7 +98,8 @@
         },
         "克莱门特": {
             "color": "克莱门特",
-            "description": "Clement是贝利斯雇佣兵，异能是【衔羽展翼】。武器是长锤。"
+            "description": "Clement是贝利斯雇佣兵，异能是【衔羽展翼】。武器是长锤。",
+            "imageUrl": "assets/portrait/克莱门特.png"
         },
         "琼": {
             "color": "琼",

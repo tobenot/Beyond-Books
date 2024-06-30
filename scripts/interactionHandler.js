@@ -150,6 +150,7 @@ function formatInfluencePointsText(influencePoints) {
 }
 
 function createSystemPrompt(section, playerCharacter, otherCharactersDescriptions, influencePointsText) {
+    // influencePointsText 不使用在系统prompt里
     return `请你做主持人来主持一场游戏的一个桥段。
         桥段背景介绍：${section.backgroundInfo}
         主角和剧本：
@@ -159,8 +160,6 @@ function createSystemPrompt(section, playerCharacter, otherCharactersDescription
         ${otherCharactersDescriptions}
         特别提示：
         ${section.GMDetails}
-        本桥段产生后续影响的点：
-        ${influencePointsText}
         你需要生成非主角角色的反应和发生的事情，直到主角的决策点，到主角说话或决策的部分，你需要询问玩家，并等玩家做出决策再描绘。
         请按照以下JSON格式回复：
         {

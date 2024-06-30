@@ -18,7 +18,15 @@ function decryptJSONText(encryptedText, secretKey) {
     }
 }
 
+let sectionsIndexLoaded = false;
 function loadSectionsIndex() {
+    if (sectionsIndexLoaded) {
+        console.log('章节索引已加载，无需重复加载');
+        return;
+    }
+
+    sectionsIndexLoaded = true;
+
     const timestamp = new Date().getTime();
     fetch(`sections/sections.bbs?v=${timestamp}`)
         .then(response => response.text())
@@ -29,11 +37,16 @@ function loadSectionsIndex() {
                 sectionsIndex = sectionsData;
             } else {
                 console.error('加载章节索引时出错：无效的章节数据');
+                sectionsIndexLoaded = false;
             }
             setupSections();
-            checkUnlockConditions(); // 检查桥段解锁情况
+            checkUnlockConditions();
+            preloadSectionImages();
         })
-        .catch(error => console.error('加载或解密章节索引时出错:', error));
+        .catch(error => {
+            console.error('加载或解密章节索引时出错:', error);
+            sectionsIndexLoaded = false;
+        });
 }
 
 function setupSections() {
@@ -339,5 +352,34 @@ function restartSection(sectionId) {
     } else {
         console.error('未能找到要重新开始的桥段');
         alert('重新开始桥段时出错');
+    }
+}
+
+async function preloadSectionImages() {
+    const imageUrls = [];
+
+    // 遍历 sectionsIndex，收集所有的 imageUrl
+    sectionsIndex.sections.forEach(section => {
+        if (section.image) {
+            imageUrls.push(section.image);
+        }
+    });
+
+    // 创建一个 Promise 数组，用于异步加载所有图片
+    const loadPromises = imageUrls.map(url => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = url;
+            img.onload = () => resolve(url);
+            img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+        });
+    });
+
+    try {
+        // 等待所有图片加载完成
+        await Promise.all(loadPromises);
+        console.log('All section images preloaded successfully');
+    } catch (error) {
+        console.error('Error preloading section images:', error);
     }
 }
