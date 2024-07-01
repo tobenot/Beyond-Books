@@ -24,59 +24,68 @@ async function loadColorsConfig() {
     }
 }
 
+function isColorDark(color) {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const brightness = (0.299 * r + 0.587 * g + 0.114 * b);
+    return brightness < 128;
+}
+
 // 标记并高亮需要解释的名词
-function highlightSpecialTerms(text) {
+function highlightSpecialTerms(text, excludeTerm = '') {
     const terms = termsConfig.terms;
     const colors = colorsConfig.colors;
 
-    // 用于存储所有需要替换的名词及其位置
     const replacements = [];
 
-    // 遍历所有名词，记录其位置
     Object.keys(terms).forEach(term => {
-        const color = colors[terms[term].color] || terms[term].color; // 从色盘中获取颜色，如果找不到则使用原始颜色名
+        if (term === excludeTerm) return; // 跳过不需要高亮的术语
+        const color = colors[terms[term].color] || terms[term].color; 
         const regex = new RegExp(term, 'g');
         let match;
         while ((match = regex.exec(text)) !== null) {
+            const isDark = isColorDark(color); // 判断颜色是否较深
+            const textShadow = isDark ? '-1px -1px 2px #222, 1px -1px 2px #222, -1px 1px 2px #222, 1px 1px 2px #222' : '-1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000, 1px 1px 2px #000';
             replacements.push({
                 term: term,
                 start: match.index,
                 end: match.index + term.length,
-                color: color
+                color: color,
+                textShadow: textShadow
             });
         }
     });
 
-    // 按照位置从后向前进行替换，避免干扰
     replacements.sort((a, b) => b.start - a.start);
     replacements.forEach(replacement => {
         text = text.slice(0, replacement.start) + 
-            `<span class="special-term" style="font-weight: bold; color: ${replacement.color};" data-term="${replacement.term}">${replacement.term}</span>` + 
+            `<span class="special-term" style="font-weight: bold; color: ${replacement.color}; text-shadow: ${replacement.textShadow};" data-term="${replacement.term}">${replacement.term}</span>` + 
             text.slice(replacement.end);
     });
 
     return text;
 }
 
-function showTermDescription(event, description, imageUrl) {
+function showTermDescription(event, description, imageUrl, term) {
+    console.log("showTermDescription",description,imageUrl,term)
     const termTooltip = document.getElementById('term-tooltip');
-    const highlightedDescription = highlightSpecialTerms(description);
+    const highlightedDescription = highlightSpecialTerms(description, term);
     const imageHtml = imageUrl ? `<img id="term-tooltip-image" src="${imageUrl}" class="term-tooltip-image" alt="术语图片">` : '';
 
     termTooltip.innerHTML = `<span>${highlightedDescription}</span> ${imageHtml}`;
 
-    // 强制浏览器重绘，以确保 offsetWidth 和 offsetHeight 正确
     termTooltip.style.display = 'block';
     termTooltip.style.minWidth = '150px';
-    
-    // 初次设置位置
+
     setTooltipPosition(event);
-    
+
     if (imageUrl) {
         const img = document.getElementById('term-tooltip-image');
         img.onload = () => setTooltipPosition(event);
     }
-    
+
     document.addEventListener('click', function closeTooltip(e) {
         if (e.target !== termTooltip && !termTooltip.contains(e.target) && !e.target.classList.contains('special-term')) {
             termTooltip.style.display = 'none';
@@ -92,35 +101,39 @@ function setTooltipPosition(event) {
     const tooltipWidth = termTooltip.offsetWidth;
     const tooltipHeight = termTooltip.offsetHeight;
     
-    // 获取 storyContainer 的位置和尺寸
-    const storyContainer = document.getElementById('storyContainer');
-    const containerRect = storyContainer.getBoundingClientRect();
+    // 获取视口的宽高
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
     
-    // 计算浮框的位置相对于 storyContainer
-    let top = event.clientY - containerRect.top + 10;
-    let left = event.clientX - containerRect.left + 10;
+    // 计算浮框的位置相对于视口
+    let top = event.clientY + 10;
+    let left = event.clientX + 10;
 
-    const containerWidth = storyContainer.clientWidth;
-    const containerHeight = storyContainer.clientHeight;
-
-    const thirdWidth = document.documentElement.clientWidth / 3;
+    const thirdWidth = viewportWidth / 3;
     const cursorX = event.clientX;
 
     // 判断浮框展开方向
     if (cursorX <= thirdWidth) {
         // 在屏幕的左侧三分之一
-        left = event.clientX - containerRect.left + 10;
+        left = event.clientX + 10;
     } else if (cursorX >= 2 * thirdWidth) {
         // 在屏幕的右侧三分之一
-        left = event.clientX - containerRect.left - tooltipWidth - 10;
+        left = event.clientX - tooltipWidth - 10;
     } else {
         // 在屏幕的中间三分之一
-        left = Math.max(10, (event.clientX - containerRect.left - tooltipWidth / 2));
+        left = Math.max(10, (event.clientX - tooltipWidth / 2));
     }
 
     // 调整顶部边界
-    if (top + tooltipHeight > containerHeight) {
-        top = containerHeight - tooltipHeight - 10;
+    if (top + tooltipHeight > viewportHeight) {
+        top = viewportHeight - tooltipHeight - 10;
+    }
+
+    // 调整左边界，防止 tooltip 跑出屏幕外
+    if (left < 0) {
+        left = 10;
+    } else if (left + tooltipWidth > viewportWidth) {
+        left = viewportWidth - tooltipWidth - 10;
     }
 
     termTooltip.style.top = `${top}px`;
@@ -136,8 +149,8 @@ document.body.appendChild(termTooltip);
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('special-term')) {
         const term = event.target.getAttribute('data-term');
-        const { description, imageUrl } = termsConfig.terms[term]; // 获取描述和图片URL
-        showTermDescription(event, description, imageUrl); // 传递描述和图片URL
+        const { description, imageUrl } = termsConfig.terms[term];
+        showTermDescription(event, description, imageUrl, term); // 传递术语
     }
 });
 

@@ -1,6 +1,5 @@
-// scriptLoader
 const scripts = [
-    { url: 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js', alias: '加密模块' },
+    { url: 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js', alias: '依赖库' },
     { url: 'scripts/loadLanguage.js', alias: '多语言模块' },
     { url: 'scripts/sections.js', alias: '桥段模块' },
     { url: 'scripts/saveLoad.js', alias: '存档模块' },
@@ -12,16 +11,20 @@ const scripts = [
     { url: 'scripts/reviewHandler.js', alias: '回顾模块' },
 ];
 
+let loadedScriptsCount = 0;
+
 async function loadScript(url, alias) {
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = `${url}?v=${new Date().getTime()}`;
         script.defer = true;
         script.onload = () => {
+            loadedScriptsCount++;
             updateProgress(alias, scripts.length);
             resolve(url);
         };
         script.onerror = () => {
+            loadedScriptsCount++;
             updateProgress(alias, scripts.length);
             reject(url);
         };
@@ -30,10 +33,9 @@ async function loadScript(url, alias) {
 }
 
 function updateProgress(alias, totalScripts) {
-    const loadedScripts = scripts.indexOf(alias) + 1; // 已加载脚本的数量
-    const progress = (loadedScripts / totalScripts) * 100;
+    const progress = (loadedScriptsCount / totalScripts) * 100;
     document.getElementById('progress').style.width = `${progress}%`;
-    document.getElementById('progressText').innerText = `正在加载${alias}... (${loadedScripts}/${totalScripts})`;
+    document.getElementById('progressText').innerText = `正在加载${alias}... (${loadedScriptsCount}/${totalScripts})`;
 }
 
 async function initializeApp() {

@@ -268,14 +268,13 @@ function processModelResponse(responseData, userInputField, submitButton) {
         updateDisplay('assistant', parsedResponse.display);
 
         if (parsedResponse.endSectionFlag) {
+            // 桥段结束后禁用输入框和提交按钮
+            userInputField.style.display = 'none';
+            submitButton.style.display = 'none';
+            userInputField.disabled = true;
+            submitButton.disabled = true;
             getSectionSummary(currentSection.id, conversationHistory, currentSection).then(summary => {
                 handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
-
-                // 桥段结束后禁用输入框和提交按钮
-                userInputField.style.display = 'none';
-                submitButton.style.display = 'none';
-                userInputField.disabled = true;
-                submitButton.disabled = true;
             });
         }
     }

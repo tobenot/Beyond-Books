@@ -171,6 +171,7 @@ h2 {
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
+    margin: 20px;
 }
 
 @keyframes spin {
@@ -194,6 +195,7 @@ h2 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: safe center;
     width: 100%;
     margin: auto;
 }

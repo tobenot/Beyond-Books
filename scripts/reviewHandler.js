@@ -130,8 +130,8 @@ function viewReviewDetail(id) {
     reviewDetailContainer.innerHTML = `
         <h2>${review.review_title}</h2>
         <button class="button" onclick="hideReviewDetails()">返回回顾列表</button>
-        <button class="button" onclick="exportReviewAsHTML(${id})">导出为HTML</button>
-        <button class="button" onclick="exportReviewAsImage(${id})">导出为长图</button>
+        <button class="button" onclick="exportReviewAsHTML(${id}, '${review.review_title}')">导出为HTML</button>
+        <button class="button" onclick="exportReviewAsImage(${id}, '${review.review_title}')">导出为长图</button>
         <div id="reviewStoryContent">${review.content}</div> <!-- 直接渲染存储的HTML内容 -->
         <div style="display: none;" id="fullRecord">${review.full_record}</div> <!-- 保存完整记录，默认隐藏 -->
     `;
@@ -147,7 +147,7 @@ function hideReviewDetails() {
 }
 
 // 导出回顾为HTML
-function exportReviewAsHTML(id) {
+function exportReviewAsHTML(id, title) {
     const reviews = loadReviews();
     const review = reviews.reviewRecords.find(record => record.id === id);
     if (!review) return;
@@ -189,16 +189,19 @@ function exportReviewAsHTML(id) {
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
 
+    // 创建合适长度的文件名
+    const filename = `${title.substring(0, 50)}.html`;
+
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${review.review_title}.html`;
+    a.download = filename;
     a.click();
 
     URL.revokeObjectURL(url);
 }
 
 // 导出回顾为长图
-async function exportReviewAsImage(id) {
+async function exportReviewAsImage(id, title) {
     async function generateImage() {
         const reviewDetailContainer = document.getElementById('reviewDetailContainer');
 
@@ -217,10 +220,13 @@ async function exportReviewAsImage(id) {
         // 将canvas转换为DataURL
         const url = canvas.toDataURL('image/png');
 
+        // 创建合适长度的文件名
+        const filename = `${title.substring(0, 50)}.png`;
+
         // 创建一个下载链接并点击以下载图片
         const a = document.createElement('a');
         a.href = url;
-        a.download = `桥段回顾_${id}.png`;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
