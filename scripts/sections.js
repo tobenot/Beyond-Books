@@ -33,7 +33,7 @@ function loadSectionsIndex() {
         .then(encryptedText => {
             const secretKey = 'ReadingThisIsASpoilerForYourself';
             const sectionsData = decryptJSONText(encryptedText, secretKey);
-            if (sectionsData && sectionsData.sections) {
+            if (sectionsData && sectionsData.chapters) {
                 sectionsIndex = sectionsData;
             } else {
                 console.error('加载章节索引时出错：无效的章节数据');
@@ -53,40 +53,51 @@ function setupSections() {
     const sectionsList = document.getElementById('sections');
     sectionsList.innerHTML = '';
 
-    if (!sectionsIndex.sections || sectionsIndex.sections.length === 0) {
+    if (!sectionsIndex.chapters || sectionsIndex.chapters.length === 0) {
         console.error('章节索引无效或空');
         return;
     }
 
-    sectionsIndex.sections.forEach(section => {
-        const sectionDiv = document.createElement('div');
-        sectionDiv.className = 'section';
+    sectionsIndex.chapters.forEach(chapter => {
+        const chapterDiv = document.createElement('div');
+        chapterDiv.className = 'chapter';
+        
+        const chapterTitle = document.createElement('h2');
+        chapterTitle.innerText = chapter.title;
+        chapterDiv.appendChild(chapterTitle);
 
-        if (completedSections.some(item => item.sectionId === section.id)) {
-            sectionDiv.className += ' completed';
-            const replayButton = document.createElement('button');
-            replayButton.className = 'button';
-            replayButton.innerText = `${section.title}（已完成） - 重玩`;
-            replayButton.onclick = () => chooseSection(section.file, true);
-            sectionDiv.appendChild(replayButton);
-        } else if (unlockedSections.includes(section.id)) {
-            const button = document.createElement('button');
-            button.className = 'button';
-            button.innerText = section.title;
-            button.onclick = () => chooseSection(section.file, false);
+        chapter.sections.forEach(section => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'section';
 
-            const image = document.createElement('img');
-            image.src = section.image;
-            image.alt = `${section.title} 缩略图`;
+            if (completedSections.some(item => item.sectionId === section.id)) {
+                sectionDiv.classList.add('completed');
+                const replayButton = document.createElement('button');
+                replayButton.className = 'button';
+                replayButton.innerText = `${section.title}（已完成） - 重玩`;
+                replayButton.onclick = () => chooseSection(section.file, true);
+                sectionDiv.appendChild(replayButton);
+            } else if (unlockedSections.includes(section.id)) {
+                const button = document.createElement('button');
+                button.className = 'button';
+                button.innerText = section.title;
+                button.onclick = () => chooseSection(section.file, false);
 
-            sectionDiv.appendChild(image);
-            sectionDiv.appendChild(button);
-        } else {
-            sectionDiv.className += ' locked';
-            sectionDiv.innerText = `${section.title}（未解锁）`;
-        }
+                const image = document.createElement('img');
+                image.src = section.image;
+                image.alt = `${section.title} 缩略图`;
 
-        sectionsList.appendChild(sectionDiv);
+                sectionDiv.appendChild(image);
+                sectionDiv.appendChild(button);
+            } else {
+                sectionDiv.classList.add('locked');
+                sectionDiv.innerText = `${section.title}（未解锁）`;
+            }
+
+            chapterDiv.appendChild(sectionDiv);
+        });
+
+        sectionsList.appendChild(chapterDiv);
     });
 }
 
@@ -230,23 +241,25 @@ function returnToSectionSelection() {
 
 function checkUnlockConditions() {
     console.log('Checking Unlock Conditions');
-    sectionsIndex.sections.forEach(section => {
-        const allPreconditionsMet = section.preconditions.every(precondition => {
-            const globalConditionMet = globalInfluencePoints.some(globalPoint => {
-                const met = globalPoint.name === precondition.condition && globalPoint.influence === precondition.result;
-                return met;
-            });
-            const sectionConditionMet = completedSections.some(comp => {
-                const met = comp.sectionId === precondition.sectionId && comp.result.some(point => point.name === precondition.condition && point.influence === precondition.result);
-                return met;
+    sectionsIndex.chapters.forEach(chapter => {
+        chapter.sections.forEach(section => {
+            const allPreconditionsMet = section.preconditions.every(precondition => {
+                const globalConditionMet = globalInfluencePoints.some(globalPoint => {
+                    const met = globalPoint.name === precondition.condition && globalPoint.influence === precondition.result;
+                    return met;
+                });
+                const sectionConditionMet = completedSections.some(comp => {
+                    const met = comp.sectionId === precondition.sectionId && comp.result.some(point => point.name === precondition.condition && point.influence === precondition.result);
+                    return met;
+                });
+
+                return globalConditionMet || sectionConditionMet;
             });
 
-            return globalConditionMet || sectionConditionMet;
+            if (allPreconditionsMet && !unlockedSections.includes(section.id)) {
+                unlockedSections.push(section.id);
+            }
         });
-
-        if (allPreconditionsMet && !unlockedSections.includes(section.id)) {
-            unlockedSections.push(section.id);
-        }
     });
 
     console.log('Unlocked Sections:', unlockedSections);
@@ -346,7 +359,7 @@ function initializeGameState(savedData = null) {
 }
 
 function restartSection(sectionId) {
-    const section = sectionsIndex.sections.find(sect => sect.id === sectionId);
+    const section = sectionsIndex.chapters.flatMap(chapter => chapter.sections).find(sect => sect.id === sectionId);
     if (section) {
         chooseSection(section.file);
     } else {
@@ -359,13 +372,14 @@ async function preloadSectionImages() {
     const imageUrls = [];
 
     // 遍历 sectionsIndex，收集所有的 imageUrl
-    sectionsIndex.sections.forEach(section => {
-        if (section.image) {
-            imageUrls.push(section.image);
-        }
+    sectionsIndex.chapters.forEach(chapter => {
+        chapter.sections.forEach(section => {
+            if (section.image) {
+                imageUrls.push(section.image);
+            }
+        });
     });
 
-    // 创建一个 Promise 数组，用于异步加载所有图片
     const loadPromises = imageUrls.map(url => {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -376,7 +390,6 @@ async function preloadSectionImages() {
     });
 
     try {
-        // 等待所有图片加载完成
         await Promise.all(loadPromises);
         console.log('All section images preloaded successfully');
     } catch (error) {

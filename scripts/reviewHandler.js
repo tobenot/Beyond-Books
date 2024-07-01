@@ -3,7 +3,14 @@
 const REVIEW_KEY = "reviewRecords";
 
 async function storeSectionReview(sectionId, conversationHistory, storyHtmlContent) {
-    const section = sectionsIndex.sections.find(sect => sect.id === sectionId);
+    const section = sectionsIndex.chapters.flatMap(chapter => chapter.sections).find(sect => sect.id === sectionId);
+
+    if (!section) {
+        console.error('找不到指定的桥段');
+        return;
+    }
+    
+    const chapter = sectionsIndex.chapters.find(chap => chap.sections.includes(section));
 
     const reviewRecord = conversationHistory.map(record => {
         const role = record.role === 'user' ? '你' : record.role === 'assistant' ? '系统' : record.role;
@@ -13,6 +20,7 @@ async function storeSectionReview(sectionId, conversationHistory, storyHtmlConte
     const newReview = {
         id: new Date().getTime(),
         review_title: section.title,
+        chapter_title: chapter.title,
         content: storyHtmlContent,  // 存储完整的HTML内容
         full_record: reviewRecord,  // 存储完整的记录
         timestamp: new Date().toISOString(),

@@ -215,6 +215,15 @@ h2 {
     max-width: 384px;
 }
 
+.chapter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;  /* 占满父容器宽度 */
+    margin: 10px 0;
+}
+
 .storyContainer {
     overflow: hidden;
     display: flex;
