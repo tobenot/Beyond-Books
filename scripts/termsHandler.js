@@ -69,7 +69,6 @@ function highlightSpecialTerms(text, excludeTerm = '') {
 }
 
 function showTermDescription(event, description, imageUrl, term) {
-    console.log("showTermDescription",description,imageUrl,term)
     const termTooltip = document.getElementById('term-tooltip');
     const highlightedDescription = highlightSpecialTerms(description, term);
     const imageHtml = imageUrl ? `<img id="term-tooltip-image" src="${imageUrl}" class="term-tooltip-image" alt="术语图片">` : '';
