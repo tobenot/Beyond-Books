@@ -43,7 +43,7 @@ function exportSave() {
         gameData: CryptoJS.AES.encrypt(gameData, EXPORT_SECRET_KEY).toString(),
         reviewData: CryptoJS.AES.encrypt(reviewData, EXPORT_SECRET_KEY).toString()
     });
-    const blob = new Blob([combinedData], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([combinedData], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
 
     const now = new Date();
@@ -61,7 +61,7 @@ function exportSave() {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = filename; 
+    a.download = filename;
     a.click();
 
     URL.revokeObjectURL(url);
