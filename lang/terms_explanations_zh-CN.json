@@ -61,7 +61,8 @@
         },
         "卡斯帕": {
             "color": "卡斯帕",
-            "description": "Kaspar是银月大学的棍术老师。新任银月寺主持。"
+            "description": "Kaspar是银月大学的棍术老师。新任银月寺主持。",
+            "imageUrl": "assets/portrait/卡斯帕.png"
         },
         "史蒂文": {
             "color": "史蒂文",
@@ -110,6 +111,11 @@
             "description": "Joan使用生成冰的能力。",
             "imageUrl": "assets/portrait/琼.png"
         },
+        "杰瑞斯": {
+            "color": "罪恶猎手",
+            "description": "Jerry是罪恶猎手高官，异能是【潜龙无影】，武器是匕首。",
+            "imageUrl": "assets/portrait/杰瑞斯.png"
+        },
         "【内能构建】": {
             "color": "内能构建",
             "description": "斯图尔特的异能，可以生成各种形式的火焰。"
@@ -124,7 +130,11 @@
         },
         "【破晓行动】": {
             "color": "破晓行动",
-            "description": "贝利斯入侵银月寺，企图夺取【折射】的一次行动。"
+            "description": "贝利斯入侵银月寺，企图夺取能量之体【折射】的一次行动。"
+        },
+        "【清扫行动】": {
+            "color": "破晓行动",
+            "description": "贝利斯入侵银月寺，企图夺取能量之体【折射】的第二次行动。"
         },
         "【音域净空】": {
             "color": "辛妮亚",
@@ -141,6 +151,10 @@
         ,"【鲸歌海铭】": {
             "color": "艾琳",
             "description": "艾琳声称自己持有的异能，据她说可以操控水。"
+        }
+        ,"【潜龙无影】": {
+            "color": "罪恶猎手",
+            "description": "杰瑞斯的异能，可以让自己隐身。"
         }
         ,"灵能盾": {
             "color": "能量之体",
