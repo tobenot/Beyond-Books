@@ -368,7 +368,7 @@ function restartSection(sectionId) {
     }
 }
 
-async function preloadSectionImages() {
+async function preloadSectionImages(batchSize = 1, delay = 1500) { // batchSize and delay can be adjusted
     const imageUrls = [];
 
     // 遍历 sectionsIndex，收集所有的 imageUrl
@@ -380,19 +380,27 @@ async function preloadSectionImages() {
         });
     });
 
-    const loadPromises = imageUrls.map(url => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.src = url;
-            img.onload = () => resolve(url);
-            img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+    for (let i = 0; i < imageUrls.length; i += batchSize) {
+        const batch = imageUrls.slice(i, i + batchSize);
+        const loadPromises = batch.map(url => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = url;
+                img.onload = () => resolve(url);
+                img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+            });
         });
-    });
 
-    try {
-        await Promise.all(loadPromises);
-        console.log('All section images preloaded successfully');
-    } catch (error) {
-        console.error('Error preloading section images:', error);
+        try {
+            await Promise.all(loadPromises);
+            console.log(`Batch ${Math.floor(i / batchSize) + 1} preloaded successfully`);
+        } catch (error) {
+            console.error('Error preloading section images:', error);
+        }
+
+        // Delay before loading the next batch
+        await new Promise(resolve => setTimeout(resolve, delay));
     }
+
+    console.log('All section images preloaded successfully');
 }

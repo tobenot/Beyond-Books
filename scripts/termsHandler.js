@@ -153,7 +153,7 @@ document.addEventListener('click', function (event) {
     }
 });
 
-async function preloadTermsImages() {
+async function preloadTermsImages(batchSize = 5, delay = 1000) { // batchSize 和 delay 可以根据需要进行调整
     const imageUrls = [];
 
     // 遍历 termsConfig，收集所有的 imageUrl
@@ -163,21 +163,27 @@ async function preloadTermsImages() {
         }
     });
 
-    // 创建一个 Promise 数组，用于异步加载所有图片
-    const loadPromises = imageUrls.map(url => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.src = url;
-            img.onload = () => resolve(url);
-            img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+    for (let i = 0; i < imageUrls.length; i += batchSize) {
+        const batch = imageUrls.slice(i, i + batchSize);
+        const loadPromises = batch.map(url => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = url;
+                img.onload = () => resolve(url);
+                img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+            });
         });
-    });
 
-    try {
-        // 等待所有图片加载完成
-        await Promise.all(loadPromises);
-        console.log('All images preloaded successfully');
-    } catch (error) {
-        console.error('Error preloading images:', error);
+        try {
+            await Promise.all(loadPromises);
+            console.log(`Batch ${Math.floor(i / batchSize) + 1} preloaded successfully`);
+        } catch (error) {
+            console.error('Error preloading images:', error);
+        }
+
+        // 在加载下一个批次之前等待一段时间
+        await new Promise(resolve => setTimeout(resolve, delay));
     }
+
+    console.log('All images preloaded successfully');
 }
