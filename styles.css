@@ -19,7 +19,7 @@ body, html {
     flex-direction: column;
     justify-content: center; /* 水平居中 */
     align-items: center;
-    width: 100%;
+    width: 90%;
     height: auto;
     max-width: 100%; /* 优化容器最大宽度 */
     padding: 20px;
@@ -185,7 +185,7 @@ h2 {
     align-items: center;
     justify-content: safe center;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
     overflow-y: auto;
     padding-bottom: 20px;
     box-sizing: border-box;
@@ -396,7 +396,7 @@ h2 {
 @media (max-width: 767px) {
     body {
         flex-direction: column;
-        justify-content: center;
+        justify-content: safe center;
         align-items: center;
         padding: 10px;
     }
