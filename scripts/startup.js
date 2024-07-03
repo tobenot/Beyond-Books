@@ -57,6 +57,7 @@ async function initializeApp() {
         // 'scripts/saveLoad.js',
         checkSaveStatus();
         // 'scripts/settings.js',
+        initSettingsUI();
         loadSettings();
         // 'scripts/termsHandler.js'
         loadColorsConfig();

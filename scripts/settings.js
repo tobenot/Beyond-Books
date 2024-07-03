@@ -4,6 +4,48 @@ const PUBLIC_KEY_STORAGE = "publicKeyStorage"; // 存储公共Key
 const FREE_TRIAL_KEY_FLAG = "freeTrialKey"; // 旧的免费试玩Key标志
 const FREE_TRIAL_KEY_STORAGE = "freeTrialKeyStorage"; // 旧的免费试玩Key存储
 
+const settingsText = {
+    settingsTitle: "设置",
+    apiKeyLabel: "API Key",
+    apiUrlLabel: "API URL",
+    modelSelectLabel: "模型指定gpt4o",
+    whatIsThisButton: "这是什么？",
+    saveButton: "保存设置",
+    publicKeyButton: "已获取公共key",
+    resetSettingsButton: "恢复默认设置",
+    exitButton: "不保存退出",
+    helpModalTitle: "帮助信息",
+    helpContent: `
+        <p>本游戏<strong>基于</strong>可访问<strong>gpt-4o</strong>模型的接口API进行，您可自行寻找相关API服务，默认API地址不构成推荐建议</p>
+        <p>第一次打开游戏网页时会自动尝试获取公共key，所以您可能直接开始游戏就可以游玩了。</p>
+        <p>公共key是作者早先用于开发大模型游戏的，其额度将于<strong>2024年7月12日</strong>过期（或者在此之前用完），届时会再另起公共key，API URL可能会更新</p>
+        <p>如遇无法输入API KEY，可以刷新网页</p>
+    `,
+    helpCloseButton: "关闭",
+    settingsSavedAlert: "设置已保存",
+    settingsResetAlert: "设置已恢复默认",
+    publicKeyFetching: "获取中...",
+    publicKeyFetched: "公共 Key 已成功获取并保存\n请使用https://openkey.cloud/v1/作为API URL。",
+    publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境"
+};
+
+function initSettingsUI() {
+    document.getElementById('settingTitle').innerText = settingsText.settingsTitle;
+    document.getElementById('settingApiKeyLabel').innerText = settingsText.apiKeyLabel;
+    document.getElementById('settingApiUrlLabel').innerText = settingsText.apiUrlLabel;
+    document.getElementById('settingModelSelectLabel').innerText = settingsText.modelSelectLabel;
+    document.getElementById('settingWhatIsThisButton').innerText = settingsText.whatIsThisButton;
+    document.getElementById('settingSaveButton').innerText = settingsText.saveButton;
+    document.getElementById('settingPublicKeyButton').innerText = settingsText.publicKeyButton;
+    document.getElementById('settingResetSettingsButton').innerText = settingsText.resetSettingsButton;
+    document.getElementById('settingExitButton').innerText = settingsText.exitButton;
+
+    // 帮助信息内容
+    document.getElementById('settingHelpModalTitle').innerText = settingsText.helpModalTitle;
+    document.getElementById('settingHelpContent').innerHTML = settingsText.helpContent;
+    document.getElementById('settingHelpCloseButton').innerText = settingsText.helpCloseButton;
+};
+
 function saveSettings(isAuto = false) {
     const apiKeyInput = document.getElementById('api-key').value;
     const apiUrl = document.getElementById('api-url').value;
@@ -43,7 +85,6 @@ function loadSettings() {
         // 如果是公共Key，则不显示在输入框中
         document.getElementById('api-key').value = isPublicKey ? "" : savedSettings.apiKey;
         document.getElementById('api-url').value = savedSettings.apiUrl;
-
     }else{
         // 默认设置
         const settings = {
@@ -57,7 +98,7 @@ function loadSettings() {
     }
 
     if (isPublicKey && publicKey) {
-        document.getElementById('publicKeyButton').innerText = '更新公共key';
+        document.getElementById('settingPublicKeyButton').innerText = '更新公共key';
     }
 }
 
@@ -90,9 +131,9 @@ function getPublicKey(isAuto = false) {
             // 不显示公共 Key，但将其保存到本地存储
             document.getElementById('api-key').value = '';
             document.getElementById('api-key').disabled = true;
-            document.getElementById('publicKeyButton').innerText = '已获取公共key';
+            document.getElementById('settingPublicKeyButton').innerText = '已获取公共key';
             if(!isAuto){
-                document.getElementById('publicKeyButton').disabled = true;
+                document.getElementById('settingPublicKeyButton').disabled = true;
             }
             trialStatus.innerText = '';
 
@@ -127,7 +168,7 @@ function showSettings() {
     }
 
     if (isPublicKey && publicKey) {
-        document.getElementById('publicKeyButton').innerText = '更新公共key';
+        document.getElementById('settingPublicKeyButton').innerText = '更新公共key';
     }
 
     document.getElementById('menu').style.display = 'none';
@@ -149,4 +190,14 @@ function migrateOldKeys() {
         localStorage.removeItem(FREE_TRIAL_KEY_FLAG);
         localStorage.removeItem(FREE_TRIAL_KEY_STORAGE);
     }
+}
+
+// 显示帮助信息
+function showHelp() {
+    document.getElementById('helpModal').style.display = 'flex';
+}
+
+// 隐藏帮助信息
+function hideHelp() {
+    document.getElementById('helpModal').style.display = 'none';
 }

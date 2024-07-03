@@ -50,7 +50,7 @@
     <div class="container" id="menu" style="display: none;">
         <h1 id="mainTitle"></h1>
         <h2 id="subTitle"></h2>
-        <p id="gameDescription">大语言模型驱动的文字互动小说</p>
+        <p id="gameDescription">大语言模型驱动的<strong>异能战斗/交涉/聊天</strong>文字互动小说</p>
         <div class="menu-controls">
             <button class="button" id="newGameButton" onclick="newGame()">开始新游戏</button>
             <div class="control-pair" id="gameProgressButtons" style="display: none;">
@@ -70,8 +70,12 @@
         </div>
         <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
         <div class="footer">
-            <p>游戏社区QQ群：<a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">731682071</a></p>
-            <p><a href="https://space.bilibili.com/23122362" target="_blank">B站地址</a> 欢迎私信留言~</p>
+            <p>
+                <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">QQ群：731682071</a>
+                &nbsp;
+                <a href="https://space.bilibili.com/23122362" target="_blank">B站</a>
+            </p>            
+            <p>欢迎讨论剧情/私信留言等~</p>
         </div>
     </div>
     
@@ -92,23 +96,34 @@
     </div>
 
     <div class="container" id="settings" style="display: none;">
-        <h2>设置</h2>
-        <div id="settingsContainer">
-            <label for="api-key">API Key</label>
+        <h2 id="settingTitle"></h2>
+        <div class="settingsContainer" id="settingsContainer">
+            <label for="api-key" id="settingApiKeyLabel"></label>
             <input type="password" class="settings-input" id="api-key" placeholder="输入你的API Key">
-            <label for="api-url">API URL</label>
+            <label for="api-url" id="settingApiUrlLabel"></label>
             <input type="text" class="settings-input" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
-            <label for="model-select">模型指定gpt4o</label>
+            <label id="settingModelSelectLabel"></label>
             <div class="button-container">
-                <button class="button" id="saveButton" onclick="saveSettings()">保存设置</button>
-                <button class="button" id="publicKeyButton" onclick="getPublicKey()">已获取公共key</button>
-                <button class="button" id="resetSettingsButton" onclick="resetSettings()">恢复默认设置</button>
-                <button class="button" id="exitButton" onclick="hideSettings()">不保存退出</button>
+                <button class="button" id="settingWhatIsThisButton" onclick="showHelp()"></button>
+                <button class="button" id="settingSaveButton" onclick="saveSettings()"></button>
+                <button class="button" id="settingPublicKeyButton" onclick="getPublicKey()"></button>
+                <button class="button" id="settingResetSettingsButton" onclick="resetSettings()"></button>
+                <button class="button" id="settingExitButton" onclick="hideSettings()"></button>
             </div>
             <p id="trialStatus"></p>
             <p id="downloadStatus"></p>
         </div>
     </div>
+    
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <h2 id="settingHelpModalTitle"></h2>
+            <div id="settingHelpContent"></div>
+            <div class="button-container">
+                <button class="button" id="settingHelpCloseButton" onclick="hideHelp()"></button>
+            </div>
+        </div>
+    </div>    
 
     <div class="container" id="reviewContainer" style="display: none;"></div>
     <div class="container" id="reviewDetailContainer" style="display: none;"></div>
