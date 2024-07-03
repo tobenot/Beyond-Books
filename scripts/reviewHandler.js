@@ -71,7 +71,7 @@ function showReviewRecords() {
     const reviews = loadReviews();
     const reviewContainer = document.getElementById('reviewContainer');
     reviewContainer.innerHTML = `
-        <h2>桥段回顾列表</h2>
+        <h2>桥段回顾列表（纯本地存储）</h2>
         <button class="button" onclick="hideReviewRecords()">返回主菜单</button>
     `;
 

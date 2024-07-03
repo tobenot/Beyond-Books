@@ -67,6 +67,9 @@
                 </button>
                 <button class="button" id="deleteSaveButton" style="display: none;" onclick="deleteSave()">删除存档</button>
             </div>
+            <div class="control-pair" id="footerControl">
+                <button class="button" onclick="showCreatorsMessage()">制作者的话</button>
+            </div>
         </div>
         <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
         <div class="footer">
@@ -74,8 +77,8 @@
                 <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">QQ群：731682071</a>
                 &nbsp;
                 <a href="https://space.bilibili.com/23122362" target="_blank">B站</a>
-            </p>            
-            <p>欢迎讨论剧情/私信留言等~</p>
+            </p>
+            <p>欢迎讨论剧情/私信留言等~</p>          
         </div>
     </div>
     
@@ -115,15 +118,15 @@
         </div>
     </div>
     
-    <div class="modal" id="helpModal">
+    <div class="modal" id="modal" style="display:none;">
         <div class="modal-content">
-            <h2 id="settingHelpModalTitle"></h2>
-            <div id="settingHelpContent"></div>
+            <h2 id="modalTitle"></h2>
+            <div id="modalContent"></div>
             <div class="button-container">
-                <button class="button" id="settingHelpCloseButton" onclick="hideHelp()"></button>
+                <button class="button" id="modalCloseButton" onclick="hideModal()">关闭</button>
             </div>
         </div>
-    </div>    
+    </div>
 
     <div class="container" id="reviewContainer" style="display: none;"></div>
     <div class="container" id="reviewDetailContainer" style="display: none;"></div>

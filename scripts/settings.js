@@ -39,11 +39,6 @@ function initSettingsUI() {
     document.getElementById('settingPublicKeyButton').innerText = settingsText.publicKeyButton;
     document.getElementById('settingResetSettingsButton').innerText = settingsText.resetSettingsButton;
     document.getElementById('settingExitButton').innerText = settingsText.exitButton;
-
-    // 帮助信息内容
-    document.getElementById('settingHelpModalTitle').innerText = settingsText.helpModalTitle;
-    document.getElementById('settingHelpContent').innerHTML = settingsText.helpContent;
-    document.getElementById('settingHelpCloseButton').innerText = settingsText.helpCloseButton;
 };
 
 function saveSettings(isAuto = false) {
@@ -192,12 +187,8 @@ function migrateOldKeys() {
     }
 }
 
-// 显示帮助信息
 function showHelp() {
-    document.getElementById('helpModal').style.display = 'flex';
-}
-
-// 隐藏帮助信息
-function hideHelp() {
-    document.getElementById('helpModal').style.display = 'none';
+    document.getElementById('modalTitle').innerText = settingsText.helpModalTitle;
+    document.getElementById('modalContent').innerHTML = settingsText.helpContent;
+    document.getElementById('modal').style.display = 'flex';
 }

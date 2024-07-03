@@ -85,3 +85,26 @@ async function initializeApp() {
 function isCarrotTest() {
     return new URLSearchParams(window.location.search).has('carrot');
 }
+
+const textResources = {
+    creatorMessageTitle: "制作人的话",
+    creatorMessageContent: `
+        <p>《不止于纸上的故事》曾经是我在2015年主导创作的纸上游戏、桌上剧团<b>“BB”</b>，到了大学我翻遍字典，找到了 <b>Beyond Books</b> 这两个词。我很荣幸能将其搬到电子游戏中，终于能与大家分享我的故事。</p>
+        <p>现代的大型语言模型可以帮我把大纲和细节演出的生动而充满意外，我不胜感激这个新时代。一个人做测试难免不周到，出bug还请多多海涵。</p>
+        <p>目前的故事进行到了<strong>银月篇罗伯特线的完结部分</strong>，接下来打算更新其他人在银月篇的线！罗伯特线里面实际上有大量未解答的东西，到其他人的视角中也许就真相大白了~ 我追求其他人的线不与旧线重复，重复部分略过。</p>
+        <p><strong>鸣谢与我交流的玩家们：</strong>佚名 裴冬柚 小沃里 shangui</p>
+        <p><strong>致谢朋友们：</strong>TOLINIA Tourswen 镜子 Crystal 琼 玉米</p>
+        <p><strong>敬谢大自然：</strong>海南之海 灵界之海</p>
+        <p><strong>作者：</strong>苏敬峰/tobenot</p>
+    `,
+}
+
+function showCreatorsMessage() {
+    document.getElementById('modalTitle').innerText = textResources.creatorMessageTitle;
+    document.getElementById('modalContent').innerHTML = textResources.creatorMessageContent;
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function hideModal() {
+    document.getElementById('modal').style.display = 'none';
+}
