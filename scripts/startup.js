@@ -1,5 +1,5 @@
 const scripts = [
-    { url: 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js', alias: '依赖库' },
+    { url: 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js', alias: '依赖库(这里卡住就是网炸了，刷新)' },
     { url: 'scripts/loadLanguage.js', alias: '多语言模块' },
     { url: 'scripts/sections.js', alias: '桥段模块' },
     { url: 'scripts/saveLoad.js', alias: '存档模块' },
