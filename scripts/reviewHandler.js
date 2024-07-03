@@ -160,8 +160,11 @@ function exportReviewAsHTML(id, title) {
     const review = reviews.reviewRecords.find(record => record.id === id);
     if (!review) return;
 
+    // 获取reviewStoryContent的内容
+    const reviewStoryContent = document.getElementById('reviewStoryContent').innerHTML;
+
     // 将相对路径替换为互联网上的完整URL
-    const updatedContent = review.content.replace(/<img src="(.+?)"/g, (match, p1) => {
+    const updatedContent = reviewStoryContent.replace(/<img src="(.+?)"/g, (match, p1) => {
         if (p1.startsWith('http')) {
             // 如果已经是完整路径，则不做更改
             return match;
@@ -210,19 +213,19 @@ function exportReviewAsHTML(id, title) {
 
 // 导出回顾为长图
 async function exportReviewAsImage(id, title) {
-    async function generateImage() {
-        const reviewDetailContainer = document.getElementById('reviewDetailContainer');
+    const generateImage = async () => {
+        const reviewStoryContent = document.getElementById('reviewStoryContent');
 
         // 临时移除 max-height 和 overflow-y 样式
-        const originalMaxHeight = reviewDetailContainer.style.maxHeight;
-        const originalOverflowY = reviewDetailContainer.style.overflowY;
-        reviewDetailContainer.style.maxHeight = 'none';
-        reviewDetailContainer.style.overflowY = 'visible';
+        const originalMaxHeight = reviewStoryContent.style.maxHeight;
+        const originalOverflowY = reviewStoryContent.style.overflowY;
+        reviewStoryContent.style.maxHeight = 'none';
+        reviewStoryContent.style.overflowY = 'visible';
 
-        // 使用html2canvas库捕获整个滑动框的内容
-        const canvas = await html2canvas(reviewDetailContainer, {
-            windowWidth: reviewDetailContainer.scrollWidth,
-            windowHeight: reviewDetailContainer.scrollHeight
+        // 使用html2canvas库捕获内容
+        const canvas = await html2canvas(reviewStoryContent, {
+            windowWidth: reviewStoryContent.scrollWidth,
+            windowHeight: reviewStoryContent.scrollHeight
         });
 
         // 将canvas转换为DataURL
@@ -240,9 +243,9 @@ async function exportReviewAsImage(id, title) {
         document.body.removeChild(a);
 
         // 恢复原始样式
-        reviewDetailContainer.style.maxHeight = originalMaxHeight;
-        reviewDetailContainer.style.overflowY = originalOverflowY;
-    }
+        reviewStoryContent.style.maxHeight = originalMaxHeight;
+        reviewStoryContent.style.overflowY = originalOverflowY;
+    };
 
     // 检查是否已加载html2canvas库，如果没有则加载
     if (typeof html2canvas === 'undefined') {
