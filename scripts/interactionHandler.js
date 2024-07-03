@@ -7,13 +7,16 @@ let currentIsReplay = false;
 
 const COOLDOWN_TIME = 1000; // 冷却时间，单位为毫秒
 
-// 配置项集中管理
-const settings = JSON.parse(localStorage.getItem('settings'));
-const API_URL = settings.apiUrl + 'chat/completions';
-const API_KEY = settings.apiKey;
-const MODEL = settings.model;
+let API_URL;
+let API_KEY;
+let MODEL;
 
 async function initializeConversation(section, isReplay = false) {
+    const settings = JSON.parse(localStorage.getItem('settings'));
+    API_URL = settings.apiUrl + 'chat/completions';
+    API_KEY = settings.apiKey;
+    MODEL = settings.model;
+
     currentSection = section; // 存储当前章节
     currentIsReplay = isReplay; // 存储是否重玩
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
@@ -244,7 +247,15 @@ async function handleApiResponse(response) {
     if (!response.ok) {
         const errorResponse = await response.json();
         console.error("错误响应内容:", errorResponse);
-        alert(`请求失败: ${JSON.stringify(errorResponse)}`);
+        const errorResponseString = JSON.stringify(errorResponse);
+
+        alert(`请求失败: ${errorResponseString}`);
+        if (errorResponseString.includes("无效的令牌")) {
+            alert(`如果第一次玩遇到“无效的令牌”可以尝试刷新网页或者去设置里面更新key`);
+        }else if (errorResponseString.includes("额度")) {
+            alert(`这个key也许没额度了呢，如果是公共key说明作者穷了QAQ`);
+        }
+
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();
