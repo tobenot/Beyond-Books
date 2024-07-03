@@ -73,7 +73,7 @@ function importSave(event) {
     }
     var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (isMobile) {
-        alert("请注意：在手机浏览器上，导入存档会触发浏览器文件上传功能，如果浏览器没有权限，它可能会向您申请。");
+        alert("在手机浏览器上，导入存档会触发浏览器文件上传功能，如果浏览器没有权限（可能有文件和相机权限，因为浏览器认为照片也能上传），它可能会向您申请。");
     }
     const file = event.target.files[0];
     const reader = new FileReader();
