@@ -140,6 +140,7 @@ function viewReviewDetail(id) {
         <button class="button" onclick="hideReviewDetails()">返回回顾列表</button>
         <button class="button" onclick="exportReviewAsHTML(${id}, '${review.review_title}')">导出为HTML</button>
         <button class="button" onclick="exportReviewAsImage(${id}, '${review.review_title}')">导出为长图</button>
+        <button class="button" onclick="exportReviewAsMultipleImages(${id}, '${review.review_title}')">导出为多图</button>
         <div id="reviewStoryContent">${review.content}</div> <!-- 直接渲染存储的HTML内容 -->
         <div style="display: none;" id="fullRecord">${review.full_record}</div> <!-- 保存完整记录，默认隐藏 -->
     `;
@@ -259,6 +260,82 @@ async function exportReviewAsImage(id, title) {
         }
     } else {
         generateImage();
+    }
+}
+
+async function exportReviewAsMultipleImages(id, title) {
+    showAlert();
+
+    const generateImages = async () => {
+        const reviewStoryContent = document.getElementById('reviewStoryContent');
+
+        // 临时移除 max-height 和 overflow-y 样式
+        const originalMaxHeight = reviewStoryContent.style.maxHeight;
+        const originalOverflowY = reviewStoryContent.style.overflowY;
+        reviewStoryContent.style.maxHeight = 'none';
+        reviewStoryContent.style.overflowY = 'visible';
+
+        // 整个元素截图
+        const canvas = await html2canvas(reviewStoryContent, {
+            useCORS: true,
+            logging: true
+        });
+
+        const totalHeight = canvas.height;
+        const viewportHeight = window.innerHeight;
+        const images = [];
+
+        // 按视窗高度拆分截图
+        for (let currentY = 0; currentY < totalHeight; currentY += viewportHeight) {
+            const sliceCanvas = document.createElement('canvas');
+            sliceCanvas.width = canvas.width;
+            sliceCanvas.height = viewportHeight;
+
+            const sliceContext = sliceCanvas.getContext('2d');
+            sliceContext.drawImage(
+                canvas,
+                0, currentY, canvas.width, viewportHeight,
+                0, 0, canvas.width, viewportHeight
+            );
+
+            const url = sliceCanvas.toDataURL('image/png');
+            images.push(url);
+        }
+
+        // 恢复原始样式
+        reviewStoryContent.style.maxHeight = originalMaxHeight;
+        reviewStoryContent.style.overflowY = originalOverflowY;
+
+        // 下载拆分后的图片
+        for (let i = 0; i < images.length; i++) {
+            const url = images[i];
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const objectURL = URL.createObjectURL(blob);
+    
+            const filename = `${title.substring(0, 50)}_${i + 1}.png`;
+            const a = document.createElement('a');
+            a.href = objectURL;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+    
+            // 释放 blob URL 占用的内存
+            URL.revokeObjectURL(objectURL);
+        }
+    };
+
+    // 检查是否已加载html2canvas库，如果没有则加载
+    if (typeof html2canvas === 'undefined') {
+        try {
+            await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.3.2/dist/html2canvas.min.js');
+            generateImages();
+        } catch (error) {
+            console.log('html2canvas library failed to load', error);
+        }
+    } else {
+        generateImages();
     }
 }
 
