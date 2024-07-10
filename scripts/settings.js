@@ -25,7 +25,8 @@ const settingsText = {
     settingsSavedAlert: "设置已保存",
     settingsResetAlert: "设置已恢复默认",
     publicKeyFetching: "获取中...",
-    publicKeyFetched: "公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/api/v1/作为API URL。",
+    publicKeyFetched: "公共 Key 已成功获取并保存",
+    publicKeyFetchedAlert: "公共 Key 已成功获取并保存\n\n有两个API URL可用：\n1、稳定但慢速（默认）https://llm.tobenot.top/api/v1/\n2、快一点的 https://api.deepbricks.ai/v1/\n默认选择第一个，现在即将把第二个网址复制到你的剪贴板，可以粘贴到网址栏试试。",
     publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境"
 };
 
@@ -116,7 +117,7 @@ function decrypt(data, key) {
 
 function getPublicKey(isAuto = false) {
     const trialStatus = document.getElementById('trialStatus');
-    trialStatus.innerText = '获取中...';
+    trialStatus.innerText = settingsText.publicKeyFetching;
     fetch('https://tobenot.top/storage/keyb.txt')
         .then(response => response.text())
         .then(encryptedKey => {
@@ -126,7 +127,7 @@ function getPublicKey(isAuto = false) {
             // 不显示公共 Key，但将其保存到本地存储
             document.getElementById('api-key').value = '';
             document.getElementById('api-key').disabled = true;
-            document.getElementById('settingPublicKeyButton').innerText = '已获取公共key';
+            document.getElementById('settingPublicKeyButton').innerText = settingsText.publicKeyFetched;
             if(!isAuto){
                 document.getElementById('settingPublicKeyButton').disabled = true;
             }
@@ -137,14 +138,20 @@ function getPublicKey(isAuto = false) {
             localStorage.setItem(PUBLIC_KEY_FLAG, 'true');
 
             if(!isAuto){
-                alert('公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/api/v1/作为API URL。');
+                alert(settingsText.publicKeyFetchedAlert);
+                const url = 'https://api.deepbricks.ai/v1/';
+                navigator.clipboard.writeText(url).then(function() {
+                    console.log('复制到剪贴板成功');
+                }, function(err) {
+                    console.error('复制到剪贴板失败: ', err);
+                });
             }
             saveSettings(isAuto)
         })
         .catch(error => {
             trialStatus.innerText = '获取失败';
             console.error('Error getting public key:', error);
-            alert('公共 Key 获取失败，可尝试其他网络环境');
+            alert(settingsText.publicKeyFetchFailed);
         });
 }
 
