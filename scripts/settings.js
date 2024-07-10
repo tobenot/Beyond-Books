@@ -18,14 +18,14 @@ const settingsText = {
     helpContent: `
         <p>本游戏<strong>基于</strong>可访问<strong>gpt-4o</strong>模型的接口API进行，您可自行寻找相关API服务，默认API地址不构成推荐建议</p>
         <p>第一次打开游戏网页时会自动尝试获取公共key，所以您可能直接开始游戏就可以游玩了。</p>
-        <p>公共key是作者早先用于开发大模型游戏的，其额度将于<strong>2024年7月12日</strong>过期（或者在此之前用完），届时会再另起公共key，API URL可能会更新</p>
+        <p>公共key是作者买来给大家玩的</p>
         <p>如遇无法输入API KEY，可以刷新网页</p>
     `,
     helpCloseButton: "关闭",
     settingsSavedAlert: "设置已保存",
     settingsResetAlert: "设置已恢复默认",
     publicKeyFetching: "获取中...",
-    publicKeyFetched: "公共 Key 已成功获取并保存\n请使用https://openkey.cloud/v1/作为API URL。",
+    publicKeyFetched: "公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/v1/作为API URL。",
     publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境"
 };
 
@@ -84,7 +84,7 @@ function loadSettings() {
         // 默认设置
         const settings = {
             apiKey: '',
-            apiUrl: 'https://openkey.cloud/v1/',
+            apiUrl: 'https://llm.tobenot.top/v1/',
             model: 'gpt-4o'
         };
         localStorage.setItem('settings', JSON.stringify(settings));
@@ -100,7 +100,7 @@ function loadSettings() {
 function resetSettings() {
     const defaultSettings = {
         apiKey: '',
-        apiUrl: 'https://openkey.cloud/v1/',
+        apiUrl: 'https://llm.tobenot.top/v1/',
         model: 'gpt-4o'
     };
     localStorage.setItem('settings', JSON.stringify(defaultSettings));
@@ -137,7 +137,7 @@ function getPublicKey(isAuto = false) {
             localStorage.setItem(PUBLIC_KEY_FLAG, 'true');
 
             if(!isAuto){
-                alert('公共 Key 已成功获取并保存\n请使用https://openkey.cloud/v1/作为API URL。');
+                alert('公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/v1/作为API URL。');
             }
             saveSettings(isAuto)
         })
@@ -178,12 +178,24 @@ function hideSettings() {
 function migrateOldKeys() {
     const isFreeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_FLAG) === 'true';
     const freeTrialKey = localStorage.getItem(FREE_TRIAL_KEY_STORAGE);
+    const isPublicKey = localStorage.getItem(PUBLIC_KEY_FLAG) === 'true';
+    const savedSettings = JSON.parse(localStorage.getItem('settings'));
 
-    if (isFreeTrialKey && freeTrialKey) {
-        localStorage.setItem(PUBLIC_KEY_STORAGE, freeTrialKey);
-        localStorage.setItem(PUBLIC_KEY_FLAG, 'true');
-        localStorage.removeItem(FREE_TRIAL_KEY_FLAG);
-        localStorage.removeItem(FREE_TRIAL_KEY_STORAGE);
+    if ((isFreeTrialKey || isPublicKey) && savedSettings && savedSettings.apiUrl === 'https://openkey.cloud/v1/') {
+        // 7.10更新 迁移 API URL
+        savedSettings.apiUrl = 'https://llm.tobenot.top/v1/';
+        localStorage.setItem('settings', JSON.stringify(savedSettings));
+
+        // 如果是旧的免费试用 Key，则迁移并重新获取公共 Key
+        if (isFreeTrialKey && freeTrialKey) {
+            localStorage.setItem(PUBLIC_KEY_STORAGE, freeTrialKey);
+            localStorage.setItem(PUBLIC_KEY_FLAG, 'true');
+            localStorage.removeItem(FREE_TRIAL_KEY_FLAG);
+            localStorage.removeItem(FREE_TRIAL_KEY_STORAGE);
+        } 
+        
+        // 重新获取公共 Key
+        getPublicKey(true);  
     }
 }
 

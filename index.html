@@ -52,6 +52,10 @@
         <h2 id="subTitle"></h2>
         <p id="gameDescription">大语言模型驱动的<strong>异能战斗/交涉/聊天</strong>文字互动小说</p>
         <div class="menu-controls">
+            <div class="control-pair" id="footerControl">
+                <button class="button" onclick="showCreatorsMessage()">制作者的话</button>
+                <button class="button" onclick="showUpdateLog()">更新日志 24.07.10</button>
+            </div>  
             <button class="button" id="newGameButton" onclick="newGame()">开始新游戏</button>
             <div class="control-pair" id="gameProgressButtons" style="display: none;">
                 <button class="button" id="continueGameButton" onclick="continueGame()">继续游戏</button>
@@ -66,9 +70,6 @@
                     <img src="assets/icon/settings-icon.png" alt="" style="vertical-align: middle; margin-right: 5px;"/>设置
                 </button>
                 <button class="button" id="deleteSaveButton" style="display: none;" onclick="deleteSave()">删除存档</button>
-            </div>
-            <div class="control-pair" id="footerControl">
-                <button class="button" onclick="showCreatorsMessage()">制作者的话</button>
             </div>
         </div>
         <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
@@ -104,7 +105,7 @@
             <label for="api-key" id="settingApiKeyLabel"></label>
             <input type="password" class="settings-input" id="api-key" placeholder="输入你的API Key">
             <label for="api-url" id="settingApiUrlLabel"></label>
-            <input type="text" class="settings-input" id="api-url" placeholder="输入你的API URL" value="https://openkey.cloud/v1/">
+            <input type="text" class="settings-input" id="api-url" placeholder="输入你的API URL" value="https://llm.tobenot.top/v1/">
             <label id="settingModelSelectLabel"></label>
             <div class="button-container">
                 <button class="button" id="settingWhatIsThisButton" onclick="showHelp()"></button>

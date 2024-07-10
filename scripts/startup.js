@@ -97,11 +97,21 @@ const textResources = {
         <p><strong>敬谢大自然：</strong>海南之海 灵界之海</p>
         <p><strong>作者：</strong>苏敬峰/tobenot</p>
     `,
+    updateLogTitle: "更新日志",
+    updateLogContent: `
+        <p><strong>2024年7月10日</strong> 原来的公共key额度用完，换了新的一家</p>
+    `,
 }
 
 function showCreatorsMessage() {
     document.getElementById('modalTitle').innerText = textResources.creatorMessageTitle;
     document.getElementById('modalContent').innerHTML = textResources.creatorMessageContent;
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function showUpdateLog() {
+    document.getElementById('modalTitle').innerText = textResources.updateLogTitle;
+    document.getElementById('modalContent').innerHTML = textResources.updateLogContent;
     document.getElementById('modal').style.display = 'flex';
 }
 
