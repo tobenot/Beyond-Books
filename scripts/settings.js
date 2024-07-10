@@ -25,7 +25,7 @@ const settingsText = {
     settingsSavedAlert: "设置已保存",
     settingsResetAlert: "设置已恢复默认",
     publicKeyFetching: "获取中...",
-    publicKeyFetched: "公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/v1/作为API URL。",
+    publicKeyFetched: "公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/api/v1/作为API URL。",
     publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境"
 };
 
@@ -84,7 +84,7 @@ function loadSettings() {
         // 默认设置
         const settings = {
             apiKey: '',
-            apiUrl: 'https://llm.tobenot.top/v1/',
+            apiUrl: 'https://llm.tobenot.top/api/v1/',
             model: 'gpt-4o'
         };
         localStorage.setItem('settings', JSON.stringify(settings));
@@ -100,7 +100,7 @@ function loadSettings() {
 function resetSettings() {
     const defaultSettings = {
         apiKey: '',
-        apiUrl: 'https://llm.tobenot.top/v1/',
+        apiUrl: 'https://llm.tobenot.top/api/v1/',
         model: 'gpt-4o'
     };
     localStorage.setItem('settings', JSON.stringify(defaultSettings));
@@ -137,7 +137,7 @@ function getPublicKey(isAuto = false) {
             localStorage.setItem(PUBLIC_KEY_FLAG, 'true');
 
             if(!isAuto){
-                alert('公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/v1/作为API URL。');
+                alert('公共 Key 已成功获取并保存\n请使用https://llm.tobenot.top/api/v1/作为API URL。');
             }
             saveSettings(isAuto)
         })
@@ -183,7 +183,7 @@ function migrateOldKeys() {
 
     if ((isFreeTrialKey || isPublicKey) && savedSettings && savedSettings.apiUrl === 'https://openkey.cloud/v1/') {
         // 7.10更新 迁移 API URL
-        savedSettings.apiUrl = 'https://llm.tobenot.top/v1/';
+        savedSettings.apiUrl = 'https://llm.tobenot.top/api/v1/';
         localStorage.setItem('settings', JSON.stringify(savedSettings));
 
         // 如果是旧的免费试用 Key，则迁移并重新获取公共 Key

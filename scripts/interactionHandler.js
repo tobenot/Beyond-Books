@@ -94,9 +94,16 @@ async function submitUserInput() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${API_KEY}`,
+                'Accept': 'application/json'
             },
-            body: JSON.stringify({ model: MODEL, messages: conversationHistory, response_format: { "type": "json_object" }, max_tokens: 4096 })
+            body: JSON.stringify({ 
+                model: MODEL, 
+                messages: conversationHistory, 
+                response_format: { type: "json_object" }, 
+                max_tokens: 4096 
+            }),
+            credentials: 'include'
         });
     
         const responseData = await handleApiResponse(response);
@@ -126,7 +133,8 @@ async function getSectionSummary(sectionId, conversationHistory, section) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${API_KEY}`
         },
-        body: JSON.stringify({ model: MODEL, messages: [{ role: "system", content: systemPrompt }], response_format: { "type": "json_object" }, max_tokens: 4096 })
+        body: JSON.stringify({ model: MODEL, messages: [{ role: "system", content: systemPrompt }], response_format: { "type": "json_object" }, max_tokens: 4096 }),
+        credentials: 'include'
     })
     .then(response => response.json())
     .then(response => parseSectionSummaryResponse(response))
