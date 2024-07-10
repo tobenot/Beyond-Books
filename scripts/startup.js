@@ -99,7 +99,15 @@ const textResources = {
     `,
     updateLogTitle: "更新日志",
     updateLogContent: `
+        <p>只有比较大的更新在这里展示</p>
         <p><strong>2024年7月10日</strong> 原来的公共key额度用完，换了新的一家</p>
+        <p><strong>2024年7月02日</strong> 银月篇 罗伯特线 完结！</p>
+        <p><strong>2024年6月26日</strong> 桥段回顾存储</p>
+        <p><strong>2024年6月24日</strong> 高亮词展示</p>
+        <p><strong>2024年6月23日</strong> 银月篇 罗伯特线 第二回</p>
+        <p><strong>2024年6月19日</strong> 桥段解锁机制</p>
+        <p><strong>2024年6月10日</strong> 银月篇 罗伯特线 开篇</p>
+        <p><strong>2024年6月03日</strong> 开坑！</p>
     `,
 }
 
