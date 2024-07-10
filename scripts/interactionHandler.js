@@ -133,7 +133,7 @@ async function getSectionSummary(sectionId, conversationHistory, section) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${API_KEY}`
         },
-        body: JSON.stringify({ model: MODEL, messages: [{ role: "system", content: systemPrompt }], response_format: { "type": "json_object" }, max_tokens: 4096 }),
+        body: JSON.stringify({ model: MODEL, messages: [{ role: "system", content: systemPrompt }], response_format: { type: "json_object" }, max_tokens: 4096 }),
         credentials: 'include'
     })
     .then(response => response.json())
