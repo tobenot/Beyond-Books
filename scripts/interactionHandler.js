@@ -276,7 +276,13 @@ function processModelResponse(responseData, userInputField, submitButton) {
 
     let parsedResponse;
     try {
-        parsedResponse = JSON.parse(modelResponse);
+        // 使用更复杂的正则表达式提取 JSON 数据
+        const jsonMatch = modelResponse.match(/{(?:[^{}]|{(?:[^{}])*})*}/s);
+        if (jsonMatch) {
+            parsedResponse = JSON.parse(jsonMatch[0]);
+        } else {
+            throw new Error("未找到有效的 JSON 数据");
+        }
     } catch (error) {
         console.error("解析模型回复时出错:", error);
         alert("模型回复解析失败。");
@@ -321,12 +327,19 @@ function createSectionSummaryPrompt(section, conversationHistory, influencePoint
     `;
 }
 
+
 function parseSectionSummaryResponse(response) {
     const summaryResponse = response.choices[0].message.content;
     if (isCarrotTest()) console.log("Debug 大模型的总结回复:", summaryResponse);
 
     try {
-        return JSON.parse(summaryResponse);
+        // 使用更复杂的正则表达式提取 JSON 数据
+        const jsonMatch = summaryResponse.match(/{(?:[^{}]|{(?:[^{}])*})*}/s);
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+        } else {
+            throw new Error("未找到有效的 JSON 数据");
+        }
     } catch (error) {
         console.error("解析总结回复时出错:", error);
         alert("总结回复解析失败。");
