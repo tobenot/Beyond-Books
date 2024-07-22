@@ -83,12 +83,18 @@ function setupSections() {
                 button.innerText = section.title;
                 button.onclick = () => chooseSection(section.file, false);
 
+                const skipButton = document.createElement('button');
+                skipButton.className = 'button button-skip';
+                skipButton.innerText = `跳过 ${section.title}`;
+                skipButton.onclick = () => skipSection(section.file);
+
                 const image = document.createElement('img');
                 image.src = section.image;
                 image.alt = `${section.title} 缩略图`;
 
                 sectionDiv.appendChild(image);
                 sectionDiv.appendChild(button);
+                sectionDiv.appendChild(skipButton);
             } else {
                 sectionDiv.classList.add('locked');
                 sectionDiv.innerText = `${section.title}（未解锁）`;
@@ -106,19 +112,22 @@ function returnToMenu() {
     document.getElementById('menu').style.display = 'flex';
 }
 
-function chooseSection(fileName, isReplay = false) {
-    // 添加时间戳来避免缓存
+function loadSectionData(fileName) {
     const timestamp = new Date().getTime();
-    fetch(`sections/${fileName}?v=${timestamp}`)
+    return fetch(`sections/${fileName}?v=${timestamp}`)
         .then(response => response.text())
         .then(encryptedText => {
             const secretKey = 'ReadingThisIsASpoilerForYourself';
-            const sectionContent = decryptJSONText(encryptedText, secretKey);
+            return decryptJSONText(encryptedText, secretKey);
+        });
+}
 
+function chooseSection(fileName, isReplay = false) {
+    loadSectionData(fileName)
+        .then(sectionContent => {
             if (isCarrotTest()) console.log("Debug: 桥段剧本：", sectionContent);
 
-            enableInput()
-
+            enableInput();
             displaySection(sectionContent, isReplay);
         })
         .catch(error => console.error('加载或解密章节数据时出错:', error));
@@ -140,7 +149,7 @@ function displaySection(section, isReplay = false) {
     currentSection = section;
 }
 
-async function handleOutcome(sectionId, summary, section, isReplay = false) {
+async function handleOutcome(sectionId, summary, section, isReplay = false, isSkip = false) {
     const { objective, influencePoints, objective_judge } = summary;
 
     // 获取默认的影响点
@@ -202,7 +211,9 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
             };
             document.getElementById('storyContent').appendChild(overwriteButton);
         }
-        await storeSectionReview(sectionId, conversationHistory, storyHtmlContent);
+        if(!isSkip){
+            await storeSectionReview(sectionId, conversationHistory, storyHtmlContent);
+        }
     } else {
         // 当目标未达成时显示重新开始按钮
         const resultText = `
@@ -222,7 +233,9 @@ async function handleOutcome(sectionId, summary, section, isReplay = false) {
         document.getElementById('storyContent').appendChild(retryButton);
 
         // 存储桥段回顾记录
-        await storeSectionReview(sectionId, conversationHistory, storyHtmlContent);
+        if(!isSkip){
+            await storeSectionReview(sectionId, conversationHistory, storyHtmlContent);
+        }
     }
 }
 
@@ -359,6 +372,30 @@ function restartSection(sectionId) {
         console.error('未能找到要重新开始的桥段');
         alert('重新开始桥段时出错');
     }
+}
+
+function skipSection(fileName) {
+    loadSectionData(fileName)
+        .then(sectionContent => {
+            if (!sectionContent.influencePoints) {
+                console.error(`sectionContent.influencePoints 未定义: ${JSON.stringify(sectionContent)}`);
+                alert('跳过桥段时出错');
+                return;
+            }
+
+            const defaultResult = {
+                objective: true,
+                influencePoints: sectionContent.influencePoints.map(point => ({
+                    name: point.name,
+                    influence: point.default
+                })),
+                objective_judge: "使用跳关功能，算作目标完成"
+            };
+
+            currentSection = sectionContent;
+            handleOutcome(sectionContent.id, defaultResult, sectionContent, false, true);
+        })
+        .catch(error => console.error('加载或解密章节数据时出错:', error));
 }
 
 async function preloadSectionImages(batchSize = 1, delay = 1500) { // batchSize and delay can be adjusted

@@ -216,6 +216,21 @@ h2 {
     max-width: 384px;
 }
 
+.button-skip {
+    font-size: 0.8em; /* 调整字体大小 */
+    opacity: 0.7; /* 调整透明度 */
+    padding: 5px 10px; /* 调整内边距 */
+    background-color: #f0f0f0; /* 调整背景颜色 */
+    border: 1px solid #ccc; /* 调整边框 */
+    color: #666; /* 调整字体颜色 */
+}
+
+.button-skip:hover {
+    opacity: 1; /* 悬停时提高透明度 */
+    background-color: #e0e0e0; /* 悬停时改变背景颜色 */
+    color: #333; /* 悬停时改变字体颜色 */
+}
+
 .chapter {
     display: flex;
     flex-direction: column;
