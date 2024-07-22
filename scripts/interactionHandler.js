@@ -4,6 +4,7 @@ let conversationHistory = [];
 let selectedCharacter = '罗伯特';
 let currentSection = null;
 let currentIsReplay = false;
+let optimizedConversationHistory = [];
 
 const COOLDOWN_TIME = 1000; // 冷却时间，单位为毫秒
 
@@ -29,10 +30,14 @@ async function initializeConversation(section, isReplay = false) {
     const systemPrompt = createSystemPrompt(section, playerCharacter, otherCharactersDescriptions, influencePointsText);
 
     conversationHistory = [];
+    optimizedConversationHistory = [];
+
     conversationHistory.push({ role: "system", content: systemPrompt });
+    optimizedConversationHistory.push({ role: "system", content: systemPrompt });
 
     const firstAssistantMessage = `${section.startEvent}`;
     conversationHistory.push({ role: "assistant", content: firstAssistantMessage });
+    optimizedConversationHistory.push({ role: "system", content: firstAssistantMessage });
 
     if (isCarrotTest()) console.log("Debug 对话初始化:", conversationHistory);
 
@@ -82,6 +87,7 @@ async function submitUserInput() {
 
     userInput = `${selectedCharacter}：${userInput}`;
     conversationHistory.push({ role: "user", content: userInput });
+    optimizedConversationHistory.push({ role: "user", content: userInput });
 
     updateDisplay('user', userInput);
 
@@ -94,7 +100,7 @@ async function submitUserInput() {
         submitButton.style.display = 'none';
         userInputField.disabled = true;
         submitButton.disabled = true;
-        getSectionSummary(currentSection.id, conversationHistory, currentSection).then(summary => {
+        getSectionSummary(currentSection.id, optimizedConversationHistory, currentSection).then(summary => {
             handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
         });
         return;
@@ -133,10 +139,10 @@ async function submitUserInput() {
     }    
 }
 
-async function getSectionSummary(sectionId, conversationHistory, section) {
+async function getSectionSummary(sectionId, optimizedConversationHistory, section) {
     const influencePointsText = formatInfluencePointsText(section.influencePoints);
 
-    const systemPrompt = createSectionSummaryPrompt(section, conversationHistory, influencePointsText);
+    const systemPrompt = createSectionSummaryPrompt(section, optimizedConversationHistory, influencePointsText);
 
     if (isCarrotTest()) console.log("Debug getSectionSummary提交给模型:", systemPrompt);
 
@@ -243,7 +249,7 @@ function enableInput() {
 function createCompleteButton() {
     const completeButton = document.createElement('button');
     completeButton.className = 'button';
-    completeButton.innerText = '返回桥    段选择';
+    completeButton.innerText = '返回桥段选择';
     completeButton.onclick = returnToSectionSelection;
 
     return completeButton;
@@ -275,7 +281,7 @@ async function handleApiResponse(response) {
         alert(`请求失败: ${errorResponseString}`);
         if (errorResponseString.includes("无效的令牌")) {
             alert(`如果第一次玩遇到“无效的令牌”可以尝试刷新网页或者去设置里面更新key`);
-        }else if (errorResponseString.includes("额度")) {
+        } else if (errorResponseString.includes("额度")) {
             alert(`这个key也许没额度了呢，如果是公共key说明作者穷了QAQ`);
         }
 
@@ -305,6 +311,12 @@ function processModelResponse(responseData, userInputField, submitButton) {
 
     if (parsedResponse) {
         conversationHistory.push({ role: "assistant", content: modelResponse });
+
+        optimizedConversationHistory.push({
+            role: "system",
+            content: `显示内容: ${parsedResponse.display}` + (parsedResponse.GMDetails_count ? `, 倒计时事件: ${parsedResponse.GMDetails_count}` : '')
+        });        
+
         updateDisplay('assistant', parsedResponse.display);
 
         if (parsedResponse.endSectionFlag) {
@@ -313,18 +325,18 @@ function processModelResponse(responseData, userInputField, submitButton) {
             submitButton.style.display = 'none';
             userInputField.disabled = true;
             submitButton.disabled = true;
-            getSectionSummary(currentSection.id, conversationHistory, currentSection).then(summary => {
+            getSectionSummary(currentSection.id, optimizedConversationHistory, currentSection).then(summary => {
                 handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
             });
         }
     }
 }
 
-function createSectionSummaryPrompt(section, conversationHistory, influencePointsText) {
+function createSectionSummaryPrompt(section, optimizedConversationHistory, influencePointsText) {
     return `
         请基于以下对话历史，对完成度做出总结。
         对话历史：
-        ${conversationHistory.map(message => `${message.role}: ${message.content}`).join('\n')}
+        ${optimizedConversationHistory.map(message => `${message.role}: ${message.content}`).join('\n')}
         以上是对话历史。
         本桥段目标：${section.objective}
         影响点：
@@ -341,7 +353,6 @@ function createSectionSummaryPrompt(section, conversationHistory, influencePoint
         注意influencePoints要严格按照原顺序，方便系统保存。
     `;
 }
-
 
 function parseSectionSummaryResponse(response) {
     const summaryResponse = response.choices[0].message.content;
