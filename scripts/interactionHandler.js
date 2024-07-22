@@ -72,7 +72,7 @@ async function submitUserInput() {
     if (isSubmitting || isCooldown) return;
 
     const { submitButton, userInputField, loadingDiv } = getElements();
-    
+
     let userInput = userInputField.value;
 
     if (userInput.trim() === "") {
@@ -86,6 +86,19 @@ async function submitUserInput() {
     updateDisplay('user', userInput);
 
     if (isCarrotTest()) console.log("Debug 提交给模型的对话:", conversationHistory);
+
+    // Check if conversationHistory length exceeds 40
+    if (conversationHistory.length > 40) {
+        alert("桥段已超出20轮，自动结算结果。");
+        userInputField.style.display = 'none';
+        submitButton.style.display = 'none';
+        userInputField.disabled = true;
+        submitButton.disabled = true;
+        getSectionSummary(currentSection.id, conversationHistory, currentSection).then(summary => {
+            handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
+        });
+        return;
+    }
 
     toggleSubmittingState(true, loadingDiv, userInputField, submitButton);
 
