@@ -91,7 +91,10 @@ async function submitUserInput() {
 
     updateDisplay('user', userInput);
 
-    if (isCarrotTest()) console.log("Debug 提交给模型的对话:", conversationHistory);
+    if (isCarrotTest()){
+        console.log("Debug 提交给模型的对话:", optimizedConversationHistory);
+        console.log("Debug 优化前的对话:", conversationHistory);
+    }
 
     // Check if conversationHistory length exceeds 40
     if (conversationHistory.length > 40) {

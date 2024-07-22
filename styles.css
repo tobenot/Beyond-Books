@@ -253,6 +253,17 @@ h2 {
     padding: 8px; /* 调整内边距 */
     margin-bottom: 10px; /* 减少底部外边距 */
     font-size: 14px; /* 调整输入字体大小 */
+    font-family: inherit; /* 保持字体一致 */
+}
+
+/* 为下拉框添加样式 */
+#settingsContainer select.settings-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>') no-repeat right 10px center;
+    background-color: #fff;
+    background-size: 8px 10px;
 }
 
 /* 修改设置页面标签的样式 */

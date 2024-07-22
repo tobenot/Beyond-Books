@@ -100,6 +100,7 @@ const textResources = {
     updateLogTitle: "更新日志",
     updateLogContent: `
         <p>只有比较大的更新在这里展示</p>
+        <p><strong>2024年7月23日</strong> 优化了交互环节，应该能感受到大部分桥段更容易结算了。在设置里添加了两个比较小的模型。</p>
         <p><strong>2024年7月10日</strong> 原来的公共key额度用完，换了新的一家。理论上旧存档会自动适配到新的公共key，如果还不行就跑去设置里恢复一下默认设置。</p>
         <p><strong>2024年7月02日</strong> 银月篇 罗伯特线 完结！</p>
         <p><strong>2024年6月26日</strong> 桥段回顾存储</p>
