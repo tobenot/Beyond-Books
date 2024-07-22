@@ -303,7 +303,7 @@ function processModelResponse(responseData, userInputField, submitButton) {
         // 使用更复杂的正则表达式提取 JSON 数据
         const jsonMatch = modelResponse.match(/{(?:[^{}]|{(?:[^{}])*})*}/s);
         if (jsonMatch) {
-            parsedResponse = JSON.parse(jsonMatch[0]);
+            parsedResponse = fixAndParseJSON(jsonMatch[0]);
         } else {
             throw new Error("未找到有效的 JSON 数据");
         }
@@ -365,7 +365,7 @@ function parseSectionSummaryResponse(response) {
         // 使用更复杂的正则表达式提取 JSON 数据
         const jsonMatch = summaryResponse.match(/{(?:[^{}]|{(?:[^{}])*})*}/s);
         if (jsonMatch) {
-            return JSON.parse(jsonMatch[0]);
+            return fixAndParseJSON(jsonMatch[0]);
         } else {
             throw new Error("未找到有效的 JSON 数据");
         }
@@ -388,5 +388,33 @@ function formatContent(role, content) {
     } else {
         const formattedContent = content.replace(/\n/g, '<br>');
         return highlightSpecialTerms(formattedContent);
+    }
+}
+
+
+function fixAndParseJSON(jsonString) {
+    try {
+        // 首先尝试直接解析
+        return JSON.parse(jsonString);
+    } catch (e) {
+        // 如果解析失败，则尝试修复
+        console.warn("JSON 解析失败，尝试修复:", e);
+
+        // 在每个换行符和字符之间添加逗号
+        let fixedString = jsonString.replace(/}\s*{/, "},{");
+        
+        // 检查最常见的错误：缺少逗号
+        fixedString = fixedString.replace(/("\w+":.*?[^\\])"\s*("\w+":)/g, '$1, "$2');
+
+        // 检查并修复缺失的结尾逗号
+        fixedString = fixedString.replace(/,(\s*})/g, '$1');
+        
+        // 最后再次尝试解析修复后的字符串
+        try {
+            return JSON.parse(fixedString);
+        } catch (error) {
+            console.error("修复后解析 JSON 仍然失败:", error);
+            throw new Error("无法修复 JSON 字符串");
+        }
     }
 }
