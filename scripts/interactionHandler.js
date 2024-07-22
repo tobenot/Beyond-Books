@@ -161,6 +161,9 @@ function formatInfluencePointsText(influencePoints) {
 }
 
 function createSystemPrompt(section, playerCharacter, otherCharactersDescriptions, influencePointsText) {
+    // 检查是否需要带上 GMDetails_count
+    const GMDetailsCountText = section.enableCount ? `,"GMDetails_count": "单个字符串，如果GMDetails有规定回合数的特殊事件，写倒计时事情+倒计时回合数。倒计时结束后触发事件，再看看有没有下一个倒计时。"` : '';
+
     // influencePointsText 不使用在系统prompt里
     return `请你做主持人来主持一场游戏的一个桥段。
         桥段背景介绍：${section.backgroundInfo}
@@ -175,8 +178,7 @@ function createSystemPrompt(section, playerCharacter, otherCharactersDescription
         请按照以下JSON格式回复：
         {
             "analysis": "判断玩家的角色能否做到玩家所说的事",
-            "mechanism": "这个字段对玩家隐藏。描述非玩家角色的想法，接下来他们将会做出什么行动",
-            "GMDetails_count": "单个字符串，如果GMDetails有规定回合数的特殊事件，写倒计时事情+倒计时回合数。倒计时结束后触发事件，再看看有没有下一个倒计时。",
+            "mechanism": "这个字段对玩家隐藏。描述非玩家角色的想法，接下来他们将会做出什么行动"${GMDetailsCountText},
             "display": "单个字符串，玩家行动效果如何，玩家看到听到了什么？比如表情动作、玩家能听到的话。作为游戏主持人你有超越游戏的事要和玩家沟通吗？在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
             "endSectionFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节"
         }
