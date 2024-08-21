@@ -100,6 +100,7 @@ const textResources = {
     updateLogTitle: "更新日志",
     updateLogContent: `
         <p>只有比较大的更新在这里展示</p>
+        <p><strong>2024年8月22日</strong> 增加了游戏教程，点一下开始游戏就给你弹窗。</p>
         <p><strong>2024年7月23日</strong> 优化了交互环节，应该能感受到大部分桥段更容易结算了。在设置里添加了两个比较小的模型（实测不太行）。做了跳关功能，免得手上没存档要重打。</p>
         <p><strong>2024年7月10日</strong> 原来的公共key额度用完，换了新的一家。理论上旧存档会自动适配到新的公共key，如果还不行就跑去设置里恢复一下默认设置。</p>
         <p><strong>2024年7月02日</strong> 银月篇 罗伯特线 完结！</p>
@@ -110,6 +111,21 @@ const textResources = {
         <p><strong>2024年6月10日</strong> 银月篇 罗伯特线 开篇</p>
         <p><strong>2024年6月03日</strong> 开坑！</p>
     `,
+    gameTutorialTitle: "游戏教程",
+    gameTutorialContent: `
+        <p>你可以把本游戏理解为<strong>跑团（DND或COC）</strong>、<strong>语C</strong>、<strong>剧本杀</strong>或<strong>过家家</strong>🧑‍🤝‍🧑。本游戏制作时面向的玩家是<strong>喜欢剧情向游戏</strong>，愿意<strong>认真扮演角色</strong>🎭  的语C、跑团玩家👥。</p>
+        <ol>
+            <li>📝 <strong>目标</strong>：在每一个桥段里，你需要完成<strong>桥段目标</strong>🎯，目标可能是<strong>沟通</strong>💬、<strong>战斗</strong>⚔️、<strong>解密</strong>🧩等。</li>
+            <li>🎮 <strong>操作</strong>：根据你的人设和起始事件，在对话框中打字输入以<strong>你的角色的角度</strong>进行的行动、说的话🗣️。比如输入“我挥起武器说，与我何干！”，不需要特别注意格式。</li>
+            <li>💡 <strong>技巧</strong>：很多角色有<strong>超能力</strong>🔮，比如银月篇主角罗伯特，可以<strong>减缓时间流速</strong>🕰️，你可以接住敌方扔来的飞刀扔回去🗡️，也能准确地瞄准你要攻击的物件🎯，只要你能想到。</li>
+        </ol>
+
+        <ul>
+            <li>⚠️ <strong>注意</strong>：如果出现输入之后无回复，可以回<strong>主菜单-设置</strong>⚙️里面点“<strong>恢复默认设置</strong>🔄”。一般是初始化的网络问题🌐。</li>
+            <li>🔍 <strong>注意</strong>：高亮有颜色的文字可以点🔗。</li>
+            <li>📜 <strong>注意</strong>：在<strong>桥段剧本</strong>之外，主持人给出的信息不完全保真（比如问队友问题，可能会得到不正确的回复🤔），可以完全取信的是非大模型的<strong>桥段剧本</strong>、<strong>初始事件</strong>、<strong>词条解释</strong>。</li>
+        </ul>
+    `
 }
 
 function showCreatorsMessage() {
@@ -121,6 +137,12 @@ function showCreatorsMessage() {
 function showUpdateLog() {
     document.getElementById('modalTitle').innerText = textResources.updateLogTitle;
     document.getElementById('modalContent').innerHTML = textResources.updateLogContent;
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function showGameTutorial() {
+    document.getElementById('modalTitle').innerText = textResources.gameTutorialTitle;
+    document.getElementById('modalContent').innerHTML = textResources.gameTutorialContent;
     document.getElementById('modal').style.display = 'flex';
 }
 

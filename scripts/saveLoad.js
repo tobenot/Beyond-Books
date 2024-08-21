@@ -22,6 +22,7 @@ function newGame() {
     clearSave();
     initializeGameState();
     startGame();
+    showGameTutorial();
 }
 
 function continueGame() {
@@ -34,6 +35,7 @@ function continueGame() {
     }
     loadSectionsIndex();
     startGame();
+    showGameTutorial();
 }
 
 function exportSave() {
