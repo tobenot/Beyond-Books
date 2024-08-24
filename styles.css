@@ -312,7 +312,6 @@ h2 {
     padding: 12px 20px; /* 调整内边距 */
     font-family: inherit; /* 保持字体一致 */
 }
-
 /* 弹框样式 */
 .modal {
     display: none; 
@@ -331,6 +330,11 @@ h2 {
     border-radius: 5px;
     width: 400px;
     text-align: left;
+}
+
+.modal-scroll {
+    height: 70vh;   
+    overflow-y: auto;
 }
 
 /* 万物运行... */
