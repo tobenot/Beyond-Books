@@ -399,15 +399,17 @@ function fixAndParseJSON(jsonString) {
 
         // 在每个换行符和字符之间添加逗号
         let fixedString = jsonString.replace(/}\s*{/, "},{");
-        
+        console.warn("JSON 解析失败，尝试修复:在每个换行符和字符之间添加逗号", fixedString);
+
         // 检查最常见的错误：缺少逗号
         fixedString = fixedString.replace(/("\w+":.*?[^\\])"\s*("\w+":)/g, '$1, "$2');
-
         fixedString = fixedString.replace(/,(\s*})/g, '$1');
+        console.warn("JSON 解析失败，尝试修复:缺少逗号", fixedString);
 
         // 删除不必要的换行符
-        fixedString = fixedString.replace(/\n/g, "<br>");
-        
+        fixedString = fixedString.replace(/\r\n\r\n/g, "<br>");
+        console.warn("JSON 解析失败，尝试修复: 删除不必要的换行符", fixedString);
+
         try {
             return JSON.parse(fixedString);
         } catch (error) {
