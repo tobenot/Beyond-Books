@@ -26,7 +26,7 @@ const settingsText = {
     settingsResetAlert: "设置已恢复默认",
     publicKeyFetching: "获取中...",
     publicKeyFetched: "公共 Key 已成功获取并保存",
-    publicKeyFetchedAlert: "公共 Key 已成功获取并保存\n\n有两个API URL可用：\n1、稳定但慢速（默认）https://llm.tobenot.top/api/v1/\n2、快一点的 https://api.deepbricks.ai/v1/\n默认选择第一个，现在即将把第二个网址复制到你的剪贴板，可以粘贴到网址栏试试。",
+    publicKeyFetchedAlert: "公共 Key 已成功获取并保存\n\n请使用指定API URL：\nhttps://llm.tobenot.top/api/v1/",
     publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境"
 };
 
@@ -140,7 +140,7 @@ function getPublicKey(isAuto = false) {
 
             if(!isAuto){
                 alert(settingsText.publicKeyFetchedAlert);
-                const url = 'https://api.deepbricks.ai/v1/';
+                const url = 'https://llm.tobenot.top/api/v1/';
                 navigator.clipboard.writeText(url).then(function() {
                     console.log('复制到剪贴板成功');
                 }, function(err) {
