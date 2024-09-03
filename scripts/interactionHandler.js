@@ -408,6 +408,7 @@ function fixAndParseJSON(jsonString) {
 
         // 删除不必要的换行符
         fixedString = fixedString.replace(/\r\n\r\n/g, "<br>");
+        fixedString = fixedString.replace(/\n\n/g, "<br>");
         console.warn("JSON 解析失败，尝试修复: 删除不必要的换行符", fixedString);
 
         try {
