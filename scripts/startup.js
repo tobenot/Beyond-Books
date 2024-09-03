@@ -100,6 +100,7 @@ const textResources = {
     updateLogTitle: "更新日志",
     updateLogContent: `
         <p>只有比较大的更新在这里展示</p>
+        <p><strong>2024年9月04日</strong> 兼容了claude-3-5-sonnet模型作为默认模型</p>
         <p><strong>2024年8月22日</strong> 增加了游戏教程，点一下开始游戏就给你弹窗。</p>
         <p><strong>2024年7月23日</strong> 优化了交互环节，应该能感受到大部分桥段更容易结算了。在设置里添加了两个比较小的模型（实测不太行）。做了跳关功能，免得手上没存档要重打。</p>
         <p><strong>2024年7月10日</strong> 原来的公共key额度用完，换了新的一家。理论上旧存档会自动适配到新的公共key，如果还不行就跑去设置里恢复一下默认设置。</p>

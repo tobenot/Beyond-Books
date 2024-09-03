@@ -16,7 +16,7 @@ const settingsText = {
     exitButton: "不保存退出",
     helpModalTitle: "帮助信息",
     helpContent: `
-        <p>本游戏<strong>基于</strong>可访问<strong>gpt-4o</strong>模型的接口API进行，您可自行寻找相关API服务，默认API地址不构成推荐建议</p>
+        <p>本游戏<strong>基于</strong>可访问<strong>大语言模型</strong>的接口API进行，您可自行寻找相关API服务，默认API地址不构成推荐建议</p>
         <p>第一次打开游戏网页时会自动尝试获取公共key，所以您可能直接开始游戏就可以游玩了。</p>
         <p>公共key是作者买来给大家玩的</p>
         <p>如遇无法输入API KEY，可以刷新网页</p>
@@ -87,7 +87,7 @@ function loadSettings() {
         const settings = {
             apiKey: '',
             apiUrl: 'https://llm.tobenot.top/api/v1/',
-            model: 'gpt-4o'
+            model: 'claude-3-5-sonnet'
         };
         localStorage.setItem('settings', JSON.stringify(settings));
         getPublicKey(true);
@@ -103,7 +103,7 @@ function resetSettings() {
     const defaultSettings = {
         apiKey: '',
         apiUrl: 'https://llm.tobenot.top/api/v1/',
-        model: 'gpt-4o'
+        model: 'claude-3-5-sonnet'
     };
     localStorage.setItem('settings', JSON.stringify(defaultSettings));
     getPublicKey(true);
