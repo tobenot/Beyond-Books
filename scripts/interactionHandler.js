@@ -390,13 +390,11 @@ function formatContent(role, content) {
     }
 }
 
-
 function fixAndParseJSON(jsonString) {
     try {
         // 首先尝试直接解析
         return JSON.parse(jsonString);
     } catch (e) {
-        // 如果解析失败，则尝试修复
         console.warn("JSON 解析失败，尝试修复:", e);
 
         // 在每个换行符和字符之间添加逗号
@@ -405,10 +403,11 @@ function fixAndParseJSON(jsonString) {
         // 检查最常见的错误：缺少逗号
         fixedString = fixedString.replace(/("\w+":.*?[^\\])"\s*("\w+":)/g, '$1, "$2');
 
-        // 检查并修复缺失的结尾逗号
         fixedString = fixedString.replace(/,(\s*})/g, '$1');
+
+        // 删除不必要的换行符
+        fixedString = fixedString.replace(/\n/g, "<br>");
         
-        // 最后再次尝试解析修复后的字符串
         try {
             return JSON.parse(fixedString);
         } catch (error) {
