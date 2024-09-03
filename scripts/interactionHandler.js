@@ -188,23 +188,22 @@ function createSystemPrompt(section, playerCharacter, otherCharactersDescription
 
     // influencePointsText 不使用在系统prompt里
     return `请你做主持人来主持一场游戏的一个桥段。
-        桥段背景介绍：${section.backgroundInfo}
-        主角和剧本：
-        ${playerCharacter.name}：${playerCharacter.role}，${playerCharacter.description}
-        主角桥段目标：${section.objective}
-        桥段人物和剧本：
-        ${otherCharactersDescriptions}
-        特别提示：
-        ${section.GMDetails}
-        你需要生成非主角角色的反应和发生的事情，直到主角的决策点，到主角说话或决策的部分，你需要询问玩家，并等玩家做出决策再描绘。
-        请按照以下JSON格式回复：
-        {
-            "analysis": "判断玩家的角色能否做到玩家所说的事",
-            "mechanism": "这个字段对玩家隐藏。描述非玩家角色的想法，接下来他们将会做出什么行动"${GMDetailsCountText},
-            "display": "单个字符串，玩家行动效果如何，玩家看到听到了什么？比如表情动作、玩家能听到的话。作为游戏主持人你有超越游戏的事要和玩家沟通吗？在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
-            "endSectionFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节"
-        }
-    `;
+桥段背景介绍：${section.backgroundInfo}
+主角和剧本：
+${playerCharacter.name}：${playerCharacter.role}，${playerCharacter.description}
+主角桥段目标：${section.objective}
+桥段人物和剧本：
+${otherCharactersDescriptions}
+特别提示：
+${section.GMDetails}
+你需要生成非主角角色的反应和发生的事情，直到主角的决策点，到主角说话或决策的部分，你需要询问玩家，并等玩家做出决策再描绘。
+请按照以下JSON格式回复：
+{
+"analysis": "判断玩家的角色能否做到玩家所说的事",
+"mechanism": "这个字段对玩家隐藏。描述非玩家角色的想法，接下来他们将会做出什么行动"${GMDetailsCountText},
+"display": "单个字符串，玩家行动效果如何，玩家看到听到了什么？比如表情动作、玩家能听到的话。作为游戏主持人你有超越游戏的事要和玩家沟通吗？在这个字段请直接称呼玩家为'你'。这个字段可以描写多一点。",
+"endSectionFlag": "布尔值，是否满足了桥段结束条件？是的话将进入桥段复盘环节"
+}`;
 }
 
 function createStoryContent(section, playerCharacter) {
