@@ -175,9 +175,9 @@ async function handleOutcome(sectionId, summary, section, isReplay = false, isSk
         }
 
         const resultText = isReplay ? `
-            <p>${objective_judge}</p><p>桥段目标完成</p><p>原本应造成后续影响数量：${changedInfluencePoints}</p><p>此次为重玩，默认不改变存档</p>
+            <p style="color: green;">${objective_judge}</p><p style="color: green;">桥段目标完成</p><p>原本应造成后续影响数量：${changedInfluencePoints}</p><p>此次为重玩，默认不改变存档</p>
         ` : `
-            <p>${objective_judge}</p><p>桥段目标达成</p><p>造成后续影响数量：${changedInfluencePoints}</p>
+            <p style="color: green;">${objective_judge}</p><p style="color: green;">桥段目标达成</p><p>造成后续影响数量：${changedInfluencePoints}</p>
         `;
 
         // bugfix: 如果用 innerHTML += resultText 会刷新iframe导致BGM骤停
@@ -217,7 +217,7 @@ async function handleOutcome(sectionId, summary, section, isReplay = false, isSk
     } else {
         // 当目标未达成时显示重新开始按钮
         const resultText = `
-            <p>${objective_judge}</p><p>桥段目标未达成</p><p>造成后续影响数量：${changedInfluencePoints}</p><p>因未达成目标，影响未产生</p>
+            <p style="color: red;">${objective_judge}</p><p style="color: red;">桥段目标未达成</p><p>造成后续影响数量：${changedInfluencePoints}</p><p>因未达成目标，影响未产生</p>
         `;
         document.getElementById('storyContent').innerHTML += resultText;
 
