@@ -1,0 +1,35 @@
+<div class="container" id="menu" style="display: none;">
+    <h1 id="mainTitle"></h1>
+    <h2 id="subTitle"></h2>
+    <p id="gameDescription">大语言模型驱动的<strong>异能战斗/交涉/聊天</strong>文字互动小说</p>
+    <div class="menu-controls">
+        <div class="control-pair" id="footerControl">
+            <button class="button" onclick="showCreatorsMessage()">制作者的话</button>
+            <button class="button" onclick="showUpdateLog()">更新日志 24.08.22</button>
+        </div>  
+        <button class="button" id="newGameButton" onclick="newGame()">开始新游戏</button>
+        <div class="control-pair" id="gameProgressButtons" style="display: none;">
+            <button class="button" id="continueGameButton" onclick="continueGame()">继续游戏</button>
+            <button class="button" id="reviewButton" onclick="showReviewRecords()">回顾记录</button>
+        </div>
+        <div class="control-pair" id="saveLoadButtons">
+            <button class="button" id="importSaveButton" onclick="document.getElementById('fileInput').click()">导入存档</button>
+            <button class="button" id="exportSaveButton" onclick="exportSave()">导出存档</button>
+        </div>
+        <div class="control-pair" id="settingsButtons">
+            <button class="button" id="settingsButton" onclick="showSettings()">
+                <img src="assets/icon/settings-icon.png" alt="" style="vertical-align: middle; margin-right: 5px;"/>设置
+            </button>
+            <button class="button" id="deleteSaveButton" style="display: none;" onclick="deleteSave()">删除存档</button>
+        </div>
+    </div>
+    <input id="fileInput" type="file" style="display: none;" onchange="importSave(event)">
+    <div class="footer">
+        <p>
+            <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">QQ群：731682071</a>
+            &nbsp;
+            <a href="https://space.bilibili.com/23122362" target="_blank">B站</a>
+        </p>
+        <p>欢迎讨论剧情/私信留言等~</p>          
+    </div>
+</div>

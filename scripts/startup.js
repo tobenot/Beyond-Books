@@ -38,8 +38,23 @@ function updateProgress(alias, totalScripts) {
     document.getElementById('progressText').innerText = `正在加载${alias}... (${loadedScriptsCount}/${totalScripts})`;
 }
 
+async function loadComponent(name) {
+    const response = await fetch(`components/${name}.html`);
+    const html = await response.text();
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    document.getElementById('app').appendChild(tempDiv.firstElementChild);
+}
+
 async function initializeApp() {
     try {
+        await loadComponent('LoadingIndicator');
+        await loadComponent('Menu');
+        await loadComponent('SectionsContainer');
+        await loadComponent('StoryContainer');
+        await loadComponent('Settings');
+        await loadComponent('Modal');
+
         const loadingIndicator = document.getElementById('loadingIndicator');
 
         for (const script of scripts) {
@@ -66,7 +81,7 @@ async function initializeApp() {
         loadLanguageFile('zh-CN');  
 
     } catch (error) {
-        console.error("Error loading scripts: ", error);
+        console.error("Error loading scripts or components: ", error);
     }
 
     console.log('startup.js initializeApp finished');
