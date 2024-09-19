@@ -87,7 +87,7 @@ function loadSettings() {
         const settings = {
             apiKey: '',
             apiUrl: 'https://llm.tobenot.top/api/v1/',
-            model: 'claude-3-5-sonnet'
+            model: 'gpt-4o'
         };
         localStorage.setItem('settings', JSON.stringify(settings));
         getPublicKey(true);
@@ -103,7 +103,7 @@ function resetSettings() {
     const defaultSettings = {
         apiKey: '',
         apiUrl: 'https://llm.tobenot.top/api/v1/',
-        model: 'claude-3-5-sonnet'
+        model: 'gpt-4o'
     };
     localStorage.setItem('settings', JSON.stringify(defaultSettings));
     getPublicKey(true);
