@@ -397,19 +397,25 @@ function fixAndParseJSON(jsonString) {
     } catch (e) {
         console.warn("JSON 解析失败，尝试修复:", e);
 
+        // 处理嵌套双引号的问题
+        let fixedString = jsonString.replace(/"(.*?)":\s*"(.*?)"(?=\s*,|\s*})/g, function(match, p1, p2) {
+            if (p2.includes('"')) {
+                // 对包含双引号的值进行转义
+                return `"${p1}": "${p2.replace(/"/g, '\\"')}"`;
+            }
+            return match;
+        });
+
         // 在每个换行符和字符之间添加逗号
-        let fixedString = jsonString.replace(/}\s*{/, "},{");
-        //console.warn("JSON 解析失败，尝试修复:在每个换行符和字符之间添加逗号", fixedString);
+        fixedString = jsonString.replace(/}\s*{/, "},{");
 
         // 检查最常见的错误：缺少逗号
         fixedString = fixedString.replace(/("\w+":.*?[^\\])"\s*("\w+":)/g, '$1, "$2');
         fixedString = fixedString.replace(/,(\s*})/g, '$1');
-        //console.warn("JSON 解析失败，尝试修复:缺少逗号", fixedString);
 
         // 删除不必要的换行符
         fixedString = fixedString.replace(/\r\n\r\n/g, "<br><br>");
         fixedString = fixedString.replace(/\n\n/g, "<br><br>");
-        //console.warn("JSON 解析失败，尝试修复: 删除不必要的换行符", fixedString);
 
         try {
             return JSON.parse(fixedString);
