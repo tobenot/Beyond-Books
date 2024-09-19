@@ -30,8 +30,6 @@ const settingsText = {
     publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境"
 };
 
-const DEV_API_URL = 'https://api.deepbricks.ai/v1/';
-
 function initSettingsUI() {
     document.getElementById('settingTitle').innerText = settingsText.settingsTitle;
     document.getElementById('settingApiKeyLabel').innerText = settingsText.apiKeyLabel;
@@ -82,24 +80,13 @@ function loadSettings() {
     if (savedSettings) {
         // 如果是公共Key，则不显示在输入框中
         document.getElementById('api-key').value = isPublicKey ? "" : savedSettings.apiKey;
-        
-        // 打印日志
-        console.log('已加载设置：', {
-            apiKey: isPublicKey ? '使用公共密钥' : '使用私人密钥',
-            apiUrl: savedSettings.apiUrl,
-            model: savedSettings.model
-        });
-
-        // 根据是否为本地开发环境选择API URL
-        const apiUrl = isLocalDevelopment() ? DEV_API_URL : savedSettings.apiUrl;
-        document.getElementById('api-url').value = apiUrl;
-        
+        document.getElementById('api-url').value = savedSettings.apiUrl;
         document.getElementById('model-select').value = savedSettings.model; // 设置选择的模型
     } else {
         // 默认设置
         const settings = {
             apiKey: '',
-            apiUrl: isLocalDevelopment() ? DEV_API_URL : 'https://llm.tobenot.top/api/v1/',
+            apiUrl: 'https://llm.tobenot.top/api/v1/',
             model: 'gpt-4o'
         };
         localStorage.setItem('settings', JSON.stringify(settings));
@@ -226,17 +213,3 @@ function showHelp() {
     document.getElementById('modalContent').innerHTML = settingsText.helpContent;
     document.getElementById('modal').style.display = 'flex';
 }
-
-function isLocalDevelopment() {
-    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-}
-
-// 新增函数，用于获取当前环境的API URL
-function getApiUrl() {
-    const savedSettings = JSON.parse(localStorage.getItem('settings'));
-    return isLocalDevelopment() ? DEV_API_URL : (savedSettings ? savedSettings.apiUrl : 'https://llm.tobenot.top/api/v1/');
-}
-
-// 导出需要在其他文件中使用的函数
-window.getApiUrl = getApiUrl;
-window.isLocalDevelopment = isLocalDevelopment;
