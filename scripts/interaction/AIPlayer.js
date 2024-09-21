@@ -1,10 +1,11 @@
 class AIPlayer {
-    constructor(character, commonKnowledge, startEvent) {
+    constructor(character, commonKnowledge, startEvent, sectionGuidance) {
         this.name = character.name;
         this.role = character.role;
         this.description = character.description;
         this.personality = character.personality;
         this.goals = character.goals;
+        this.sectionGuidance = sectionGuidance;
         this.memory = [];
         this.debugMode = isCarrotTest();
         this.commonKnowledge = commonKnowledge;
@@ -24,6 +25,7 @@ class AIPlayer {
 目标：${this.goals.join(', ')}
 公共信息：${this.commonKnowledge}
 开始事件：${this.startEvent}
+桥段指导：${this.sectionGuidance}
 
 最近的记忆：
 ${recentMemory}
@@ -31,7 +33,7 @@ ${recentMemory}
 当前情况：
 ${situation}
 
-请根据你的角色、性格、目标、公共信息、开始事件和记忆，对当前情况做出反应。用json格式回复：
+请根据你的角色、性格、目标、公共信息、开始事件、桥段指导和记忆，对当前情况做出反应。用json格式回复：
 {
   "thoughts": "你的内心想法",
   "action": "你的行动或对话"
