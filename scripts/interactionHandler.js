@@ -14,7 +14,7 @@ let MODEL;
 
 async function initializeConversation(section, isReplay = false) {
     const settings = JSON.parse(localStorage.getItem('settings'));
-    API_URL = settings.apiUrl + 'chat/completions';
+    API_URL = window.getApiUrl() + 'chat/completions';
     API_KEY = settings.apiKey;
     MODEL = settings.model;
 
@@ -282,7 +282,7 @@ async function handleApiResponse(response) {
 
         alert(`请求失败: ${errorResponseString}`);
         if (errorResponseString.includes("无效的令牌")) {
-            alert(`如果第一次玩遇到“无效的令牌”可以尝试刷新网页或者去设置里面更新key`);
+            alert(`如果第一次玩遇到"无效的令牌"可以尝试刷新网页或者去设置里面更新key`);
         } else if (errorResponseString.includes("额度")) {
             alert(`这个key也许没额度了呢，如果是公共key说明作者穷了QAQ`);
         }
@@ -350,7 +350,7 @@ function createSectionSummaryPrompt(section, optimizedConversationHistory, influ
                 {"name": 影响点英文别名, "influence": "是否，布尔值"}
             ],
             "summary": "总结的内容，单个字符串，可以写详细一点，包括对玩家行为的评价。",
-            "objective_judge":"只写出对于判断桥段目标是否达成的解释，不写影响点。请称玩家角色为‘你’。"
+            "objective_judge":"只写出对于判断桥段目标是否达成的解释，不写影响点。请称玩家角色为'你'。"
         }
         注意influencePoints要严格按照原顺序，方便系统保存。
     `;
