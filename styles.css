@@ -104,6 +104,22 @@ h2 {
     border-radius: 5px;
     max-height: 600px; /* 固定最大高度 */
     min-height: 450px; /* 固定最小高度 */
+    text-align: left; /* 添加这行，确保文本左对齐 */
+}
+
+/* 添加新的消息样式 */
+.message {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.message[data-role="user"] {
+    font-style: italic;
+}
+
+.message[data-role="assistant"],
+.message[data-role="info"] {
+    /* 可以根据需要为不同角色添加特定样式 */
 }
 
 /* 控件 */
@@ -263,12 +279,12 @@ h2 {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: safe left;
+    justify-content: safe center;
     align-items: center;
     width: 100%;
     height: auto;
     max-width: 100%;
-    text-align: left;
+    text-align: center;
 }
 
 /* 修改settings按钮容器的样式 */
@@ -503,4 +519,21 @@ h2 {
         margin: 5px 0;
         font-size: 14px; /* 调整输入框文字大小 */
     }
+}
+
+/* 添加新的居中样式 */
+.message[data-role="centered"] {
+    text-align: center;
+    width: 100%;
+}
+
+.message[data-role="centered"] .image-container,
+.message[data-role="centered"] .music-player {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.message[data-role="centered"] h2 {
+    margin-bottom: 20px;
 }

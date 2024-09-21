@@ -12,29 +12,21 @@ function updateDisplay(role, messageContent, streaming = false) {
             isStreaming = true;
             currentTypedLength = 0;
             fullContent = '';
-            const messageElement = document.createElement('p');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
             messageElement.setAttribute('data-role', role);
             storyContentDiv.appendChild(messageElement);
             lastMessageElement = messageElement;
         }
-        // 更新 fullContent，但不直接显示
         fullContent = messageContent;
-        // 继续使用打字机效果
         typingPromise = typingPromise.then(() => typewriterEffect(lastMessageElement, fullContent, role));
     } else {
-        if (isStreaming) {
-            // 流式传输结束，但不立即显示全部内容
-            isStreaming = false;
-            // 确保 typewriterEffect 会显示完整内容
-            typingPromise = typingPromise.then(() => typewriterEffect(lastMessageElement, fullContent, role));
-        } else {
-            // 非流式传输的情况保持不变
-            const messageElement = document.createElement('p');
-            messageElement.setAttribute('data-role', role);
-            messageElement.innerHTML = formatContent(role, messageContent);
-            storyContentDiv.appendChild(messageElement);
-            lastMessageElement = messageElement;
-        }
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        messageElement.setAttribute('data-role', role);
+        messageElement.innerHTML = formatContent(role, messageContent);
+        storyContentDiv.appendChild(messageElement);
+        lastMessageElement = messageElement;
     }
     
     lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -49,18 +41,25 @@ async function typewriterEffect(element, text, role) {
                 currentTypedLength++;
                 element.innerHTML = formatContent(role, text.slice(0, currentTypedLength));
                 resolve();
-            }, getDelay(newText[i]));
+            }, 10); // 使用固定的短延迟
         });
+
+        // 在字符输出后检查是否需要额外延迟
+        if (i < newText.length - 1) {
+            await new Promise(resolve => {
+                setTimeout(resolve, getDelay(newText[i]));
+            });
+        }
     }
 }
 
 function getDelay(char) {
     if ('.。!！?？'.includes(char)) {
-        return 500; // 标点符号停顿
+        return 400; // 主要标点符号后的停顿
     } else if (',，;；'.includes(char)) {
-        return 300; // 次要标点停顿
+        return 100; // 次要标点符号后的停顿
     } else {
-        return Math.random() * 20 + 10; // 随机停顿
+        return Math.random() * 20 + 10; // 普通字符
     }
 }
 
@@ -72,6 +71,9 @@ function formatContent(role, content) {
     
     if (role === 'user') {
         return `<i>${content}</i>`;
+    } else if (role === 'centered') {
+        // 对于居中内容，不进行特殊格式化
+        return content;
     } else {
         const formattedContent = content.replace(/\n/g, '<br>');
         return highlightSpecialTerms(formattedContent);
@@ -98,13 +100,36 @@ function createStoryContent(section, playerCharacter) {
 
 function displayInitialContent(section) {
     const playerCharacter = section.characters.find(char => char.name === selectedCharacter);
-    const storyContent = createStoryContent(section, playerCharacter);
-    const playerInfo = createPlayerInfo(playerCharacter);
-    updateDisplay('info', storyContent);
-    updateDisplay('info', playerInfo);
+    const storyContentDiv = document.getElementById('storyContent');
+    
+    // 创建居中的初始内容
+    let initialContent = `
+        <h2>${section.title}</h2>
+        <div class="image-container"><img src="${section.image}" alt="桥段图片"></div>
+    `;
+    
+    // 添加音乐播放器（如果有）
     if (section.musicUrl) {
-        addMusicPlayer(section.musicUrl);
+        initialContent += `<div class="music-player" id="musicPlayer"></div>`;
     }
+    
+    initialContent += `
+        <p><b>目标：${section.objective}</b></p>
+        <p>${section.backgroundInfo}</p>
+    `;
+    
+    // 使用新的 centered data-role 显示初始内容
+    updateDisplay('centered', initialContent);
+    
+    // 如果有音乐，在内容添加后再添加音乐播放器
+    if (section.musicUrl) {
+        const musicPlayerDiv = document.getElementById('musicPlayer');
+        addMusicPlayer(section.musicUrl, musicPlayerDiv);
+    }
+    
+    // 添加玩家信息和开始事件
+    const playerInfo = createPlayerInfo(playerCharacter);
+    updateDisplay('info', playerInfo);
     updateDisplay('assistant', section.startEvent);
     
     document.getElementById('storyContent').scrollTop = 0;

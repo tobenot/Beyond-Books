@@ -1,5 +1,4 @@
-function addMusicPlayer(sourceUrl) {
-    const storyContentDiv = document.getElementById('storyContent');
+function addMusicPlayer(sourceUrl, parentElement) {
     const playerContainer = document.createElement('div');
     playerContainer.style.width = '100%';
     let iframeSrc;
@@ -11,12 +10,15 @@ function addMusicPlayer(sourceUrl) {
         iframeSrc = sourceUrl;
         playerContainer.innerHTML = `<iframe src="${iframeSrc}" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false" style="width:330px; height:86px;"></iframe>`;
     } else {
-        console.error('Unsupported music source link');
+        console.error('不支持的音乐源链接');
         return;
     }
 
-    storyContentDiv.appendChild(playerContainer);
-    playerContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (parentElement) {
+        parentElement.appendChild(playerContainer);
+    } else {
+        document.getElementById('storyContent').appendChild(playerContainer);
+    }
 }
 
 // 调用示例
