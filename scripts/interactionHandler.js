@@ -12,6 +12,225 @@ let API_URL;
 let API_KEY;
 let MODEL;
 
+// 主持人类
+class Moderator {
+  async validateAction(action, context) {
+    const prompt = `
+作为游戏主持人，请评估以下玩家行动的可行性：
+
+玩家行动：${action}
+
+当前情境：${context}
+
+请回答以下问题：
+1. 这个行动是否可行？（是/否）
+2. 为什么？（简要解释）
+3. 如果不可行，有什么建议？
+
+请用JSON格式回答：
+{
+  "isValid": boolean,
+  "reason": "解释",
+  "suggestion": "如果不可行，给出建议"
+}
+`;
+
+    const response = await this.callLargeLanguageModel(prompt);
+    return JSON.parse(response);
+  }
+
+  async generateFinalResult(mainPlayerAction, aiActions) {
+    const prompt = `
+作为游戏主持人，请根据以下信息生成最终结果：
+
+主玩家行动：${mainPlayerAction}
+
+AI玩家行动：
+${Object.entries(aiActions).map(([name, action]) => `${name}: ${action}`).join('\n')}
+
+请生成一个综合的结果描述，包括：
+1. 所有行动的结果
+2. 环境的变化
+3. 其他角色的反应
+
+请用JSON格式回答：
+{
+  "result": "详细的结果描述",
+  "environmentChanges": "环境变化的描述",
+  "npcReactions": "其他角色的反应"
+}
+`;
+
+    const response = await this.callLargeLanguageModel(prompt);
+    return JSON.parse(response);
+  }
+
+  async callLargeLanguageModel(prompt) {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ 
+        model: MODEL, 
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        max_tokens: 1000
+      }),
+      credentials: 'include'
+    });
+
+    const responseData = await handleApiResponse(response);
+    return responseData.choices[0].message.content;
+  }
+}
+
+// AI玩家类
+class AIPlayer {
+  constructor(character) {
+    this.name = character.name;
+    this.role = character.role;
+    this.description = character.description;
+    this.personality = character.personality;
+    this.goals = character.goals;
+    this.memory = [];
+  }
+
+  createPrompt(situation) {
+    const recentMemory = this.memory.slice(-5).map(m => `${m.situation}\n${m.response}`).join('\n');
+    return `你是${this.name}，${this.role}。${this.description}
+性格：${this.personality}
+目标：${this.goals.join(', ')}
+
+最近的记忆：
+${recentMemory}
+
+当前情况：
+${situation}
+
+请根据你的角色、性格、目标和记忆，对当前情况做出反应。回复格式：
+{
+  "thoughts": "你的内心想法",
+  "action": "你的行动或对话"
+}`;
+  }
+
+  updateMemory(situation, response) {
+    this.memory.push({ situation, response });
+    if (this.memory.length > 5) {
+      this.memory.shift(); // 保持最近的5条记忆
+    }
+  }
+}
+
+// 游戏管理器类
+class GameManager {
+  constructor() {
+    this.moderator = new Moderator();
+    this.aiPlayers = {};
+    this.mainPlayer = null;
+    this.currentContext = "";
+    this.publicHistory = []; // 所有角色可见的历史
+    this.mainPlayerHistory = []; // 主玩家的个人历史
+  }
+
+  initializeGame(section) {
+    this.aiPlayers = {};
+    section.characters.forEach(character => {
+      if (character.isAI) {
+        this.aiPlayers[character.name] = new AIPlayer(character);
+      } else {
+        this.mainPlayer = character;
+      }
+    });
+    this.currentContext = section.backgroundInfo;
+  }
+
+  async processMainPlayerAction(action) {
+    const validationResult = await this.moderator.validateAction(action, this.currentContext);
+    
+    if (!validationResult.isValid) {
+      const feedback = `操作不可行。原因：${validationResult.reason}\n建议：${validationResult.suggestion}`;
+      this.mainPlayerHistory.push({ role: "system", content: feedback });
+      return feedback;
+    }
+
+    const aiResponses = await this.getAIPlayersResponses(action);
+    const finalResult = await this.moderator.generateFinalResult(action, aiResponses);
+
+    this.updateContext(finalResult);
+    this.updateHistories(action, finalResult);
+
+    return finalResult.result;
+  }
+
+  updateContext(finalResult) {
+    this.currentContext += `\n${finalResult.result}\n${finalResult.environmentChanges}`;
+  }
+
+  updateHistories(action, finalResult) {
+    // 更新公共历史
+    this.publicHistory.push({ role: "system", content: finalResult.result });
+    
+    // 更新主玩家历史
+    this.mainPlayerHistory.push({ role: "user", content: action });
+    this.mainPlayerHistory.push({ role: "system", content: finalResult.result });
+
+    // 更新AI玩家的记忆
+    for (const aiPlayer of Object.values(this.aiPlayers)) {
+      aiPlayer.updateMemory(action, finalResult.result);
+    }
+  }
+
+  getVisibleHistoryForAI(aiPlayer) {
+    // 返回AI玩家可见的历史（公共历史 + 自己的记忆）
+    return [...this.publicHistory, ...aiPlayer.memory];
+  }
+
+  getMainPlayerHistory() {
+    return this.mainPlayerHistory;
+  }
+
+  async getAIPlayersResponses(action) {
+    const responses = {};
+    for (const [name, aiPlayer] of Object.entries(this.aiPlayers)) {
+      const prompt = aiPlayer.createPrompt(action);
+      const aiConversationHistory = [
+        { role: "system", content: prompt },
+        { role: "user", content: action }
+      ];
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          model: MODEL, 
+          messages: aiConversationHistory, 
+          response_format: { type: "json_object" }, 
+          max_tokens: 300 
+        }),
+        credentials: 'include'
+      });
+
+      const responseData = await handleApiResponse(response);
+      const parsedResponse = JSON.parse(responseData.choices[0].message.content);
+      
+      aiPlayer.updateMemory(action, parsedResponse);
+      responses[name] = parsedResponse;
+    }
+    return responses;
+  }
+}
+
+// 使用示例
+const gameManager = new GameManager();
+
 async function initializeConversation(section, isReplay = false) {
     const settings = JSON.parse(localStorage.getItem('settings'));
     API_URL = window.getApiUrl() + 'chat/completions';
@@ -71,6 +290,8 @@ async function initializeConversation(section, isReplay = false) {
     }
 
     document.getElementById('storyContent').scrollTop = 0;
+
+    gameManager.initializeGame(section);
 }
 
 async function submitUserInput() {
@@ -103,7 +324,7 @@ async function submitUserInput() {
         submitButton.style.display = 'none';
         userInputField.disabled = true;
         submitButton.disabled = true;
-        getSectionSummary(currentSection.id, optimizedConversationHistory, currentSection).then(summary => {
+        getSectionSummary(currentSection.id, gameManager.getMainPlayerHistory(), currentSection).then(summary => {
             handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
         });
         return;
@@ -112,27 +333,22 @@ async function submitUserInput() {
     toggleSubmittingState(true, loadingDiv, userInputField, submitButton);
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ 
-                model: MODEL, 
-                messages: conversationHistory, 
-                response_format: { type: "json_object" }, 
-                max_tokens: 4096 
-            }),
-            credentials: 'include'
-        });
-    
-        const responseData = await handleApiResponse(response);
-    
-        processModelResponse(responseData, userInputField, submitButton);
+        const result = await gameManager.processMainPlayerAction(userInput);
+        
+        // 更新对话历史和显示
+        conversationHistory.push({ role: "assistant", content: result });
+        optimizedConversationHistory.push({ role: "system", content: result });
+        updateDisplay('assistant', result);
+
+        // 检查是否需要结束桥段
+        if (gameManager.moderator.endSectionFlag) {
+            // 桥段结束后禁用输入框和提交按钮
+            disableInput();
+            const summary = await getSectionSummary(currentSection.id, gameManager.getMainPlayerHistory(), currentSection);
+            handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
+        }
     } catch (error) {
-        console.error("请求失败:", error);
+        console.error("处理用户输入时出错:", error);
     } finally {
         toggleSubmittingState(false, loadingDiv, userInputField, submitButton);
 
@@ -142,10 +358,10 @@ async function submitUserInput() {
     }    
 }
 
-async function getSectionSummary(sectionId, optimizedConversationHistory, section) {
+async function getSectionSummary(sectionId, mainPlayerHistory, section) {
     const influencePointsText = formatInfluencePointsText(section.influencePoints);
 
-    const systemPrompt = createSectionSummaryPrompt(section, optimizedConversationHistory, influencePointsText);
+    const systemPrompt = createSectionSummaryPrompt(section, mainPlayerHistory, influencePointsText);
 
     if (isCarrotTest()) console.log("Debug getSectionSummary提交给模型:", systemPrompt);
 
@@ -334,11 +550,11 @@ function processModelResponse(responseData, userInputField, submitButton) {
     }
 }
 
-function createSectionSummaryPrompt(section, optimizedConversationHistory, influencePointsText) {
+function createSectionSummaryPrompt(section, mainPlayerHistory, influencePointsText) {
     return `
         请基于以下对话历史，对完成度做出总结。
         对话历史：
-        ${optimizedConversationHistory.map(message => `${message.role}: ${message.content}`).join('\n')}
+        ${mainPlayerHistory.map(message => `${message.role}: ${message.content}`).join('\n')}
         以上是对话历史。
         本桥段目标：${section.objective}
         影响点：
@@ -407,7 +623,7 @@ function fixAndParseJSON(jsonString) {
         });
 
         // 在每个换行符和字符之间添加逗号
-        fixedString = jsonString.replace(/}\s*{/, "},{");
+        fixedString = fixedString.replace(/}\s*{/, "},{");
 
         // 检查最常见的错误：缺少逗号
         fixedString = fixedString.replace(/("\w+":.*?[^\\])"\s*("\w+":)/g, '$1, "$2');
