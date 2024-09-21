@@ -1,4 +1,5 @@
 /* styles.css */
+
 /* 通用样式 */
 body, html {
     font-family: 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
@@ -9,7 +10,7 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* 禁止滚动 */
+    overflow: hidden;
     width: 100%;
     height: 100%;
 }
@@ -22,21 +23,25 @@ body, html {
     overflow: hidden;
 }
 
+#sectionsContainer, #storyContainer, #settings {
+    display: none;
+}
+
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* 水平居中 */
+    justify-content: center;
     align-items: center;
     width: 90%;
     height: auto;
-    max-width: 100%; /* 优化容器最大宽度 */
+    max-width: 100%;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     text-align: center;
 }
 
-/* 标题 */
+/* 排版样式 */
 h1, h2 {
     color: #333333;
     margin-bottom: 10px;
@@ -50,10 +55,6 @@ h2 {
     font-size: 18px; 
 }
 
-#sectionsContainer, #storyContainer, #settings {
-    display: none;
-}
-
 .footer {
     text-align: center;
     margin-top: 20px;
@@ -61,14 +62,14 @@ h2 {
     border-top: 1px solid #ccc;
 }
 
-/* 按钮 */
+/* 按钮样式 */
 .button {
     display: block;
-    width: 80%; /* 调整按钮宽度 */
+    width: 80%;
     padding: 10px 20px;
-    font-size: 16px; /* 调整按钮字体大小避免溢出 */
+    font-size: 16px;
     font-weight: 600;
-    margin: 10px auto;  /* 中间对齐 */
+    margin: 10px auto;
     color: #333333;
     background-color: #FFFFFF;
     border: 1px solid #D9D9D9;
@@ -82,6 +83,22 @@ h2 {
     transform: translateY(-3px);
 }
 
+.button-skip {
+    font-size: 0.8em;
+    opacity: 0.7;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    color: #666;
+}
+
+.button-skip:hover {
+    opacity: 1;
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+/* 图片样式 */
 .image-container img {
     width: 100%;
     height: auto;
@@ -92,22 +109,22 @@ h2 {
     object-fit: cover;
 }
 
-/* 文本容器 */
+/* 文本容器样式 */
 .text-container {
     flex: 1;
-    overflow-y: auto; /* 允许文本容器内部滚动 */
+    overflow-y: auto;
     justify-content: safe center;
     padding: 10px;
     background-color: #FBFBFB;
     border: 1px solid #E6E6E6;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
     border-radius: 5px;
-    max-height: 600px; /* 固定最大高度 */
-    min-height: 450px; /* 固定最小高度 */
-    text-align: left; /* 添加这行，确保文本左对齐 */
+    max-height: 600px;
+    min-height: 450px;
+    text-align: left;
 }
 
-/* 添加新的消息样式 */
+/* 消息样式 */
 .message {
     margin-bottom: 10px;
     text-align: left;
@@ -117,16 +134,27 @@ h2 {
     font-style: italic;
 }
 
-.message[data-role="assistant"],
-.message[data-role="info"] {
-    /* 可以根据需要为不同角色添加特定样式 */
+.message[data-role="centered"] {
+    text-align: center;
+    width: 100%;
 }
 
-/* 控件 */
+.message[data-role="centered"] .image-container,
+.message[data-role="centered"] .music-player {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.message[data-role="centered"] h2 {
+    margin-bottom: 20px;
+}
+
+/* 控件样式 */
 .controls {
     display: flex;
     align-items: center;
-    gap: 10px; /* 控制输入框和按钮之间的间距 */
+    gap: 10px;
 }
 
 .controls input[type="text"] {
@@ -142,8 +170,8 @@ h2 {
 }
 
 .controls .button {
-    width: auto; /* 使按钮根据内容自动调整大小 */
-    padding: 10px 20px; /* 调整按钮内填充 */
+    width: auto;
+    padding: 10px 20px;
 }
 
 .menu-controls {
@@ -170,12 +198,12 @@ h2 {
     padding: 0;
     font-size: 16px;
     font-weight: 600;
-    margin: 10px auto;  /* 中间对齐 */
+    margin: 10px auto;
     color: #333333;
     background-color: #FFFFFF;
 }
 
-/* loader的样式 */
+/* 加载器样式 */
 .loader {
     display: flex;
     flex-direction: column;
@@ -184,7 +212,7 @@ h2 {
 
 #loadingBar {
     width: 100%;
-    height: 4px; /* 进度条高度 */
+    height: 4px;
     background-color: #f3f3f3;
     margin-top: 8px;
     border-radius: 2px;
@@ -214,6 +242,7 @@ h2 {
     100% { transform: rotate(360deg); }
 }
 
+/* 章节样式 */
 #sectionsContainer {
     overflow: hidden;
     display: flex;
@@ -232,13 +261,13 @@ h2 {
     overflow-y: auto;
     justify-content: safe center;
     padding: 10px;
-    max-height: 600px; /* 固定最大高度 */
-    min-height: 450px; /* 固定最小高度 */
+    max-height: 600px;
+    min-height: 450px;
 }
 
 #sections .section {
     margin: 10px 0;
-    width: 80%; /* 调整章节容器宽度 */
+    width: 80%;
     text-align: center;
 }
 
@@ -251,30 +280,16 @@ h2 {
     max-width: 384px;
 }
 
-.button-skip {
-    font-size: 0.8em; /* 调整字体大小 */
-    opacity: 0.7; /* 调整透明度 */
-    padding: 5px 10px; /* 调整内边距 */
-    background-color: #f0f0f0; /* 调整背景颜色 */
-    border: 1px solid #ccc; /* 调整边框 */
-    color: #666; /* 调整字体颜色 */
-}
-
-.button-skip:hover {
-    opacity: 1; /* 悬停时提高透明度 */
-    background-color: #e0e0e0; /* 悬停时改变背景颜色 */
-    color: #333; /* 悬停时改变字体颜色 */
-}
-
 .chapter {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;  /* 占满父容器宽度 */
+    width: 100%;
     margin: 10px 0;
 }
 
+/* 故事容器样式 */
 .storyContainer {
     overflow: hidden;
     display: flex;
@@ -287,26 +302,24 @@ h2 {
     text-align: center;
 }
 
-/* 修改settings按钮容器的样式 */
+/* 设置页面样式 */
 #settings .button-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    width: 80%; /* 调整按钮容器的宽度 */
-    margin: auto; /* 设置容器水平居中 */
+    width: 80%;
+    margin: auto;
 }
 
-/* 修改设置页面输入框的样式 */
 #settingsContainer .settings-input {
-    width: 80%; /* 增加输入框宽度 */
-    padding: 8px; /* 调整内边距 */
-    margin-bottom: 10px; /* 减少底部外边距 */
-    font-size: 14px; /* 调整输入字体大小 */
-    font-family: inherit; /* 保持字体一致 */
+    width: 80%;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-family: inherit;
 }
 
-/* 为下拉框添加样式 */
 #settingsContainer select.settings-input {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -316,38 +329,36 @@ h2 {
     background-size: 8px 10px;
 }
 
-/* 修改设置页面标签的样式 */
 #settingsContainer label {
-    width: 80%; /* 调整标签宽度 */
+    width: 80%;
     font-weight: bold;
     margin-top: 10px;
-    margin-bottom: 15px; /* 调整底部外边距 */
+    margin-bottom: 15px;
 }
 
-/* 修改设置页面主容器的样式 */
 #settingsContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 10px;
-    width: 80%; /* 调整宽度提高自适应性 */
-    max-width: 600px; /* 限定最大宽度 */
+    width: 80%;
+    max-width: 600px;
     background-color: #FFF;
     border: 1px solid #E6E6E6;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    height: 80vh; /* 或者根据需要调整 */
-    max-height: 80vh; /* 确保在高度较大时仍然能够滚动 */
+    height: 80vh;
+    max-height: 80vh;
 }
 
-/* 修改设置页按钮 */
 #settings .button {
     width: 100%;
-    padding: 12px 20px; /* 调整内边距 */
-    font-family: inherit; /* 保持字体一致 */
+    padding: 12px 20px;
+    font-family: inherit;
 }
-/* 弹框样式 */
+
+/* 模态框样式 */
 .modal {
     display: none; 
     position: fixed; 
@@ -359,6 +370,7 @@ h2 {
     justify-content: center; 
     align-items: center; 
 }
+
 .modal-content {
     background-color: white;
     padding: 20px;
@@ -372,7 +384,7 @@ h2 {
     overflow-y: auto;
 }
 
-/* 万物运行... */
+/* 加载提示样式 */
 .loading {
     display: flex;
     justify-content: center;
@@ -385,23 +397,23 @@ h2 {
     text-align: center;
 }
 
+/* 特殊术语样式 */
 .special-term {
     font-weight: bold;
     text-shadow: 
         -1px -1px 2px #000,  
          1px -1px 2px #000,
         -1px  1px 2px #000,
-         1px  1px 2px #000; /* 减少偏移量并添加模糊效果，使描边既柔和又不过于粗重 */
+         1px  1px 2px #000;
     padding-left: 2px;
     padding-right: 2px;
 }
 
-/* 添加对hover的支持，便于观察 */
 .special-term:hover {
-    background-color: #f0f0f0; /* 背景颜色变化 */
+    background-color: #f0f0f0;
 }
 
-/* 术语解释 */
+/* 术语解释样式 */
 #term-tooltip {
     display: none;
     position: absolute;
@@ -415,21 +427,21 @@ h2 {
 }
 
 .term-tooltip-image {
-    max-width: 256px; /* 根据需求调整宽度 */
-    max-height: 384px; /* 根据需求调整高度 */
-    margin-top: 10px; /* 图片与文字之间的间距 */
+    max-width: 256px;
+    max-height: 384px;
+    margin-top: 10px;
     justify-content: center;
 }
 
-/* 桥段回顾 */
+/* 回顾样式 */
 #reviewContainer, 
 #reviewDetailContainer {
-    display: none; /* 默认隐藏 */
+    display: none;
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    overflow-y: auto; /* 使容器可以上下滚动 */
-    max-height: 90vh; /* 限制最大高度，避免溢出 */
+    overflow-y: auto;
+    max-height: 90vh;
 }
 
 #reviewContainer h2, 
@@ -476,12 +488,12 @@ h2 {
     background: #f0f0f0;
     padding: 10px;
     border-radius: 5px;
-    width: 100%; /* 使预览内容充满容器 */
+    width: 100%;
     max-width: 600px;
     overflow: auto;
 }
 
-/* 添加媒体查询 */
+/* 响应式样式 */
 @media (max-width: 767px) {
     body {
         flex-direction: column;
@@ -499,7 +511,7 @@ h2 {
     .button {
         padding: 10px 15px;
         font-size: 16px;
-        width: 90%; /* 在小屏幕上让按钮更宽 */
+        width: 90%;
     }
 
     .image-container img {
@@ -508,32 +520,15 @@ h2 {
     }
 
     .text-container {
-        max-height: 600px; /* 优化高度 */
-        min-height: 450px; /* 固定最小高度 */
-        padding: 5px; /* 缩小内间距 */
+        max-height: 600px;
+        min-height: 450px;
+        padding: 5px;
     }
 
     .controls input[type="text"] {
         width: 100%;
         padding: 8px;
         margin: 5px 0;
-        font-size: 14px; /* 调整输入框文字大小 */
+        font-size: 14px;
     }
-}
-
-/* 添加新的居中样式 */
-.message[data-role="centered"] {
-    text-align: center;
-    width: 100%;
-}
-
-.message[data-role="centered"] .image-container,
-.message[data-role="centered"] .music-player {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.message[data-role="centered"] h2 {
-    margin-bottom: 20px;
 }

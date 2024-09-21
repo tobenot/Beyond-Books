@@ -9,10 +9,17 @@
         document.addEventListener('DOMContentLoaded', function () {
             const timestamp = new Date().getTime();
 
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = `styles.css?v=${timestamp}`;
-            document.head.appendChild(link);
+            // 加载所有CSS文件
+            const cssFiles = [
+                'base.css'
+            ];
+
+            cssFiles.forEach(file => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = `css/${file}?v=${timestamp}`;
+                document.head.appendChild(link);
+            });
 
             const script = document.createElement('script');
             script.src = `scripts/startup.js?v=${timestamp}`;
