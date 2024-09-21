@@ -55,8 +55,9 @@ async function processUserInput(userInput) {
 function updateConversationWithResult(result) {
   addToConversationHistory({ role: "assistant", content: result });
   addToOptimizedConversationHistory({ role: "system", content: result });
-  // updateDisplay('assistant', result);
+  updateDisplay('assistant', result);
 }
+
 
 function setCooldown() {
   setTimeout(() => {

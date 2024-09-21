@@ -73,28 +73,32 @@ class GameManager {
 
     async processMainPlayerAction(action, updateOptimizedHistoryCallback) {
         this.log("主玩家操作:", action);
+        updateInteractionStage("能力", "你可以做到吗...");
 
         const validationResult = await this.moderator.validateAction(action);
         this.log("操作验证结果:", validationResult);
         
         if (!validationResult.isValid) {
-            const feedback = `操作不可行。原因：${validationResult.reason}\n建议：${validationResult.suggestion}`;
+            const feedback = `<i style="color: red;">你的行动不可行。原因：${validationResult.reason}\n建议：${validationResult.suggestion}</i>`;
             this.log("操作不可行，返回反馈:", feedback);
+            hideInteractionStage();
             return feedback;
         }
 
         const specificAction = validationResult.specificAction;
         this.log("玩家的行为:", specificAction);
+        updateInteractionStage("反应", "其他人怎么想呢...");
 
         updateOptimizedHistoryCallback(specificAction);
 
         const aiResponses = await this.getAIPlayersResponses(specificAction);
         this.log("AI玩家响应:", aiResponses);
+        updateInteractionStage("总结", "那么究竟是...");
 
         const actionSummary = await this.moderator.summarizeActions(specificAction, aiResponses);
         this.log("行动总结:", actionSummary);
 
-        this.log("生成最终结果");
+        updateInteractionStage("叙述", "好的，现在...");
         const finalResult = await this.moderator.generateFinalResult(actionSummary);
         this.log("最终结果:", finalResult);
 
@@ -104,6 +108,7 @@ class GameManager {
             this.moderator.endSectionFlag = true;
         }
 
+        hideInteractionStage();
         return finalResult;
     }
 

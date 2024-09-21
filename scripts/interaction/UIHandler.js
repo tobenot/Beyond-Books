@@ -188,3 +188,18 @@ function toggleSectionVisibility() {
 function initializeUIHandler() {
     console.log("UI处理器已初始化");
 }
+
+function updateInteractionStage(stage, info) {
+    const interactionStageDiv = document.getElementById('interactionStage');
+    const stageTextElement = document.getElementById('stageText');
+    
+    stageTextElement.textContent = `${stage}: ${info}`;
+    interactionStageDiv.style.display = 'block';
+    
+    // 确保新添加的元素可见
+    interactionStageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function hideInteractionStage() {
+    document.getElementById('interactionStage').style.display = 'none';
+}

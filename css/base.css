@@ -383,6 +383,7 @@ h2 {
 /* 加载提示样式 */
 .loading {
     display: flex;
+
     justify-content: center;
     align-items: center;
     font-size: 18px;
@@ -531,4 +532,16 @@ h2 {
 
 #sectionsContainer, #storyContainer, #settings {
     display: none;
+}
+
+.interaction-stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    padding: 10px 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    z-index: 1000;
+    text-align: center;
 }
