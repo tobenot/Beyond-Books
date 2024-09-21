@@ -59,7 +59,7 @@ ${situation}
 请根据以上信息，对当前情况做出反应。用json格式回复：
 {
   "canAct": "布尔值，你能否思考或说话，比如说遇到时间类型的能力、比如说你还不在现场。",
-  "thoughts": "你的私人想法，无法思考时，返回空字符串",
+  "thoughts": "作为${this.name}，你的私人想法，无法思考时，返回空字符串",
   "action": "你的行动和说的话，无法行动时，返回空字符串"
 }`;
         this.log("创建提示", { prompt });
@@ -114,5 +114,3 @@ ${situation}
         return parsedResponse;
     }
 }
-
-// 删除 CONSTANT_DATA

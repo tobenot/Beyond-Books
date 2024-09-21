@@ -70,7 +70,7 @@ function formatContent(role, content) {
     }
     
     if (role === 'user') {
-        return `<i>${content}</i>`;
+        return `<br><i>${content}</i><br><br>`;
     } else if (role === 'centered') {
         // 对于居中内容，不进行特殊格式化
         return content;
