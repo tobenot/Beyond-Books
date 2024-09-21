@@ -73,7 +73,7 @@ class GameManager {
         this.updateHistories(action, finalResult);
 
         // 检查是否需要结束桥段
-        if (finalResult.endSectionFlag) {
+        if (actionSummary.endSectionFlag) {
             this.moderator.endSectionFlag = true;
         }
 

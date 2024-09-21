@@ -47,7 +47,8 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
     "角色1": "角色1实际做的事",
     "角色2": "角色2实际做的事",
     // ... 其他角色
-  }
+  },
+  "endSectionFlag": "布尔值,是否满足了桥段结束条件？如果是,将进入桥段复盘环节"
 }`;
 
         console.log("生成行动总结提示", prompt);
@@ -63,16 +64,12 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 各角色的行动总结：
 ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${action}`).join('\n')}
 
-请按照以下JSON格式回复：
-{
-  "display": "单个字符串，这个字段会展示给全部玩家，请小说化地、详细描述这个回合的结果,包括其他角色说出来的话、做的动作等。请用第三人称方式描写，但DO NOT描写主角的心理活动。DO NOT描写气氛等主观的事物。请确保描述中包含每个角色实际成功做出的行动。",
-  "endSectionFlag": "布尔值,是否满足了桥段结束条件？如果是,将进入桥段复盘环节"
-}`;
+请小说化地、详细描述这个回合的结果,包括其他角色说出来的话、做的动作等。请用第三人称方式描写，但DO NOT描写主角的心理活动。DO NOT描写气氛等主观的事物。请确保描述中包含每个角色实际成功做出的行动。`;
 
         console.log("生成最终结果提示", prompt);
 
-        const response = await this.callLargeLanguageModel(prompt);
-        return JSON.parse(response);
+        const response = await this.callLargeLanguageModelNonJson(prompt);
+        return response;
     }
 
     async callLargeLanguageModel(prompt) {
@@ -95,6 +92,33 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
                 model: MODEL, 
                 messages: [{ role: "user", content: prompt }],
                 response_format: { type: "json_object" },
+                max_tokens: 1000
+            }),
+            credentials: 'include'
+        });
+
+        const responseData = await handleApiResponse(response);
+        return responseData.choices[0].message.content;
+    }
+
+    async callLargeLanguageModelNonJson(prompt) {
+        console.log("调用大语言模型（非JSON）", {
+            prompt,
+            API_URL,
+            API_KEY,
+            MODEL
+        });
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                model: MODEL, 
+                messages: [{ role: "user", content: prompt }],
                 max_tokens: 1000
             }),
             credentials: 'include'
