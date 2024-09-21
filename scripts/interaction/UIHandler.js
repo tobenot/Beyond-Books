@@ -17,6 +17,8 @@ function updateDisplay(role, messageContent, streaming = false) {
             messageElement.setAttribute('data-role', role);
             storyContentDiv.appendChild(messageElement);
             lastMessageElement = messageElement;
+            // 只在开始流式内容时滚动一次
+            lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
         fullContent = messageContent;
         typingPromise = typingPromise.then(() => typewriterEffect(lastMessageElement, fullContent, role));
@@ -34,10 +36,10 @@ function updateDisplay(role, messageContent, streaming = false) {
             messageElement.innerHTML = formatContent(role, messageContent);
             storyContentDiv.appendChild(messageElement);
             lastMessageElement = messageElement;
+            // 非流式内容时滚动到视图
+            lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }
-    
-    lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 async function typewriterEffect(element, text, role) {
@@ -47,7 +49,17 @@ async function typewriterEffect(element, text, role) {
         await new Promise(resolve => {
             setTimeout(() => {
                 currentTypedLength++;
-                element.innerHTML = formatContent(role, text.slice(0, currentTypedLength));
+                element.innerHTML = formatContent(role, text.slice(0, currentTypedLength)) + '<br><br>'; // 添加两个空行
+                
+                // 检查是否接近底部,如果是则滚动
+                const storyContentDiv = document.getElementById('storyContent');
+                const scrollPosition = storyContentDiv.scrollTop + storyContentDiv.clientHeight;
+                const scrollThreshold = storyContentDiv.scrollHeight - 100; // 将阈值调整为距离底部50像素
+                
+                if (scrollPosition >= scrollThreshold) {
+                    storyContentDiv.scrollTop = storyContentDiv.scrollHeight; // 直接滚动到底部
+                }
+                
                 resolve();
             }, 10); // 使用固定的短延迟
         });
