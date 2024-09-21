@@ -10,6 +10,9 @@ function updateDisplay(role, messageContent, streaming = false) {
     if (streaming) {
         messageManager.updateMessage(role, messageContent);
     } else {
+        if(messageManager.isMessageStreaming(messageContent)){
+            return;
+        }
         const messageElement = document.createElement('div');
         messageElement.className = 'message';
         messageElement.setAttribute('data-role', role);

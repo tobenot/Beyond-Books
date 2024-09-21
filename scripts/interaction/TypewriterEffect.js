@@ -82,6 +82,18 @@ class MessageManager {
         }
         return null;
     }
+
+    isMessageStreaming(content) {
+        const key = content.slice(0, 10);
+        for (let i = this.messages.length - 1; i >= 0; i--) {
+            const { message } = this.messages[i];
+            if (key.startsWith(message.content.slice(0, 10)) || 
+                message.content.slice(0, 10).startsWith(key)) {
+                return message.currentTypedLength < message.content.length;
+            }
+        }
+        return false;
+    }
 }
 
 function getDelay(char) {
