@@ -11,6 +11,7 @@ const scripts = [
     { url: 'scripts/interaction/InteractionProcess.js', alias: '交互：处理模块' },
     { url: 'scripts/interaction/EndingHandler.js', alias: '交互：结局处理模块' },
     { url: 'scripts/interaction/GameInitializer.js', alias: '交互：游戏初始化模块' },
+    { url: 'scripts/interaction/StreamHandler.js', alias: '交互：流式处理模块' }, // 新增
     { url: 'scripts/ui.js', alias: '主UI模块' },
     { url: 'scripts/settings.js', alias: '设置模块' },
     { url: 'scripts/termsHandler.js', alias: '术语模块' },
@@ -182,4 +183,5 @@ function initializeInteractionModules() {
   initializeInteractionProcess();
   initializeEndingHandler();
   initializeGame();
+  initializeStreamHandler(); // 新增
 }

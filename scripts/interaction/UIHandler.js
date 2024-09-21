@@ -1,12 +1,41 @@
-function updateDisplay(role, messageContent) {
+let lastMessageElement = null;
+let isStreaming = false;
+
+function updateDisplay(role, messageContent, streaming = false) {
     const storyContentDiv = document.getElementById('storyContent');
-    const messageElement = document.createElement('p');
-    messageElement.innerHTML = formatContent(role, messageContent);
-    storyContentDiv.appendChild(messageElement);
-    messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    if (streaming) {
+        if (!isStreaming) {
+            // 开始新的流式消息
+            isStreaming = true;
+            const messageElement = document.createElement('p');
+            messageElement.setAttribute('data-role', role);
+            messageElement.innerHTML = formatContent(role, messageContent);
+            storyContentDiv.appendChild(messageElement);
+            lastMessageElement = messageElement;
+        } else {
+            // 更新现有的流式消息
+            lastMessageElement.innerHTML = formatContent(role, messageContent);
+        }
+    } else {
+        // 非流式消息，总是创建新元素
+        isStreaming = false;
+        const messageElement = document.createElement('p');
+        messageElement.setAttribute('data-role', role);
+        messageElement.innerHTML = formatContent(role, messageContent);
+        storyContentDiv.appendChild(messageElement);
+        lastMessageElement = messageElement;
+    }
+    
+    lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 function formatContent(role, content) {
+    if (!content) {
+        console.error('formatContent 内容为空');
+        return '';
+    }
+    
     if (role === 'user') {
         return `<i>${content}</i>`;
     } else {

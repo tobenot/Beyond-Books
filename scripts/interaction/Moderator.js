@@ -64,11 +64,11 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 各角色的行动总结：
 ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${action}`).join('\n')}
 
-请小说化地、详细描述这个回合的结果,包括其他角色说出来的话、做的动作等。请用第三人称方式描写，但DO NOT描写主角的心理活动。DO NOT描写气氛等主观的事物。请确保描述中包含每个角色实际成功做出的行动。`;
+请小说化地、详细描述这个回合的结果,包括其他角色说出来的话、做的动作等。请用第三人称方式描写，但DO NOT描写主角的心理活动。DO NOT描写气氛等主观的事物。请确保描述中包含每个角色实际成功做出的行动。注意你的回复会直接展示为小说内容，所以不要写前导后缀提示。`;
 
         console.log("生成最终结果提示", prompt);
 
-        const response = await this.callLargeLanguageModelNonJson(prompt);
+        const response = await this.callLargeLanguageModelStream(prompt);
         return response;
     }
 
@@ -101,7 +101,7 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
         return responseData.choices[0].message.content;
     }
 
-    async callLargeLanguageModelNonJson(prompt) {
+    async callLargeLanguageModelStream(prompt) {
         console.log("调用大语言模型（非JSON）", {
             prompt,
             API_URL,
@@ -109,7 +109,7 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
             MODEL
         });
 
-        const response = await fetch(API_URL, {
+        const options = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -119,12 +119,19 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
             body: JSON.stringify({ 
                 model: MODEL, 
                 messages: [{ role: "user", content: prompt }],
-                max_tokens: 1000
+                max_tokens: 1000,
+                stream: true
             }),
             credentials: 'include'
+        };
+
+        let finalResult = '';
+        const streamHandler = new StreamHandler();
+        await streamHandler.fetchStream(API_URL, options, (partialResponse) => {
+            updateDisplay('assistant', partialResponse, true);
+            finalResult = partialResponse;
         });
 
-        const responseData = await handleApiResponse(response);
-        return responseData.choices[0].message.content;
+        return finalResult;
     }
 }
