@@ -8,37 +8,14 @@ function updateDisplay(role, messageContent, streaming = false) {
     const storyContentDiv = document.getElementById('storyContent');
     
     if (streaming) {
-        if (!isStreaming) {
-            isStreaming = true;
-            currentTypedLength = 0;
-            fullContent = '';
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message';
-            messageElement.setAttribute('data-role', role);
-            storyContentDiv.appendChild(messageElement);
-            lastMessageElement = messageElement;
-            // 只在开始流式内容时滚动一次
-            lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-        fullContent = messageContent;
-        typingPromise = typingPromise.then(() => typewriterEffect(lastMessageElement, fullContent, role));
+        messageManager.updateMessage(role, messageContent);
     } else {
-        // 检查是否已经存在流式内容
-        if (isStreaming) {
-            // 如果存在，更新最后的消息元素
-            lastMessageElement.innerHTML = formatContent(role, messageContent);
-            isStreaming = false; // 重置流式状态
-        } else {
-            // 如果不存在，创建新的消息元素
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message';
-            messageElement.setAttribute('data-role', role);
-            messageElement.innerHTML = formatContent(role, messageContent);
-            storyContentDiv.appendChild(messageElement);
-            lastMessageElement = messageElement;
-            // 非流式内容时滚动到视图
-            lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        messageElement.setAttribute('data-role', role);
+        messageElement.innerHTML = formatContent(role, messageContent);
+        storyContentDiv.appendChild(messageElement);
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 }
 
