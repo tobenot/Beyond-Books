@@ -46,4 +46,35 @@ ${situation}
         }
         this.log("更新记忆", { situation, response, currentMemory: this.memory });
     }
+
+    async getResponse(action) {
+        const prompt = this.createPrompt(action);
+        const aiConversationHistory = [
+            { role: "system", content: prompt },
+            { role: "user", content: action }
+        ];
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                model: MODEL, 
+                messages: aiConversationHistory, 
+                response_format: { type: "json_object" }, 
+                max_tokens: 300 
+            }),
+            credentials: 'include'
+        });
+
+        const responseData = await handleApiResponse(response);
+        const parsedResponse = JSON.parse(responseData.choices[0].message.content);
+        
+        this.updateMemory(action, parsedResponse);
+        this.log(`AI 响应`, parsedResponse);
+        return parsedResponse;
+    }
 }

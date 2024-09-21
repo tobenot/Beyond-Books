@@ -7,6 +7,8 @@ class GameManager {
         this.publicHistory = []; // 所有角色可见的历史
         this.mainPlayerHistory = []; // 主玩家的个人历史
         this.debugMode = isCarrotTest(); // 使用 isCarrotTest() 来设置调试模式
+        this.concurrencyLimit = 10; // 设置Agent并发上限
+        this.semaphore = new Semaphore(this.concurrencyLimit);
     }
 
     log(message, data = null) {
@@ -89,39 +91,46 @@ class GameManager {
     }
 
     async getAIPlayersResponses(action) {
-        const responses = {};
-        for (const [name, aiPlayer] of Object.entries(this.aiPlayers)) {
-            this.log(`获取 ${name} 的响应`, { action });
-            const prompt = aiPlayer.createPrompt(action);
-            const aiConversationHistory = [
-                { role: "system", content: prompt },
-                { role: "user", content: action }
-            ];
+        const responsePromises = Object.entries(this.aiPlayers).map(async ([name, aiPlayer]) => {
+            await this.semaphore.acquire(); // 获取信号量
+            try {
+                this.log(`获取 ${name} 的响应`, { action });
+                const response = await aiPlayer.getResponse(action);
+                return [name, response];
+            } finally {
+                this.semaphore.release(); // 释放信号量
+            }
+        });
 
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    model: MODEL, 
-                    messages: aiConversationHistory, 
-                    response_format: { type: "json_object" }, 
-                    max_tokens: 300 
-                }),
-                credentials: 'include'
-            });
+        const responses = await Promise.all(responsePromises);
+        return Object.fromEntries(responses);
+    }
+}
 
-            const responseData = await handleApiResponse(response);
-            const parsedResponse = JSON.parse(responseData.choices[0].message.content);
-            
-            aiPlayer.updateMemory(action, parsedResponse);
-            responses[name] = parsedResponse;
-            this.log(`${name} 的响应`, parsedResponse);
+// 添加一个简单的信号量类
+class Semaphore {
+    constructor(max) {
+        this.max = max;
+        this.count = 0;
+        this.queue = [];
+    }
+
+    async acquire() {
+        if (this.count < this.max) {
+            this.count++;
+            return Promise.resolve();
         }
-        return responses;
+
+        return new Promise(resolve => this.queue.push(resolve));
+    }
+
+    release() {
+        this.count--;
+        if (this.queue.length > 0) {
+            this.count++;
+            const next = this.queue.shift();
+            next();
+        }
     }
 }
 
