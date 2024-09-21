@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy", "Bypass",
+                "-File", "${workspaceFolder}/dev-tool/encrypt_single_file.ps1",
+                "-fileToEncrypt", "${file}",
+                "-Command", "Write-Host '加密开始'; . '${workspaceFolder}/dev-tool/encrypt_single_file.ps1' -fileToEncrypt '${file}'; Write-Host '加密完成'"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "build",
+            "label": "加密当前文件"
+        }
+    ]
+}
