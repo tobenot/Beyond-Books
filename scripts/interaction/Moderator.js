@@ -102,14 +102,6 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
     }
 
     async callLargeLanguageModel(prompt) {
-        // 打印日志
-        console.log("调用大语言模型", {
-            prompt,
-            API_URL,
-            API_KEY,
-            MODEL
-        });
-
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
@@ -118,7 +110,7 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ 
-                model: MODEL, 
+                model: getModel(ModelType.BASIC), // 使用基本模型
                 messages: [{ role: "user", content: prompt }],
                 response_format: { type: "json_object" },
                 max_tokens: 1000
@@ -131,13 +123,6 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
     }
 
     async callLargeLanguageModelStream(prompt) {
-        console.log("调用大语言模型（非JSON）", {
-            prompt,
-            API_URL,
-            API_KEY,
-            MODEL
-        });
-
         const options = {
             method: 'POST',
             headers: {
@@ -146,7 +131,7 @@ ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${acti
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ 
-                model: MODEL, 
+                model: getModel(ModelType.BASIC), // 使用基本模型
                 messages: [{ role: "user", content: prompt }],
                 max_tokens: 1000,
                 stream: true

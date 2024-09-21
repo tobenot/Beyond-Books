@@ -8,7 +8,6 @@ const settingsText = {
     settingsTitle: "设置",
     apiKeyLabel: "API Key",
     apiUrlLabel: "API URL",
-    modelSelectLabel: "选择模型",
     whatIsThisButton: "这是什么？",
     saveButton: "保存设置",
     publicKeyButton: "已获取公共key",
@@ -27,16 +26,29 @@ const settingsText = {
     publicKeyFetching: "获取中...",
     publicKeyFetched: "公共 Key 已成功获取并保存",
     publicKeyFetchedAlert: "公共 Key 已成功获取并保存\n\n请使用指定API URL：\nhttps://llm.tobenot.top/api/v1/",
-    publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境"
+    publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境",
+    advancedModelLabel: "进阶模型 (用于桥段总结)",
+    basicModelLabel: "基本模型 (用于其他操作)",
 };
 
 const DEV_API_URL = 'https://api.deepbricks.ai/v1/';
+
+// 添加模型枚举
+const ModelType = {
+  ADVANCED: 'advanced',
+  BASIC: 'basic'
+};
+
+// 添加模型映射
+const ModelMapping = {
+  [ModelType.ADVANCED]: 'gpt-4o-mini',
+  [ModelType.BASIC]: 'gpt-4o-mini'
+};
 
 function initSettingsUI() {
     document.getElementById('settingTitle').innerText = settingsText.settingsTitle;
     document.getElementById('settingApiKeyLabel').innerText = settingsText.apiKeyLabel;
     document.getElementById('settingApiUrlLabel').innerText = settingsText.apiUrlLabel;
-    document.getElementById('settingModelSelectLabel').innerText = settingsText.modelSelectLabel;
     document.getElementById('settingWhatIsThisButton').innerText = settingsText.whatIsThisButton;
     document.getElementById('settingSaveButton').innerText = settingsText.saveButton;
     document.getElementById('settingPublicKeyButton').innerText = settingsText.publicKeyButton;
@@ -47,7 +59,6 @@ function initSettingsUI() {
 function saveSettings(isAuto = false) {
     const apiKeyInput = document.getElementById('api-key').value;
     const apiUrl = document.getElementById('api-url').value;
-    const selectedModel = document.getElementById('model-select').value; // 获取选择的模型
     const isPublicKey = localStorage.getItem(PUBLIC_KEY_FLAG) === 'true';
     const publicKey = localStorage.getItem(PUBLIC_KEY_STORAGE);
 
@@ -59,10 +70,14 @@ function saveSettings(isAuto = false) {
         localStorage.removeItem(PUBLIC_KEY_STORAGE);
     }
 
+    const advancedModel = document.getElementById('advanced-model-select').value || ModelMapping[ModelType.ADVANCED];
+    const basicModel = document.getElementById('basic-model-select').value || ModelMapping[ModelType.BASIC];
+
     const settings = {
         apiKey: apiKey,
         apiUrl: apiUrl,
-        model: selectedModel
+        [ModelType.ADVANCED]: advancedModel,
+        [ModelType.BASIC]: basicModel
     };
 
     localStorage.setItem('settings', JSON.stringify(settings));
@@ -87,20 +102,24 @@ function loadSettings() {
         console.log('已加载设置：', {
             apiKey: isPublicKey ? '使用公共密钥' : '使用私人密钥',
             apiUrl: savedSettings.apiUrl,
-            model: savedSettings.model
+            advancedModel: savedSettings[ModelType.ADVANCED],
+            basicModel: savedSettings[ModelType.BASIC]
         });
 
         // 根据是否为本地开发环境选择API URL
         const apiUrl = isLocalDevelopment() ? DEV_API_URL : savedSettings.apiUrl;
         document.getElementById('api-url').value = apiUrl;
         
-        document.getElementById('model-select').value = savedSettings.model; // 设置选择的模型
+        // 设置进阶模型和基本模型的选择
+        document.getElementById('advanced-model-select').value = savedSettings[ModelType.ADVANCED] || ModelMapping[ModelType.ADVANCED];
+        document.getElementById('basic-model-select').value = savedSettings[ModelType.BASIC] || ModelMapping[ModelType.BASIC];
     } else {
         // 默认设置
         const settings = {
             apiKey: '',
             apiUrl: isLocalDevelopment() ? DEV_API_URL : 'https://llm.tobenot.top/api/v1/',
-            model: 'gpt-4o'
+            [ModelType.ADVANCED]: ModelMapping[ModelType.ADVANCED],
+            [ModelType.BASIC]: ModelMapping[ModelType.BASIC]
         };
         localStorage.setItem('settings', JSON.stringify(settings));
         getPublicKey(true);
@@ -116,12 +135,21 @@ function resetSettings() {
     const defaultSettings = {
         apiKey: '',
         apiUrl: 'https://llm.tobenot.top/api/v1/',
-        model: 'gpt-4o'
+        [ModelType.ADVANCED]: ModelMapping[ModelType.ADVANCED],
+        [ModelType.BASIC]: ModelMapping[ModelType.BASIC]
     };
     localStorage.setItem('settings', JSON.stringify(defaultSettings));
     getPublicKey(true);
     loadSettings();
+    updateSettingsUI(defaultSettings);
     alert(settingsText.settingsResetAlert);
+}
+
+function updateSettingsUI(settings) {
+    document.getElementById('api-key').value = settings.apiKey;
+    document.getElementById('api-url').value = settings.apiUrl;
+    document.getElementById('advanced-model-select').value = settings[ModelType.ADVANCED];
+    document.getElementById('basic-model-select').value = settings[ModelType.BASIC];
 }
 
 function decrypt(data, key) {
@@ -175,13 +203,11 @@ function showSettings() {
     const publicKey = localStorage.getItem(PUBLIC_KEY_STORAGE);
 
     if (savedSettings) {
+        updateSettingsUI(savedSettings);
         // 如果是公共Key，则不显示在输入框中
         document.getElementById('api-key').value = isPublicKey ? "" : savedSettings.apiKey;
         // 设置API Key输入框类型为密码
         document.getElementById('api-key').type = "password";
-
-        document.getElementById('api-url').value = savedSettings.apiUrl;
-        document.getElementById('model-select').value = savedSettings.model; // 设置选择的模型
     }
 
     if (isPublicKey && publicKey) {
@@ -237,6 +263,12 @@ function getApiUrl() {
     return isLocalDevelopment() ? DEV_API_URL : (savedSettings ? savedSettings.apiUrl : 'https://llm.tobenot.top/api/v1/');
 }
 
-// 导出需要在其他文件中使用的函数
-window.getApiUrl = getApiUrl;
-window.isLocalDevelopment = isLocalDevelopment;
+// 新增函数，用于获取当前环境的模型
+function getModel(modelType = ModelType.BASIC) {
+    const savedSettings = JSON.parse(localStorage.getItem('settings'));
+    return savedSettings ? (savedSettings[modelType] || ModelMapping[modelType]) : ModelMapping[modelType];
+}
+
+// 导出需要在其他文件中使用的函数和常量
+window.getModel = getModel;
+window.ModelType = ModelType;

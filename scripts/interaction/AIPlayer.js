@@ -93,7 +93,7 @@ ${situation}
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ 
-                model: MODEL, 
+                model: getModel(), // 使用基本模型
                 messages: aiConversationHistory, 
                 response_format: { type: "json_object" }, 
                 max_tokens: 1000 

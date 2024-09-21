@@ -1,16 +1,28 @@
 // reviewHandler.js
 
 const REVIEW_KEY = "reviewRecords";
-
 async function storeSectionReview(sectionId, conversationHistory, storyHtmlContent) {
+    console.log('开始存储桥段回顾，sectionId:', sectionId);
+    console.log('sectionsIndex:', JSON.stringify(sectionsIndex, null, 2));
+
     const section = sectionsIndex.chapters.flatMap(chapter => chapter.sections).find(sect => sect.id === sectionId);
 
     if (!section) {
-        console.error('找不到指定的桥段');
+        console.error('找不到指定的桥段，sectionId:', sectionId);
+        console.log('所有可用的桥段:', sectionsIndex.chapters.flatMap(chapter => chapter.sections.map(sect => sect.id)));
         return;
     }
     
+    console.log('找到的桥段:', section);
+
     const chapter = sectionsIndex.chapters.find(chap => chap.sections.includes(section));
+
+    if (!chapter) {
+        console.error('找不到包含该桥段的章节');
+        return;
+    }
+
+    console.log('找到的章节:', chapter.title);
 
     const reviewRecord = conversationHistory.map(record => {
         const role = record.role === 'user' ? '你' : record.role === 'assistant' ? '系统' : record.role;
@@ -27,7 +39,10 @@ async function storeSectionReview(sectionId, conversationHistory, storyHtmlConte
         size: `${(new Blob([storyHtmlContent]).size / 1024).toFixed(2)}KB`
     };
 
+    console.log('准备添加新的回顾:', newReview);
+
     addReview(newReview);
+    console.log('桥段回顾存储完成');
 }
 
 // 读取桥段回顾记录

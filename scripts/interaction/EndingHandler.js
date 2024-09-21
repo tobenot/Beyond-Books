@@ -15,7 +15,12 @@ async function getSectionSummary(section) {
   const influencePointsText = formatInfluencePointsText(section.influencePoints);
   const prompt = createSectionSummaryPrompt(section, optimizedConversationHistory, influencePointsText);
 
-  if (isCarrotTest()) console.log("Debug getSectionSummary提交给模型:", prompt);
+  if (isCarrotTest()){
+    // 模型参数等信息
+    console.log("Debug getSectionSummary提交给模型:", prompt);
+    console.log("Debug getSectionSummary提交给模型:", getModel(ModelType.ADVANCED));
+  }
+
 
   const options = {
     method: 'POST',
@@ -24,7 +29,7 @@ async function getSectionSummary(section) {
       'Authorization': `Bearer ${API_KEY}`
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: getModel(ModelType.ADVANCED), // 使用进阶模型
       messages: [{ role: "system", content: prompt }],
       response_format: { type: "json_object" },
       max_tokens: 4096
