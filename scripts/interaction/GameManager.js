@@ -21,7 +21,7 @@ class GameManager {
         this.aiPlayers = {};
         section.characters.forEach(character => {
             if (character.isAI) {
-                this.aiPlayers[character.name] = new AIPlayer(character, section.commonKnowledge);
+                this.aiPlayers[character.name] = new AIPlayer(character, section.commonKnowledge, section.startEvent);
             } else {
                 this.mainPlayer = character;
             }
