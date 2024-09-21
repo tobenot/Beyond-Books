@@ -32,7 +32,13 @@ class GameManager {
     async processMainPlayerAction(action) {
         this.log("主玩家操作:", action);
 
-        const validationResult = await this.moderator.validateAction(action, this.currentContext);
+        const context = {
+            startEvent: currentSection.startEvent,
+            commonKnowledge:currentSection.commonKnowledge,
+            GMDetails: currentSection.GMDetails
+        };
+
+        const validationResult = await this.moderator.validateAction(action, context);
         this.log("操作验证结果:", validationResult);
         
         if (!validationResult.isValid) {
@@ -42,8 +48,12 @@ class GameManager {
             return feedback;
         }
 
-        this.log("开始获取AI玩家响应");
-        const aiResponses = await this.getAIPlayersResponses(action);
+        // 使用具体化过的行为描述
+        const specificAction = validationResult.specificAction;
+        this.log("玩家的行为:", specificAction);
+
+        // 使用具体的行为描述来获取AI玩家响应
+        const aiResponses = await this.getAIPlayersResponses(specificAction);
         this.log("AI玩家响应:", aiResponses);
 
         this.log("生成最终结果");
