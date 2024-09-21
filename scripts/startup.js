@@ -88,11 +88,14 @@ async function initializeApp() {
         // 'scripts/loadLanguage.js'
         loadLanguageFile('zh-CN');  
 
+        // 在初始化交互模块之前加载角色知识库
+        await gameManager.loadCharacterTagBase();
+
         // 初始化交互相关模块
         initializeInteractionModules();
 
     } catch (error) {
-        console.error("Error loading scripts or components: ", error);
+        console.error("Error loading scripts, components, or character knowledge base: ", error);
     }
 
     console.log('startup.js initializeApp finished');
@@ -178,10 +181,6 @@ function hideModal() {
 
 function initializeInteractionModules() {
   // 这里调用各个新模块的初始化函数
-  initializeGameManager();
   initializeUIHandler();
-  initializeInteractionProcess();
-  initializeEndingHandler();
-  initializeGame();
   initializeStreamHandler(); // 新增
 }

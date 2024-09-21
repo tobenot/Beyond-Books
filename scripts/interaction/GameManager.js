@@ -7,6 +7,8 @@ class GameManager {
         this.debugMode = isCarrotTest();
         this.concurrencyLimit = 10;
         this.semaphore = new Semaphore(this.concurrencyLimit);
+        this.characterTagBase = null;
+        this.playerInfo = null;
     }
 
     log(message, data = null) {
@@ -15,7 +17,22 @@ class GameManager {
         }
     }
 
-    initializeGame(section) {
+    async loadCharacterTagBase() {
+        try {
+            const response = await fetch('data/characterTagBase.json?v=' + new Date().getTime());
+            this.characterTagBase = await response.json();
+            console.log('加载角色标签库:', this.characterTagBase);
+        } catch (error) {
+            console.error('加载角色标签库时出错:', error);
+            throw error;
+        }
+    }
+
+    async initializeGame(section) {
+        if (!this.characterTagBase) {
+            await this.loadCharacterTagBase();
+        }
+
         this.aiPlayers = {};
         section.characters.forEach(character => {
             if (character.isAI) {
@@ -23,18 +40,35 @@ class GameManager {
                     character, 
                     section.commonKnowledge, 
                     section.startEvent,
-                    character.sectionGuidance
+                    character.sectionGuidance,
+                    this.characterTagBase
                 );
             } else {
                 this.mainPlayer = character;
             }
         });
         this.currentContext = section.backgroundInfo;
+        if (!this.mainPlayer.isAI) {
+            this.playerInfo = this.createPlayerInfo(this.mainPlayer);
+        }
         this.moderator = new Moderator(
             section.startEvent,
             section.commonKnowledge,
-            section.GMDetails
+            section.GMDetails,
+            this.playerInfo
         );
+    }
+
+    createPlayerInfo(playerCharacter) {
+        let info = `角色：${playerCharacter.name}\n`;
+        info += `描述：${playerCharacter.description}\n`;
+        playerCharacter.characterTags.forEach(tagKey => {
+            const tagValue = this.getCharacterTag(tagKey);
+            if (tagValue) {
+                info += `- ${tagKey}: ${tagValue}\n`;
+            }
+        });
+        return info;
     }
 
     async processMainPlayerAction(action, updateOptimizedHistoryCallback) {
@@ -91,6 +125,10 @@ class GameManager {
 
         const responses = await Promise.all(responsePromises);
         return Object.fromEntries(responses);
+    }
+
+    getCharacterTag(key) {
+        return this.characterTagBase ? this.characterTagBase[key] : null;
     }
 }
 

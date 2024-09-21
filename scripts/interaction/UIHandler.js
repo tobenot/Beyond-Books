@@ -156,9 +156,17 @@ function displayInitialContent(section) {
 }
 
 function createPlayerInfo(playerCharacter) {
-    return `<b>你的角色：</b>
-    <b>${playerCharacter.name}</b> - ${playerCharacter.role}
-    ${playerCharacter.description}`;
+    let info = `<b>你的角色：</b>
+    <b>${playerCharacter.name}</b>
+    ${playerCharacter.description}`;    
+    playerCharacter.characterTags.forEach(tagKey => {
+        const tagValue = gameManager.getCharacterTag(tagKey);
+        if (tagValue) {
+            info += `- ${tagKey}: ${tagValue}<br>`;
+        }
+    });
+    
+    return info;
 }
 
 function disableInput() {

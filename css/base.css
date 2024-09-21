@@ -23,10 +23,6 @@ body, html {
     overflow: hidden;
 }
 
-#sectionsContainer, #storyContainer, #settings {
-    display: none;
-}
-
 .container {
     display: flex;
     flex-direction: column;
@@ -292,7 +288,7 @@ h2 {
 /* 故事容器样式 */
 .storyContainer {
     overflow: hidden;
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: safe center;
     align-items: center;
@@ -531,4 +527,8 @@ h2 {
         margin: 5px 0;
         font-size: 14px;
     }
+}
+
+#sectionsContainer, #storyContainer, #settings {
+    display: none;
 }

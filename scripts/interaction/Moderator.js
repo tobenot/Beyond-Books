@@ -1,8 +1,9 @@
 class Moderator {
-    constructor(startEvent, commonKnowledge, GMDetails) {
+    constructor(startEvent, commonKnowledge, GMDetails, playerInfo) {
         this.startEvent = startEvent;
         this.commonKnowledge = commonKnowledge;
         this.GMDetails = GMDetails;
+        this.playerInfo = playerInfo;
     }
 
     async validateAction(action) {
@@ -13,13 +14,16 @@ class Moderator {
 公共知识：${this.commonKnowledge}
 GM细节：${this.GMDetails}
 
+玩家信息：
+${this.playerInfo}
+
 玩家行动：${action}
 
 请回答以下问题：
 1. 简要解释玩家行动是否可行
 2. 如果不可行，有什么建议？
 3. 给出你对于可行性的结论。
-4. 请具体描述玩家实际做的事情，避免歧义，最重要的是具体化对象。例如，如果玩家说"你好"，可以描述为"向在场的人问好"，或者判断到是向谁问好。如果不可行，可以留空。
+4. 请具体描述玩家实际做的事情，避免歧义，最重要的是具体化对象。例如，如果玩家说"你好"，可以描述为"向在场的人问好"，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力或技能，以及其效果。
 
 注意，玩家的行为可以不理智，你主要判断可行性，只要有能力做到，就可以做。
 
@@ -29,7 +33,7 @@ GM细节：${this.GMDetails}
 "reason": "解释",
 "suggestion": "如果不可行，给出建议",
 "isValid": boolean,
-"specificAction": "具体描述玩家实际做的事情"
+"specificAction": "具体描述玩家实际做的事情",
 }
 `;
 
