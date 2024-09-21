@@ -39,7 +39,7 @@ function updateProgress(alias, totalScripts) {
 }
 
 async function loadComponent(name) {
-    const response = await fetch(`components/${name}.html`);
+    const response = await fetch(`components/${name}.html?v=${new Date().getTime()}`);
     const html = await response.text();
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;

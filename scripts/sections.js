@@ -145,7 +145,7 @@ function displaySection(section, isReplay = false) {
     sectionsContainer.style.display = 'none'; // 隐藏章节选择
     storyContainer.style.display = 'flex';  // 显示故事内容
 
-    initializeConversation(section, isReplay);
+    initializeGame(section, isReplay);
     currentSection = section;
 }
 
