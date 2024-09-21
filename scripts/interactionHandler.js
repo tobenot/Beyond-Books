@@ -38,7 +38,6 @@ class Moderator {
     const response = await this.callLargeLanguageModel(prompt);
     return JSON.parse(response);
   }
-
   async generateFinalResult(mainPlayerAction, aiActions) {
     const prompt = `
 作为游戏主持人，请根据以下信息生成最终结果：
@@ -46,7 +45,7 @@ class Moderator {
 主玩家行动：${mainPlayerAction}
 
 AI玩家行动：
-${Object.entries(aiActions).map(([name, action]) => `${name}: ${action}`).join('\n')}
+${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`).join('\n')}
 
 请生成一个综合的结果描述，包括：
 1. 所有行动的结果
@@ -60,9 +59,12 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action}`).join('
   "npcReactions": "其他角色的反应"
 }
 `;
+    console.log("生成最终结果提示", prompt);
 
     const response = await this.callLargeLanguageModel(prompt);
-    return JSON.parse(response);
+
+    const parsedResponse = JSON.parse(response);
+    return parsedResponse;
   }
 
   async callLargeLanguageModel(prompt) {
