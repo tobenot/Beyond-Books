@@ -10,6 +10,8 @@ class AIPlayer {
         this.debugMode = isCarrotTest();
         this.commonKnowledge = commonKnowledge;
         this.startEvent = startEvent;
+        this.privateMemory = []; // AI自己的想法
+        this.maxPrivateMemoryLength = 5; // 保留最近5条私有记忆
     }
 
     log(message, data = null) {
@@ -19,7 +21,9 @@ class AIPlayer {
     }
 
     createPrompt(situation) {
-        const recentMemory = this.memory.slice(-5).map(m => `${m.situation}\n${m.response}`).join('\n');
+        const recentPublicMemory = optimizedConversationHistory.slice(-5).map(m => `${m.role}: ${m.content}`).join('\n');
+        const recentPrivateMemory = this.privateMemory.map(m => `想法: ${m}`).join('\n');
+        
         const prompt = `你是${this.name}，${this.role}。${this.description}
 性格：${this.personality}
 目标：${this.goals.join(', ')}
@@ -27,16 +31,19 @@ class AIPlayer {
 开始事件：${this.startEvent}
 桥段指导：${this.sectionGuidance}
 
-最近的记忆：
-${recentMemory}
+最近的公共记忆：
+${recentPublicMemory}
+
+你最近的私人想法：
+${recentPrivateMemory}
 
 当前情况：
 ${situation}
 
-请根据你的角色、性格、目标、公共信息、开始事件、桥段指导和记忆，对当前情况做出反应。用json格式回复：
+请根据以上信息，对当前情况做出反应。用json格式回复：
 {
-  "thoughts": "你的内心想法",
-  "action": "你的行动或对话"
+  "thoughts": "你的私人想法",
+  "action": "你的行动和说的话"
 }`;
         this.log("创建提示", { prompt });
         
@@ -44,11 +51,12 @@ ${situation}
     }
 
     updateMemory(situation, response) {
-        this.memory.push({ situation, response });
-        if (this.memory.length > 5) {
-            this.memory.shift(); // 保持最近的5条记忆
+        // 更新私有记忆
+        this.privateMemory.push(response.thoughts);
+        if (this.privateMemory.length > this.maxPrivateMemoryLength) {
+            this.privateMemory.shift(); // 保持最近的5条私有记忆
         }
-        this.log("更新记忆", { situation, response, currentMemory: this.memory });
+        this.log("更新私有记忆", { situation, response, currentPrivateMemory: this.privateMemory });
     }
 
     async getResponse(action) {
@@ -69,7 +77,7 @@ ${situation}
                 model: MODEL, 
                 messages: aiConversationHistory, 
                 response_format: { type: "json_object" }, 
-                max_tokens: 300 
+                max_tokens: 500 
             }),
             credentials: 'include'
         });

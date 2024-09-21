@@ -93,11 +93,6 @@ class GameManager {
         // 更新主玩家历史
         this.mainPlayerHistory.push({ role: "user", content: action });
         this.mainPlayerHistory.push({ role: "system", content: finalResult.display });
-
-        // 更新AI玩家的记忆（只使用最终结果）
-        for (const aiPlayer of Object.values(this.aiPlayers)) {
-            aiPlayer.updateMemory(action, finalResult.display);
-        }
     }
 
     getVisibleHistoryForAI(aiPlayer) {
