@@ -31,10 +31,10 @@ GM细节：${context.GMDetails}
         return JSON.parse(response);
     }
 
-    async generateFinalResult(mainPlayerAction, aiActions) {
-        const prompt = `请你作为主持人来最终输出这个回合的结果。
-背景信息：${this.currentContext}
-
+    async summarizeActions(mainPlayerAction, aiActions) {
+        const prompt = `请总结这个回合中每个角色实际上做的事情：
+主角之间行动可能会有冲突，所以可能需要处理，比如角色A攻击角色B，角色B防御，则这次攻击可能达不到A想达到的效果，同样的B防御也不一定达到最终的效果。
+注意这里要保留原本的描写，比如具体说的话，不要简写了。
 主角行动：${mainPlayerAction}
 
 其他角色行动：
@@ -42,7 +42,30 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 
 请按照以下JSON格式回复：
 {
-  "display": "单个字符串，这个字段会展示给全部玩家，请小说化地、详细描述这个回合的结果,包括其他角色说出来的话、做的动作等。请用第三人称方式描写，但DO NOT描写主角的心理活动。DO NOT描写气氛等主观的事物。",
+"collision": "角色之间行动的冲突，哪个角色做的可能让另一个角色达不到最终的效果",
+  "summary": {
+    "角色1": "角色1实际做的事",
+    "角色2": "角色2实际做的事",
+    // ... 其他角色
+  }
+}`;
+
+        console.log("生成行动总结提示", prompt);
+
+        const response = await this.callLargeLanguageModel(prompt);
+        return JSON.parse(response);
+    }
+
+    async generateFinalResult(actionSummary) {
+        const prompt = `请你作为主持人来最终输出这个回合的结果。
+背景信息：${this.currentContext}
+
+各角色的行动总结：
+${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${action}`).join('\n')}
+
+请按照以下JSON格式回复：
+{
+  "display": "单个字符串，这个字段会展示给全部玩家，请小说化地、详细描述这个回合的结果,包括其他角色说出来的话、做的动作等。请用第三人称方式描写，但DO NOT描写主角的心理活动。DO NOT描写气氛等主观的事物。请确保描述中包含每个角色实际成功做出的行动。",
   "endSectionFlag": "布尔值,是否满足了桥段结束条件？如果是,将进入桥段复盘环节"
 }`;
 

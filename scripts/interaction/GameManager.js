@@ -56,8 +56,12 @@ class GameManager {
         const aiResponses = await this.getAIPlayersResponses(specificAction);
         this.log("AI玩家响应:", aiResponses);
 
+        // 新增：生成行动总结
+        const actionSummary = await this.moderator.summarizeActions(specificAction, aiResponses);
+        this.log("行动总结:", actionSummary);
+
         this.log("生成最终结果");
-        const finalResult = await this.moderator.generateFinalResult(action, aiResponses);
+        const finalResult = await this.moderator.generateFinalResult(actionSummary);
         this.log("最终结果:", finalResult);
 
         this.updateContext(finalResult);
@@ -83,7 +87,7 @@ class GameManager {
         this.mainPlayerHistory.push({ role: "user", content: action });
         this.mainPlayerHistory.push({ role: "system", content: finalResult.display });
 
-        // 更新AI玩家的记忆
+        // 更新AI玩家的记忆（只使用最终结果）
         for (const aiPlayer of Object.values(this.aiPlayers)) {
             aiPlayer.updateMemory(action, finalResult.display);
         }
