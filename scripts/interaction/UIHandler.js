@@ -1,33 +1,67 @@
 let lastMessageElement = null;
 let isStreaming = false;
+let fullContent = '';
+let typingPromise = Promise.resolve();
+let currentTypedLength = 0;
 
 function updateDisplay(role, messageContent, streaming = false) {
     const storyContentDiv = document.getElementById('storyContent');
     
     if (streaming) {
         if (!isStreaming) {
-            // 开始新的流式消息
             isStreaming = true;
+            currentTypedLength = 0;
+            fullContent = '';
+            const messageElement = document.createElement('p');
+            messageElement.setAttribute('data-role', role);
+            storyContentDiv.appendChild(messageElement);
+            lastMessageElement = messageElement;
+        }
+        // 更新 fullContent，但不直接显示
+        fullContent = messageContent;
+        // 继续使用打字机效果
+        typingPromise = typingPromise.then(() => typewriterEffect(lastMessageElement, fullContent, role));
+    } else {
+        if (isStreaming) {
+            // 流式传输结束，但不立即显示全部内容
+            isStreaming = false;
+            // 确保 typewriterEffect 会显示完整内容
+            typingPromise = typingPromise.then(() => typewriterEffect(lastMessageElement, fullContent, role));
+        } else {
+            // 非流式传输的情况保持不变
             const messageElement = document.createElement('p');
             messageElement.setAttribute('data-role', role);
             messageElement.innerHTML = formatContent(role, messageContent);
             storyContentDiv.appendChild(messageElement);
             lastMessageElement = messageElement;
-        } else {
-            // 更新现有的流式消息
-            lastMessageElement.innerHTML = formatContent(role, messageContent);
         }
-    } else {
-        // 非流式消息，总是创建新元素
-        isStreaming = false;
-        const messageElement = document.createElement('p');
-        messageElement.setAttribute('data-role', role);
-        messageElement.innerHTML = formatContent(role, messageContent);
-        storyContentDiv.appendChild(messageElement);
-        lastMessageElement = messageElement;
     }
     
     lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+async function typewriterEffect(element, text, role) {
+    let newText = text.slice(currentTypedLength);
+    
+    for (let i = 0; i < newText.length; i++) {
+        await new Promise(resolve => {
+            setTimeout(() => {
+                currentTypedLength++;
+                element.innerHTML = formatContent(role, text.slice(0, currentTypedLength));
+                resolve();
+            }, getDelay(newText[i]));
+        });
+    }
+}
+
+function getDelay(char) {
+    if ('.。!！?？'.includes(char)) {
+        return 200; // 标点符号停顿
+    } else if (',，;；'.includes(char)) {
+        return 100; // 次要标点停顿
+    } else {
+        return Math.random() * 10 + 10; // 随机停顿
+    }
 }
 
 function formatContent(role, content) {

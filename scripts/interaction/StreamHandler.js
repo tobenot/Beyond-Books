@@ -51,19 +51,19 @@
 class StreamHandler {
     constructor() {
         this.decoder = new TextDecoder('utf-8');
+        this.buffer = '';
     }
 
     async handleStream(response, updateCallback) {
         const reader = response.body.getReader();
-        let buffer = '';
         let result = '';
 
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            buffer += this.decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
+            this.buffer += this.decoder.decode(value, { stream: true });
+            const lines = this.buffer.split('\n');
 
             for (let i = 0; i < lines.length - 1; i++) {
                 const line = lines[i];
@@ -83,7 +83,7 @@ class StreamHandler {
                     }
                 }
             }
-            buffer = lines[lines.length - 1];
+            this.buffer = lines[lines.length - 1];
         }
 
         return result;
