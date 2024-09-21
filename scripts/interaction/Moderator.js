@@ -1,11 +1,17 @@
 class Moderator {
-    async validateAction(action, context) {
+    constructor(startEvent, commonKnowledge, GMDetails) {
+        this.startEvent = startEvent;
+        this.commonKnowledge = commonKnowledge;
+        this.GMDetails = GMDetails;
+    }
+
+    async validateAction(action) {
         const prompt = `
 作为游戏主持人，请评估玩家行动的可行性，背景：
 
-开始事件：${context.startEvent}
-公共知识：${context.commonKnowledge}
-GM细节：${context.GMDetails}
+开始事件：${this.startEvent}
+公共知识：${this.commonKnowledge}
+GM细节：${this.GMDetails}
 
 玩家行动：${action}
 
@@ -32,7 +38,18 @@ GM细节：${context.GMDetails}
     }
 
     async summarizeActions(mainPlayerAction, aiActions) {
-        const prompt = `请总结这个回合中每个角色实际上做的事情：
+        const optimizedHistory = optimizedConversationHistory.map(entry => `${entry.role}: ${entry.content}`).join('\n');
+        
+        const prompt = `请考虑以下背景信息和优化后的对话历史：
+
+起始事件：${this.startEvent}
+公共信息：${this.commonKnowledge}
+主持人信息：${this.GMDetails}
+
+优化后的对话历史：
+${optimizedHistory}
+
+现在，请总结这个回合中每个角色实际上做的事情：
 主角之间行动可能会有冲突，所以可能需要处理，比如角色A攻击角色B，角色B防御，则这次攻击可能达不到A想达到的效果，同样的B防御也不一定达到最终的效果。
 注意这里要保留原本的描写，比如具体说的话，不要简写了。
 主角行动：${mainPlayerAction}
@@ -58,8 +75,16 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
     }
 
     async generateFinalResult(actionSummary) {
-        const prompt = `请你作为主持人来最终输出这个回合的结果。
-背景信息：${this.currentContext}
+        const optimizedHistory = optimizedConversationHistory.map(entry => `${entry.role}: ${entry.content}`).join('\n');
+        
+        const prompt = `请考虑以下背景信息和优化后的对话历史：
+
+起始事件：${this.startEvent}
+公共信息：${this.commonKnowledge}
+主持人信息：${this.GMDetails}
+
+优化后的对话历史：
+${optimizedHistory}
 
 各角色的行动总结：
 ${Object.entries(actionSummary.summary).map(([name, action]) => `${name}: ${action}`).join('\n')}

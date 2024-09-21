@@ -1,6 +1,6 @@
 class GameManager {
     constructor() {
-        this.moderator = new Moderator();
+        this.moderator = null; // 初始化为 null
         this.aiPlayers = {};
         this.mainPlayer = null;
         this.currentContext = "";
@@ -32,18 +32,17 @@ class GameManager {
             }
         });
         this.currentContext = section.backgroundInfo;
+        this.moderator = new Moderator(
+            section.startEvent,
+            section.commonKnowledge,
+            section.GMDetails
+        );
     }
 
-    async processMainPlayerAction(action) {
+    async processMainPlayerAction(action, updateOptimizedHistoryCallback) {
         this.log("主玩家操作:", action);
 
-        const context = {
-            startEvent: currentSection.startEvent,
-            commonKnowledge:currentSection.commonKnowledge,
-            GMDetails: currentSection.GMDetails
-        };
-
-        const validationResult = await this.moderator.validateAction(action, context);
+        const validationResult = await this.moderator.validateAction(action);
         this.log("操作验证结果:", validationResult);
         
         if (!validationResult.isValid) {
@@ -57,11 +56,14 @@ class GameManager {
         const specificAction = validationResult.specificAction;
         this.log("玩家的行为:", specificAction);
 
+        // 调用回调函数更新 optimizedConversationHistory
+        updateOptimizedHistoryCallback(specificAction);
+
         // 使用具体的行为描述来获取AI玩家响应
         const aiResponses = await this.getAIPlayersResponses(specificAction);
         this.log("AI玩家响应:", aiResponses);
 
-        // 新增：生成行动总结
+        // 生成行动总结
         const actionSummary = await this.moderator.summarizeActions(specificAction, aiResponses);
         this.log("行动总结:", actionSummary);
 
@@ -77,7 +79,7 @@ class GameManager {
             this.moderator.endSectionFlag = true;
         }
 
-        return finalResult.display;
+        return finalResult;
     }
 
     updateContext(finalResult) {

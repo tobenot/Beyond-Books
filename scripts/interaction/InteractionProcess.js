@@ -4,7 +4,7 @@ async function handleUserInput() {
   const userInput = getUserInput();
   if (!userInput) return;
 
-  updateConversationHistory(userInput);
+  addToConversationHistory({ role: "user", content: userInput });
   updateDisplay('user', userInput);
 
   if (shouldEndSection()) {
@@ -27,11 +27,6 @@ function getUserInput() {
   return `${selectedCharacter}：${userInput}`;
 }
 
-function updateConversationHistory(userInput) {
-  addToConversationHistory({ role: "user", content: userInput });
-  addToOptimizedConversationHistory({ role: "user", content: userInput });
-}
-
 function shouldEndSection() {
   return conversationHistory.length > 40;
 }
@@ -41,7 +36,9 @@ async function processUserInput(userInput) {
   toggleSubmittingState(true, loadingDiv, userInputField, submitButton);
 
   try {
-    const result = await gameManager.processMainPlayerAction(userInput);
+    const result = await gameManager.processMainPlayerAction(userInput, (specificAction) => {
+      addToOptimizedConversationHistory({ role: "user", content: specificAction });
+    });
     updateConversationWithResult(result);
     
     if (gameManager.moderator.endSectionFlag) {
@@ -56,8 +53,8 @@ async function processUserInput(userInput) {
 }
 
 function updateConversationWithResult(result) {
-  conversationHistory.push({ role: "assistant", content: result });
-  optimizedConversationHistory.push({ role: "system", content: result });
+  addToConversationHistory({ role: "assistant", content: result });
+  addToOptimizedConversationHistory({ role: "system", content: result });
   updateDisplay('assistant', result);
 }
 
