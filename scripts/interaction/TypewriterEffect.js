@@ -57,13 +57,16 @@ class TypewriterMessage {
     }
 }
 
+const KEY_LENGTH = 10;
+const CONTENT_LENGTH_THRESHOLD = KEY_LENGTH + 2;
+
 class MessageManager {
     constructor() {
         this.messages = [];
     }
 
     updateMessage(role, content) {
-        const key = content.slice(0, 10);
+        const key = this.getUnicodeLengthSlice(content, 0, KEY_LENGTH);
         let existingMessage = this.findMatchingMessage(key);
         if (existingMessage) {
             existingMessage.updateContent(content);
@@ -76,23 +79,42 @@ class MessageManager {
     findMatchingMessage(key) {
         for (let i = this.messages.length - 1; i >= 0; i--) {
             const { key: existingKey, message } = this.messages[i];
-            if (key.startsWith(existingKey) || existingKey.startsWith(key)) {
-                return message;
+            // 添加长度检查
+            if (this.getUnicodeLength(message.content) > CONTENT_LENGTH_THRESHOLD) {
+                // 如果消息长度超过阈值，要求完全匹配
+                if (key === existingKey) {
+                    return message;
+                }
+            } else {
+                // 对于较短的消息，保持原有的部分匹配逻辑
+                if (key.startsWith(existingKey) || existingKey.startsWith(key)) {
+                    return message;
+                }
             }
         }
         return null;
     }
 
     isMessageStreaming(content) {
-        const key = content.slice(0, 10);
+        const key = this.getUnicodeLengthSlice(content, 0, 10);
         for (let i = this.messages.length - 1; i >= 0; i--) {
             const { message } = this.messages[i];
-            if (key.startsWith(message.content.slice(0, 10)) || 
-                message.content.slice(0, 10).startsWith(key)) {
-                return message.currentTypedLength < message.content.length;
+            const messageKey = this.getUnicodeLengthSlice(message.content, 0, 10);
+            if (key.startsWith(messageKey) || messageKey.startsWith(key)) {
+                return message.currentTypedLength < this.getUnicodeLength(message.content);
             }
         }
         return false;
+    }
+
+    // 新增方法：计算字符串的 Unicode 长度
+    getUnicodeLength(str) {
+        return [...str].length;
+    }
+
+    // 新增方法：按 Unicode 长度截取字符串
+    getUnicodeLengthSlice(str, start, end) {
+        return [...str].slice(start, end).join('');
     }
 }
 

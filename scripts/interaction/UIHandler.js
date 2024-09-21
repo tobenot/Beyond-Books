@@ -18,7 +18,7 @@ function updateDisplay(role, messageContent, streaming = false) {
         messageElement.setAttribute('data-role', role);
         messageElement.innerHTML = formatContent(role, messageContent);
         storyContentDiv.appendChild(messageElement);
-        messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        storyContentDiv.scrollTop = storyContentDiv.scrollHeight;
     }
 }
 

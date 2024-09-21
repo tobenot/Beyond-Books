@@ -58,7 +58,8 @@ ${situation}
 
 请根据以上信息，对当前情况做出反应。用json格式回复：
 {
-  "canAct": "布尔值，你能否思考或说话，比如说遇到时间类型的能力、比如说你还不在现场。",
+  "checkCanAct": "你能否思考或说话，比如说遇到时间类型的能力，比如你不在场。",
+  "canAct": "布尔值，上一条的结论",
   "thoughts": "作为${this.name}，你的私人想法，无法思考时，返回空字符串",
   "action": "你的行动和说的话，无法行动时，返回空字符串"
 }`;
@@ -102,11 +103,15 @@ ${situation}
         });
         const responseData = await handleApiResponse(response);
         const parsedResponse = JSON.parse(responseData.choices[0].message.content);
-        
+        this.log("能否行动", String(parsedResponse.checkCanAct));
+        this.log("布尔：", String(parsedResponse.canAct));
         if (parsedResponse.canAct === false || parsedResponse.canAct === "false") {
+
             parsedResponse.action = "不能做出任何行动";
             parsedResponse.thoughts = "无法思考";
         }
+        delete parsedResponse.canAct;
+        delete parsedResponse.checkCanAct;
         
         this.updateMemory(action, parsedResponse);
         delete parsedResponse.thoughts;

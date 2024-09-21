@@ -37,7 +37,8 @@ async function processUserInput(userInput) {
 
   try {
     const result = await gameManager.processMainPlayerAction(userInput, (specificAction) => {
-      addToOptimizedConversationHistory({ role: "user", content: specificAction });
+      // 玩家的操作暂时不加入公共记忆
+      //addToOptimizedConversationHistory({ role: "user", content: specificAction });
     });
     updateConversationWithResult(result);
     

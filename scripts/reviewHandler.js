@@ -2,27 +2,17 @@
 
 const REVIEW_KEY = "reviewRecords";
 async function storeSectionReview(sectionId, conversationHistory, storyHtmlContent) {
-    console.log('开始存储桥段回顾，sectionId:', sectionId);
-    console.log('sectionsIndex:', JSON.stringify(sectionsIndex, null, 2));
-
     const section = sectionsIndex.chapters.flatMap(chapter => chapter.sections).find(sect => sect.id === sectionId);
 
     if (!section) {
-        console.error('找不到指定的桥段，sectionId:', sectionId);
-        console.log('所有可用的桥段:', sectionsIndex.chapters.flatMap(chapter => chapter.sections.map(sect => sect.id)));
         return;
     }
-    
-    console.log('找到的桥段:', section);
 
     const chapter = sectionsIndex.chapters.find(chap => chap.sections.includes(section));
 
     if (!chapter) {
-        console.error('找不到包含该桥段的章节');
         return;
     }
-
-    console.log('找到的章节:', chapter.title);
 
     const reviewRecord = conversationHistory.map(record => {
         const role = record.role === 'user' ? '你' : record.role === 'assistant' ? '系统' : record.role;
@@ -33,16 +23,13 @@ async function storeSectionReview(sectionId, conversationHistory, storyHtmlConte
         id: new Date().getTime(),
         review_title: section.title,
         chapter_title: chapter.title,
-        content: storyHtmlContent,  // 存储完整的HTML内容
-        full_record: reviewRecord,  // 存储完整的记录
+        content: storyHtmlContent,
+        full_record: reviewRecord,
         timestamp: new Date().toISOString(),
         size: `${(new Blob([storyHtmlContent]).size / 1024).toFixed(2)}KB`
     };
 
-    console.log('准备添加新的回顾:', newReview);
-
     addReview(newReview);
-    console.log('桥段回顾存储完成');
 }
 
 // 读取桥段回顾记录
@@ -68,7 +55,7 @@ function deleteReview(id) {
     const reviews = loadReviews();
     reviews.reviewRecords = reviews.reviewRecords.filter(record => record.id !== id);
     saveReviews(reviews);
-    showReviewRecords(); // 删除后立即刷新列表
+    showReviewRecords();
 }
 
 // 更新桥段回顾记录
@@ -95,7 +82,6 @@ function showReviewRecords() {
     } else {
         const list = document.createElement('ul');
         
-        // 对reviews.reviewRecords进行逆序遍历
         reviews.reviewRecords.slice().reverse().forEach(record => {
             const listItem = document.createElement('li');
             const localTimeString = new Date(record.timestamp).toLocaleString();
@@ -122,7 +108,7 @@ function hideReviewRecords() {
 
 // 重命名桥段回顾记录
 function renameReview(id) {
-    const reviews = loadReviews(); // 假设这是从某处加载复习记录的函数
+    const reviews = loadReviews();
     const review = reviews.reviewRecords.find(record => record.id === id);
     if (!review) {
         alert('未找到指定的记录。');
@@ -141,7 +127,7 @@ function renameReview(id) {
     
     review.review_title = newTitle;
     saveReviews(reviews);
-    showReviewRecords(); // 更新显示
+    showReviewRecords();
 }
 
 function viewReviewDetail(id) {
@@ -156,8 +142,8 @@ function viewReviewDetail(id) {
         <button class="button" onclick="exportReviewAsHTML(${id}, '${review.review_title}')">导出为HTML</button>
         <button class="button" onclick="exportReviewAsImage(${id}, '${review.review_title}')">导出为长图</button>
         <button class="button" onclick="exportReviewAsMultipleImages(${id}, '${review.review_title}')">导出为多图</button>
-        <div id="reviewStoryContent">${review.content}</div> <!-- 直接渲染存储的HTML内容 -->
-        <div style="display: none;" id="fullRecord">${review.full_record}</div> <!-- 保存完整记录，默认隐藏 -->
+        <div id="reviewStoryContent">${review.content}</div>
+        <div style="display: none;" id="fullRecord">${review.full_record}</div>
     `;
 
     document.getElementById('reviewContainer').style.display = 'none';
@@ -177,27 +163,21 @@ function exportReviewAsHTML(id, title) {
     const review = reviews.reviewRecords.find(record => record.id === id);
     if (!review) return;
 
-    // 获取reviewStoryContent的内容
     const reviewStoryContent = document.getElementById('reviewStoryContent').innerHTML;
 
-    // 将相对路径替换为互联网上的完整URL
     const updatedContent = reviewStoryContent.replace(/<img src="(.+?)"/g, (match, p1) => {
         if (p1.startsWith('http')) {
-            // 如果已经是完整路径，则不做更改
             return match;
         } else {
-            // 否则，替换为完整路径
             const imageUrl = "https://tobenot.github.io/Beyond-Books/" + p1;
             return `<img src="${imageUrl}"`;
         }
     });
 
-    // 包含样式的HTML内容
     const htmlContent = `
         <html>
         <head>
             <style>
-                /* 包含您希望导出包含的CSS样式 */
                 body { font-family: Arial, sans-serif; }
                 p { margin: 1em 0; }
                 .user { color: blue; }
@@ -217,7 +197,6 @@ function exportReviewAsHTML(id, title) {
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
 
-    // 创建合适长度的文件名
     const filename = `${title.substring(0, 50)}.html`;
 
     const a = document.createElement('a');
@@ -234,25 +213,20 @@ async function exportReviewAsImage(id, title) {
     const generateImage = async () => {
         const reviewStoryContent = document.getElementById('reviewStoryContent');
 
-        // 临时移除 max-height 和 overflow-y 样式
         const originalMaxHeight = reviewStoryContent.style.maxHeight;
         const originalOverflowY = reviewStoryContent.style.overflowY;
         reviewStoryContent.style.maxHeight = 'none';
         reviewStoryContent.style.overflowY = 'visible';
 
-        // 使用html2canvas库捕获内容
         const canvas = await html2canvas(reviewStoryContent, {
             windowWidth: reviewStoryContent.scrollWidth,
             windowHeight: reviewStoryContent.scrollHeight
         });
 
-        // 将canvas转换为DataURL
         const url = canvas.toDataURL('image/png');
 
-        // 创建合适长度的文件名
         const filename = `${title.substring(0, 50)}.png`;
 
-        // 创建一个下载链接并点击以下载图片
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
@@ -260,12 +234,10 @@ async function exportReviewAsImage(id, title) {
         a.click();
         document.body.removeChild(a);
 
-        // 恢复原始样式
         reviewStoryContent.style.maxHeight = originalMaxHeight;
         reviewStoryContent.style.overflowY = originalOverflowY;
     };
 
-    // 检查是否已加载html2canvas库，如果没有则加载
     if (typeof html2canvas === 'undefined') {
         try {
             await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.3.2/dist/html2canvas.min.js');
@@ -284,13 +256,11 @@ async function exportReviewAsMultipleImages(id, title) {
     const generateImages = async () => {
         const reviewStoryContent = document.getElementById('reviewStoryContent');
 
-        // 临时移除 max-height 和 overflow-y 样式
         const originalMaxHeight = reviewStoryContent.style.maxHeight;
         const originalOverflowY = reviewStoryContent.style.overflowY;
         reviewStoryContent.style.maxHeight = 'none';
         reviewStoryContent.style.overflowY = 'visible';
 
-        // 整个元素截图
         const canvas = await html2canvas(reviewStoryContent, {
             useCORS: true,
             logging: true
@@ -300,7 +270,6 @@ async function exportReviewAsMultipleImages(id, title) {
         const viewportHeight = window.innerHeight;
         const images = [];
 
-        // 按视窗高度拆分截图
         for (let currentY = 0; currentY < totalHeight; currentY += viewportHeight) {
             const sliceCanvas = document.createElement('canvas');
             sliceCanvas.width = canvas.width;
@@ -317,11 +286,9 @@ async function exportReviewAsMultipleImages(id, title) {
             images.push(url);
         }
 
-        // 恢复原始样式
         reviewStoryContent.style.maxHeight = originalMaxHeight;
         reviewStoryContent.style.overflowY = originalOverflowY;
 
-        // 下载拆分后的图片
         for (let i = 0; i < images.length; i++) {
             const url = images[i];
             const response = await fetch(url);
@@ -336,12 +303,10 @@ async function exportReviewAsMultipleImages(id, title) {
             a.click();
             document.body.removeChild(a);
     
-            // 释放 blob URL 占用的内存
             URL.revokeObjectURL(objectURL);
         }
     };
 
-    // 检查是否已加载html2canvas库，如果没有则加载
     if (typeof html2canvas === 'undefined') {
         try {
             await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.3.2/dist/html2canvas.min.js');
