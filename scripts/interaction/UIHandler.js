@@ -21,12 +21,20 @@ function updateDisplay(role, messageContent, streaming = false) {
         fullContent = messageContent;
         typingPromise = typingPromise.then(() => typewriterEffect(lastMessageElement, fullContent, role));
     } else {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message';
-        messageElement.setAttribute('data-role', role);
-        messageElement.innerHTML = formatContent(role, messageContent);
-        storyContentDiv.appendChild(messageElement);
-        lastMessageElement = messageElement;
+        // 检查是否已经存在流式内容
+        if (isStreaming) {
+            // 如果存在，更新最后的消息元素
+            lastMessageElement.innerHTML = formatContent(role, messageContent);
+            isStreaming = false; // 重置流式状态
+        } else {
+            // 如果不存在，创建新的消息元素
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.setAttribute('data-role', role);
+            messageElement.innerHTML = formatContent(role, messageContent);
+            storyContentDiv.appendChild(messageElement);
+            lastMessageElement = messageElement;
+        }
     }
     
     lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -55,7 +63,7 @@ async function typewriterEffect(element, text, role) {
 
 function getDelay(char) {
     if ('.。!！?？'.includes(char)) {
-        return 400; // 主要标点符号后的停顿
+        return 300; // 主要标点符号后的停顿
     } else if (',，;；'.includes(char)) {
         return 100; // 次要标点符号后的停顿
     } else {
