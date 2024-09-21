@@ -91,7 +91,7 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 
 // AI玩家类
 class AIPlayer {
-  constructor(character) {
+  constructor(character, commonKnowledge) {
     this.name = character.name;
     this.role = character.role;
     this.description = character.description;
@@ -99,6 +99,7 @@ class AIPlayer {
     this.goals = character.goals;
     this.memory = [];
     this.debugMode = isCarrotTest();
+    this.commonKnowledge = commonKnowledge;
   }
 
   log(message, data = null) {
@@ -112,6 +113,7 @@ class AIPlayer {
     const prompt = `你是${this.name}，${this.role}。${this.description}
 性格：${this.personality}
 目标：${this.goals.join(', ')}
+公共信息：${this.commonKnowledge}
 
 最近的记忆：
 ${recentMemory}
@@ -119,7 +121,7 @@ ${recentMemory}
 当前情况：
 ${situation}
 
-请根据你的角色、性格、目标和记忆，对当前情况做出反应。用json格式回复：
+请根据你的角色、性格、目标、公共信息和记忆，对当前情况做出反应。用json格式回复：
 {
   "thoughts": "你的内心想法",
   "action": "你的行动或对话"
@@ -163,7 +165,7 @@ class GameManager {
     this.aiPlayers = {};
     section.characters.forEach(character => {
       if (character.isAI) {
-        this.aiPlayers[character.name] = new AIPlayer(character);
+        this.aiPlayers[character.name] = new AIPlayer(character, section.commonKnowledge);
       } else {
         this.mainPlayer = character;
       }
@@ -458,6 +460,7 @@ function createSystemPrompt(section, playerCharacter, otherCharactersDescription
     // influencePointsText 不使用在系统prompt里
     return `请你做主持人来主持一场游戏的一个桥段。
 桥段背景介绍：${section.backgroundInfo}
+公共信息：${section.commonKnowledge}
 主角和剧本：
 ${playerCharacter.name}：${playerCharacter.role}，${playerCharacter.description}
 主角桥段目标：${section.objective}
