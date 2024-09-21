@@ -263,12 +263,12 @@ h2 {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: safe center;
+    justify-content: safe left;
     align-items: center;
     width: 100%;
     height: auto;
     max-width: 100%;
-    text-align: center;
+    text-align: left;
 }
 
 /* 修改settings按钮容器的样式 */

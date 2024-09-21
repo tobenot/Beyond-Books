@@ -56,11 +56,11 @@ async function typewriterEffect(element, text, role) {
 
 function getDelay(char) {
     if ('.。!！?？'.includes(char)) {
-        return 200; // 标点符号停顿
+        return 500; // 标点符号停顿
     } else if (',，;；'.includes(char)) {
-        return 100; // 次要标点停顿
+        return 300; // 次要标点停顿
     } else {
-        return Math.random() * 10 + 10; // 随机停顿
+        return Math.random() * 20 + 10; // 随机停顿
     }
 }
 
