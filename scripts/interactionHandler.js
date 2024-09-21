@@ -29,9 +29,9 @@ class Moderator {
 
 请用JSON格式回答：
 {
-  "isValid": boolean,
-  "reason": "解释",
-  "suggestion": "如果不可行，给出建议"
+"reason": "解释",
+"suggestion": "如果不可行，给出建议",
+"isValid": boolean
 }
 `;
 
@@ -96,11 +96,18 @@ class AIPlayer {
     this.personality = character.personality;
     this.goals = character.goals;
     this.memory = [];
+    this.debugMode = isCarrotTest();
+  }
+
+  log(message, data = null) {
+    if (this.debugMode) {
+      console.log(`[DEBUG AI ${this.name}] ${message}`, data);
+    }
   }
 
   createPrompt(situation) {
     const recentMemory = this.memory.slice(-5).map(m => `${m.situation}\n${m.response}`).join('\n');
-    return `你是${this.name}，${this.role}。${this.description}
+    const prompt = `你是${this.name}，${this.role}。${this.description}
 性格：${this.personality}
 目标：${this.goals.join(', ')}
 
@@ -110,11 +117,16 @@ ${recentMemory}
 当前情况：
 ${situation}
 
-请根据你的角色、性格、目标和记忆，对当前情况做出反应。回复格式：
+请根据你的角色、性格、目标和记忆，对当前情况做出反应。用json格式回复：
 {
   "thoughts": "你的内心想法",
   "action": "你的行动或对话"
 }`;
+    this.log("创建提示", { 
+      prompt
+    });
+    
+    return prompt;
   }
 
   updateMemory(situation, response) {
@@ -122,6 +134,7 @@ ${situation}
     if (this.memory.length > 5) {
       this.memory.shift(); // 保持最近的5条记忆
     }
+    this.log("更新记忆", { situation, response, currentMemory: this.memory });
   }
 }
 
@@ -134,6 +147,14 @@ class GameManager {
     this.currentContext = "";
     this.publicHistory = []; // 所有角色可见的历史
     this.mainPlayerHistory = []; // 主玩家的个人历史
+    this.debugMode = isCarrotTest(); // 使用 isCarrotTest() 来设置调试模式
+  }
+
+  // 添加日志方法
+  log(message, data = null) {
+    if (this.debugMode) {
+      console.log(`[DEBUG] ${message}`, data);
+    }
   }
 
   initializeGame(section) {
@@ -149,16 +170,25 @@ class GameManager {
   }
 
   async processMainPlayerAction(action) {
+    this.log("主玩家操作:", action);
+
     const validationResult = await this.moderator.validateAction(action, this.currentContext);
+    this.log("操作验证结果:", validationResult);
     
     if (!validationResult.isValid) {
       const feedback = `操作不可行。原因：${validationResult.reason}\n建议：${validationResult.suggestion}`;
       this.mainPlayerHistory.push({ role: "system", content: feedback });
+      this.log("操作不可行，返回反馈:", feedback);
       return feedback;
     }
 
+    this.log("开始获取AI玩家响应");
     const aiResponses = await this.getAIPlayersResponses(action);
+    this.log("AI玩家响应:", aiResponses);
+
+    this.log("生成最终结果");
     const finalResult = await this.moderator.generateFinalResult(action, aiResponses);
+    this.log("最终结果:", finalResult);
 
     this.updateContext(finalResult);
     this.updateHistories(action, finalResult);
@@ -173,10 +203,12 @@ class GameManager {
   updateHistories(action, finalResult) {
     // 更新公共历史
     this.publicHistory.push({ role: "system", content: finalResult.result });
+    this.log("更新公共历史", { action, result: finalResult.result });
     
     // 更新主玩家历史
     this.mainPlayerHistory.push({ role: "user", content: action });
     this.mainPlayerHistory.push({ role: "system", content: finalResult.result });
+    this.log("更新主玩家历史", { action, result: finalResult.result, currentHistory: this.mainPlayerHistory });
 
     // 更新AI玩家的记忆
     for (const aiPlayer of Object.values(this.aiPlayers)) {
@@ -185,17 +217,20 @@ class GameManager {
   }
 
   getVisibleHistoryForAI(aiPlayer) {
-    // 返回AI玩家可见的历史（公共历史 + 自己的记忆）
-    return [...this.publicHistory, ...aiPlayer.memory];
+    const visibleHistory = [...this.publicHistory, ...aiPlayer.memory];
+    this.log(`获取 ${aiPlayer.name} 可见历史`, visibleHistory);
+    return visibleHistory;
   }
 
   getMainPlayerHistory() {
+    this.log("获取主玩家历史", this.mainPlayerHistory);
     return this.mainPlayerHistory;
   }
 
   async getAIPlayersResponses(action) {
     const responses = {};
     for (const [name, aiPlayer] of Object.entries(this.aiPlayers)) {
+      this.log(`获取 ${name} 的响应`, { action });
       const prompt = aiPlayer.createPrompt(action);
       const aiConversationHistory = [
         { role: "system", content: prompt },
@@ -223,6 +258,7 @@ class GameManager {
       
       aiPlayer.updateMemory(action, parsedResponse);
       responses[name] = parsedResponse;
+      this.log(`${name} 的响应`, parsedResponse);
     }
     return responses;
   }
@@ -232,6 +268,9 @@ class GameManager {
 const gameManager = new GameManager();
 
 async function initializeConversation(section, isReplay = false) {
+    if (isCarrotTest()) {
+        console.log("Debug 模式已启用");
+    }
     const settings = JSON.parse(localStorage.getItem('settings'));
     API_URL = window.getApiUrl() + 'chat/completions';
     API_KEY = settings.apiKey;
@@ -315,6 +354,12 @@ async function submitUserInput() {
     if (isCarrotTest()){
         console.log("Debug 提交给模型的对话:", optimizedConversationHistory);
         console.log("Debug 优化前的对话:", conversationHistory);
+        console.log("Debug 开始处理用户输入:", userInput);
+        console.log("Debug 当前主玩家历史:", gameManager.getMainPlayerHistory());
+        console.log("Debug 当前公共历史:", gameManager.publicHistory);
+        for (const [name, aiPlayer] of Object.entries(gameManager.aiPlayers)) {
+          console.log(`Debug ${name} 的当前记忆:`, aiPlayer.memory);
+        }
     }
 
     // Check if conversationHistory length exceeds 40
@@ -334,6 +379,9 @@ async function submitUserInput() {
 
     try {
         const result = await gameManager.processMainPlayerAction(userInput);
+        if (isCarrotTest()) {
+            console.log("Debug 处理用户输入结果:", result);
+        }
         
         // 更新对话历史和显示
         conversationHistory.push({ role: "assistant", content: result });
@@ -342,6 +390,9 @@ async function submitUserInput() {
 
         // 检查是否需要结束桥段
         if (gameManager.moderator.endSectionFlag) {
+            if (isCarrotTest()) {
+                console.log("Debug 桥段结束标志被触发");
+            }
             // 桥段结束后禁用输入框和提交按钮
             disableInput();
             const summary = await getSectionSummary(currentSection.id, gameManager.getMainPlayerHistory(), currentSection);
