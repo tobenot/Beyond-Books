@@ -55,14 +55,8 @@ ${recentPrivateMemory}
 
 当前情况：
 ${situation}
-
-请根据以上信息，对当前情况做出反应。用json格式回复：
-{
-  "checkCanAct": "你能否思考或说话，比如说遇到时间类型的能力，比如你不在场。",
-  "canAct": "布尔值，上一条的结论",
-  "thoughts": "作为${this.name}，你的私人想法，无法思考时，返回空字符串",
-  "action": "你的行动和说的话，无法行动时，返回空字符串"
-}`;
+再次强调你的角色是${this.name}。
+请根据以上信息，对当前情况做出反应。用json格式回复。`;
         this.log("创建提示", { prompt });
         
         return prompt;
@@ -80,6 +74,30 @@ ${situation}
     }
 
     async getResponse(action) {
+        const AI_RESPONSE_SCHEMA = {
+            type: "object",
+            properties: {
+                checkCanAct: {
+                    type: "string",
+                    description: "解释你能否思考或说话的原因。比如说遇到时间类型的能力，比如你不在现场。"
+                },
+                canAct: {
+                    type: "boolean",
+                    description: "是否能够行动的布尔值"
+                },
+                thoughts: {
+                    type: "string",
+                    description: "作为角色的私人想法，无法思考时返回空字符串"
+                },
+                action: {
+                    type: "string",
+                    description: "角色的行动和说的话，无法行动时返回空字符串"
+                }
+            },
+            required: ["checkCanAct", "canAct", "thoughts", "action"],
+            additionalProperties: false
+        };
+
         const prompt = this.createPrompt(action);
         const aiConversationHistory = [
             { role: "system", content: prompt },
@@ -96,26 +114,37 @@ ${situation}
             body: JSON.stringify({ 
                 model: getModel(), // 使用基本模型
                 messages: aiConversationHistory, 
-                response_format: { type: "json_object" }, 
+                response_format: {
+                    type: "json_schema",
+                    json_schema: {
+                        name: "ai_player_response",
+                        schema: AI_RESPONSE_SCHEMA,
+                        strict: true
+                    }
+                },
                 max_tokens: 1000 
             }),
             credentials: 'include'
         });
+
         const responseData = await handleApiResponse(response);
         const parsedResponse = JSON.parse(responseData.choices[0].message.content);
-        this.log("能否行动", String(parsedResponse.checkCanAct));
-        this.log("布尔：", String(parsedResponse.canAct));
-        if (parsedResponse.canAct === false || parsedResponse.canAct === "false") {
 
+        this.log("能否行动", parsedResponse.checkCanAct);
+        this.log("布尔：", String(parsedResponse.canAct));
+
+        if (parsedResponse.canAct === false) {
             parsedResponse.action = "不能做出任何行动";
             parsedResponse.thoughts = "无法思考";
         }
-        delete parsedResponse.canAct;
-        delete parsedResponse.checkCanAct;
-        
+
         this.updateMemory(action, parsedResponse);
-        delete parsedResponse.thoughts;
-        this.log(`AI 响应`, parsedResponse);
-        return parsedResponse;
+        
+        const finalResponse = {
+            action: parsedResponse.action
+        };
+
+        this.log(`AI 响应`, finalResponse);
+        return finalResponse;
     }
 }
