@@ -44,6 +44,9 @@ async function processUserInput(userInput) {
     if (result.isValid) {
       updateConversationWithResult(result.finalResult);
       
+      // 清空输入框
+      userInputField.value = '';
+      
       if (gameManager.moderator.endSectionFlag) {
         await handleSectionEnd();
       }
