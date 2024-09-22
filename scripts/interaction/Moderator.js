@@ -117,10 +117,11 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 当前回合数：${turnCount}
 
 剧情触发器列表：
-${plotTriggers.filter(trigger => !trigger.consumed).map(trigger => `- ID: ${trigger.id}, 触发条件: ${trigger.triggerCondition}`).join('\n')}
+${plotTriggers.filter(trigger => !trigger.consumed && !trigger.triggerCondition.startsWith('第')).map(trigger => `- ID: ${trigger.id}, 触发条件: ${trigger.triggerCondition}`).join('\n')}
 
 请按照指定的JSON格式回复，包括以下字段：
 - triggerChecks: 一个数组，包含每个剧情触发器的以下信息：
+    触发器列表为空的时候留空数组。
   - id: 触发器ID
   - triggerCondition: 触发条件
   - currentProgress: 当前触发进度的简单描述
@@ -154,6 +155,21 @@ ${plotTriggers.filter(trigger => !trigger.consumed).map(trigger => `- ID: ${trig
                 ...action,
                 isSuccessful: Math.random() < successRate
             };
+        });
+
+        // 处理回合触发的情节
+        plotTriggers.forEach(trigger => {
+            if (trigger.triggerCondition.startsWith('第') && trigger.triggerCondition.endsWith('回合')) {
+                const triggerTurn = parseInt(trigger.triggerCondition.replace(/[^0-9]/g, ''));
+                if (turnCount === triggerTurn) {
+                    response.triggerChecks.push({
+                        id: trigger.id,
+                        triggerCondition: trigger.triggerCondition,
+                        currentProgress: `当前是第${turnCount}回合`,
+                        isTriggered: true
+                    });
+                }
+            }
         });
 
         // 使用新的UI函数显示建议
