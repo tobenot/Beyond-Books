@@ -82,14 +82,25 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
                         additionalProperties: false
                     }
                 },
-                endReason: { type: "string" },
+                endReasons: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            condition: { type: "string" },
+                            isMet: { type: "boolean" }
+                        },
+                        required: ["condition", "isMet"],
+                        additionalProperties: false
+                    }
+                },
                 endSectionFlag: { type: "boolean" },
                 suggestions: {
                     type: "array",
                     items: { type: "string" }
                 }
             },
-            required: ["triggerChecks", "collision", "summary", "endReason","endSectionFlag",  "suggestions"],
+            required: ["triggerChecks", "collision", "summary", "endReasons", "endSectionFlag", "suggestions"],
             additionalProperties: false
         };
 
@@ -133,8 +144,10 @@ ${plotTriggers.filter(trigger => !trigger.consumed && !trigger.triggerCondition.
   - name: 角色名字
   - note: 对该行动的结论性判定，例如"攻击"、"防御"、"行动"等，只简单写行动类型，不写成败。
   - successProbability: 行动成功的可能性，必须是以下五个选项之一："impossible"（不可能）、"unlikely"（不太可能）、"possible"（可能）、"likely"（很可能）、"certain"（必然）。如果异能用对了方式，那就是certain。
-  - endReason: 不要留空，推理是否满足了桥段结束条件
-- endSectionFlag: 布尔值，是否结束桥段
+- endReasons: 一个数组,包含每个结束条件及其是否满足的布尔值:
+  - condition: 结束条件
+  - isMet: 布尔值,表示该条件是否满足
+- endSectionFlag: 布尔值,是否结束该桥段
 - suggestions: 一个数组，包含1-2个对主角继续推进剧情的建议。这些建议应该考虑当前情况和桥段目标。
 
 请只提供简短的结论性判定，不要重复原始行动描述。`;
@@ -178,6 +191,9 @@ ${plotTriggers.filter(trigger => !trigger.consumed && !trigger.triggerCondition.
         if (response.suggestions && response.suggestions.length > 0) {
             displaySuggestions(response.suggestions);
         }
+        
+        // 强制设置endSectionFlag
+        response.endSectionFlag = response.endReasons.some(reason => reason.isMet);
         
         return response;
     }
