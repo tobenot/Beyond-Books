@@ -62,6 +62,8 @@ async function initializeApp() {
         await loadComponent('SectionsContainer');
         await loadComponent('StoryContainer');
         await loadComponent('Settings');
+        await loadComponent('ReviewContainer');
+        await loadComponent('ReviewDetailContainer');
         await loadComponent('Modal');
 
         const loadingIndicator = document.getElementById('loadingIndicator');
