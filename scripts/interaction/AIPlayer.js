@@ -58,24 +58,27 @@ ${situation}
 再次强调你的角色是${this.name}。
 
 请用JSON格式回复，包括以下字段：
-1. checkCanAct：解释并判断你能否思考或说话。比如说有时间类型的能力正在发动，比如你被困住。注意这是'能否行动'，而不是'要不要行动'。
-2. canAct：布尔值，表示是否能够行动。
-3. thoughts：数组，包含你的思考过程。每个思考步骤应包含思考阶段和内容。思考过程：
+1. activeAbilities：明确当前有什么异能正在发动过程中。
+2. checkCanAct：解释并判断你能否行动。比如说有人发动时间减速异能时，你不能行动。注意这是'能否行动'，而不是'要不要行动'。
+3. canAct：布尔值，表示是否能够行动。
+4. thoughts：数组，包含你的思考过程。每个思考步骤应包含思考阶段和内容。思考过程：
    a. 分析当前情况：仔细考虑当前的环境、其他角色的行动和可能的影响。
    b. 回顾个人目标：思考你的角色目标，以及当前情况如何影响这些目标。
    c. 考虑可能的行动：列出几个可能的行动方案，包括可能推动剧情发展的行动。
-   d. 选择最佳行动：根据前面的分析，选择一个最能推进剧情进度的行动，避免进入对峙。
-4. action：你的最终行动和说的话。`;
+   d. 选择最佳行动：根据前面的分析，选择一个最能推进尽快结束剧情的行动，避免进入对峙。
+   剧情结束条件：
+${currentSection.endConditions.map((condition, index) => `${condition} `).join('\n')}
+5. action：你的最终行动和说的话。`;
 
-        this.log("创建提示", { prompt });
+        this.log("创建Prompt", { prompt });
         
         return prompt;
     }
 
     updateMemory(situation, response) {
-        // 提取思考过程的第二和第四个步骤
+        // 提取思考过程的第1和第四个步骤
         const summarizedThoughts = response.thoughts
-            .filter((t, index) => index === 1 || index === 3)  // 保留第二和第四个思考步骤
+            .filter((t, index) => index === 1 || index === 3)  // 保留第1和第四个思考步骤
             .map(t => `${t.step}: ${t.content}`)
             .join('; ');
 
@@ -88,10 +91,21 @@ ${situation}
         this.log("更新私有记忆", { situation, response, currentPrivateMemory: this.privateMemory });
     }
 
+    addPrivateThought(thought) {
+        this.privateMemory.push(thought);
+        if (this.privateMemory.length > this.maxPrivateMemoryLength) {
+            this.privateMemory.shift();
+        }
+        this.log("添加私人想法", { thought, currentPrivateMemory: this.privateMemory });
+    }
+
     async getResponse(action) {
         const AI_RESPONSE_SCHEMA = {
             type: "object",
             properties: {
+                activeAbilities: {
+                    type: "string"
+                },
                 checkCanAct: {
                     type: "string"
                 },
@@ -118,7 +132,7 @@ ${situation}
                     type: "string"
                 }
             },
-            required: ["checkCanAct", "canAct", "thoughts", "action"],
+            required: ["activeAbilities", "checkCanAct", "canAct", "thoughts", "action"],
             additionalProperties: false
         };
 

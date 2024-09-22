@@ -40,7 +40,7 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
 - reason: 解释玩家行动是否可行的原因
 - suggestion: 如果行动不可行，给出的建议。如果可行，则留空。
 - isValid: 玩家行动是否可行的结论（布尔值）
-- specificAction: 请具体描述玩家实际做的事情和说得话，避免歧义，同时也尽量保留原话，最重要的是具体化对象。例如，如果玩家说'你好'，可以描述为'向在场的人问好'，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力，对能力的效果至少要有一句描写。`;
+- specificAction: 请具体描述玩家实际做的事情和说得话，避免歧义，同时也尽量保留原话，最重要的是具体化对象。例如，如果玩家说'你好'，可以描述为'向在场的人问好'，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力，对能力的效果至少要有一句描写。注意，使用能力必须要是玩家主动发动，因为会消耗灵力的，如果玩家没有明说，就不要发动能力。`;
 
         const response = await this.callLargeLanguageModel(prompt, VALIDATE_ACTION_SCHEMA);
         return response;
@@ -117,7 +117,9 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 当前回合数：${turnCount}
 
 剧情触发器列表：
-${plotTriggers.filter(trigger => !trigger.consumed && !trigger.triggerCondition.startsWith('第')).map(trigger => `- ID: ${trigger.id}, 触发条件: ${trigger.triggerCondition}`).join('\n')}
+${plotTriggers.filter(trigger => !trigger.consumed && !trigger.triggerCondition.startsWith
+('第')).map(trigger => `- ID: ${trigger.id}, 触发条件: ${trigger.triggerCondition}`).join
+('\n')}
 
 请按照指定的JSON格式回复，包括以下字段：
 - triggerChecks: 一个数组，包含每个剧情触发器的以下信息：
@@ -130,14 +132,14 @@ ${plotTriggers.filter(trigger => !trigger.consumed && !trigger.triggerCondition.
 - summary: 一个数组，包含每个角色的名字、行动结果注释和成功可能性。
   - name: 角色名字
   - note: 对该行动的结论性判定，例如"攻击"、"防御"、"行动"等，只简单写行动类型，不写成败。
-  - successProbability: 行动成功的可能性，必须是以下五个选项之一："impossible"（不可能）、"unlikely"（不太可能）、"possible"（可能）、"likely"（很可能）、"certain"（必然）
-  - endReason: 判断是否满足了桥段结束条件
+  - successProbability: 行动成功的可能性，必须是以下五个选项之一："impossible"（不可能）、"unlikely"（不太可能）、"possible"（可能）、"likely"（很可能）、"certain"（必然）。如果异能用对了方式，那就是certain。
+  - endReason: 不要留空，推理是否满足了桥段结束条件
 - endSectionFlag: 布尔值，是否结束桥段
 - suggestions: 一个数组，包含1-2个对主角继续推进剧情的建议。这些建议应该考虑当前情况和桥段目标。
 
 请只提供简短的结论性判定，不要重复原始行动描述。`;
 
-        console.log("生成总结提示", prompt);
+        console.log("生成总结Prompt", prompt);
         const response = await this.callLargeLanguageModel(prompt, SUMMARIZE_ACTIONS_SCHEMA);
         
         // 在本地进行随机数运算，确定每个行动是否成功
@@ -217,7 +219,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
 请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动，以及触发的剧情触发器。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。写三个自然段就行。如果有剧情触发器的话，必须体现在你的描述里，优先级很高。`;
 
-        console.log("生成最终结果提示", prompt);
+        console.log("生成最终结果Prompt", prompt);
 
         const response = await this.callLargeLanguageModelStream(prompt);
         return response;

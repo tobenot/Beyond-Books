@@ -66,7 +66,11 @@ class GameManager {
     }
 
     initializePlotTriggers(triggers) {
-        this.plotTriggers = triggers.map(trigger => ({...trigger, consumed: false}));
+        this.plotTriggers = triggers.map(trigger => ({
+            ...trigger,
+            consumed: false,
+            memoryCharacter: trigger.memoryCharacter || null // 添加目标角色属性
+        }));
     }
 
     createPlayerInfo(playerCharacter) {
@@ -163,6 +167,11 @@ class GameManager {
             if (trigger && check.isTriggered && !trigger.consumed) {
                 trigger.consumed = true;
                 triggeredPlots.push(trigger);
+                
+                // 如果有指定目标角色，将内容添加到其私人想法中
+                if (trigger.memoryCharacter && this.aiPlayers[trigger.memoryCharacter]) {
+                    this.aiPlayers[trigger.memoryCharacter].addPrivateThought(trigger.content);
+                }
             }
         });
         return triggeredPlots;

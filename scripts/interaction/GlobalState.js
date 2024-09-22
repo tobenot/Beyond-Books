@@ -51,9 +51,9 @@ function setApiSettings(url, key, model) {
 }
 
 let isCompressing = false;
-const COMPRESSION_THRESHOLD = 1;
-const MERGE_THRESHOLD = 3;
-const MESSAGES_TO_MERGE = 2;
+const COMPRESSION_THRESHOLD = 2;
+const MERGE_THRESHOLD = 5;
+const MESSAGES_TO_MERGE = 3;
 
 class AIService {
     static async callLargeLanguageModel(prompt) {
