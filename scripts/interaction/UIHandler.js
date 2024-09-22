@@ -91,6 +91,7 @@ function toggleSubmittingState(isSubmittingFlag, loadingDiv, userInputField, sub
 
 function prepareUI(section) {
     document.getElementById('storyContent').innerHTML = '';
+    clearSuggestions();
     toggleSectionVisibility();
 }
 

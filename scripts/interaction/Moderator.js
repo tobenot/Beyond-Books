@@ -53,14 +53,18 @@ ${this.playerInfo}
                         type: "object",
                         properties: {
                             name: { type: "string" },
-                            note: { type: "string" }
+                            note: { type: "string" },
+                            successProbability: {
+                                type: "string",
+                                enum: ["impossible", "unlikely", "possible", "likely", "certain"],
+                                description: "行动成功的可能性"
+                            }
                         },
-                        required: ["name", "note"],
+                        required: ["name", "note", "successProbability"],
                         additionalProperties: false
                     }
                 },
                 endSectionFlag: { type: "boolean" },
-                // 新增字段
                 suggestions: {
                     type: "array",
                     items: { type: "string" }
@@ -91,9 +95,10 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 
 请按照指定的JSON格式回复，包括以下字段：
 - collision: 角色之间行动的冲突，哪个角色做的可能让另一个角色达不到最终的效果
-- summary: 一个数组，包含每个角色的名字和行动结果注释。
+- summary: 一个数组，包含每个角色的名字、行动结果注释和成功可能性。
   - name: 角色名字
-  - note: 对该行动的结论性判定，例如"攻击成功"、"防御失败"、"行动受阻"等，只简单写被谁影响、成败，不写心理。
+  - note: 对该行动的结论性判定，例如"攻击"、"防御"、"行动"等，只简单写行动类型，不写成败。
+  - successProbability: 行动成功的可能性，必须是以下五个选项之一："impossible"（不可能）、"unlikely"（不太可能）、"possible"（可能）、"likely"（很可能）、"certain"（必然）
 - endSectionFlag: 布尔值，是否满足了桥段结束条件？如果是，将进入桥段复盘环节
 - suggestions: 一个数组，包含1-2个对主角继续推进剧情的建议。这些建议应该考虑当前情况和桥段目标。
 
@@ -102,6 +107,23 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
         console.log("生成总结提示", prompt);
         const response = await this.callLargeLanguageModel(prompt, SUMMARIZE_ACTIONS_SCHEMA);
         
+        // 在本地进行随机数运算，确定每个行动是否成功
+        response.summary = response.summary.map(action => {
+            let successRate;
+            switch (action.successProbability) {
+                case "impossible": successRate = 0.05; break;
+                case "unlikely": successRate = 0.25; break;
+                case "possible": successRate = 0.5; break;
+                case "likely": successRate = 0.65; break;
+                case "certain": successRate = 0.90; break;
+                default: successRate = 0.5;
+            }
+            return {
+                ...action,
+                isSuccessful: Math.random() < successRate
+            };
+        });
+
         // 使用新的UI函数显示建议
         if (response.suggestions && response.suggestions.length > 0) {
             displaySuggestions(response.suggestions);
@@ -113,13 +135,20 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
     async generateFinalResult(actionSummary, mainPlayerAction, aiActions) {
         const optimizedHistory = optimizedConversationHistory.map(entry => `${entry.role}: ${entry.content}`).join('\n');
         
-        const actionsWithNotes = [
-            { name: selectedCharacter, action: mainPlayerAction, note: actionSummary.summary.find(s => s.name === selectedCharacter)?.note || "" },
-            ...Object.entries(aiActions).map(([name, action]) => ({
-                name,
-                action: action.action,
-                note: actionSummary.summary.find(s => s.name === name)?.note || ""
-            }))
+        const actionsWithResults = [
+            { 
+                name: selectedCharacter, 
+                action: mainPlayerAction, 
+                isSuccessful: actionSummary.summary.find(s => s.name === selectedCharacter)?.isSuccessful
+            },
+            ...Object.entries(aiActions).map(([name, action]) => {
+                const summary = actionSummary.summary.find(s => s.name === name);
+                return {
+                    name,
+                    action: action.action,
+                    isSuccessful: summary?.isSuccessful
+                };
+            })
         ];
 
         const prompt = `请考虑以下背景信息和优化后的对话历史：
@@ -132,9 +161,9 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 ${optimizedHistory}
 
 本回合各角色的行动和结果：
-${actionsWithNotes.map(item => `${item.name}: ${item.action}\n结论: ${item.note}`).join('\n\n')}
+${actionsWithResults.map(item => `${item.name}: ${item.action}\n判定: ${item.isSuccessful ? '成功' : '失败'}`).join('\n\n')}
 
-请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中包含每个角色实际成功做出的行动，并考虑行动结果注释。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不需要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
+请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动，比如失败的行动可能会起到反效果。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不需要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
 
         console.log("生成最终结果提示", prompt);
 
