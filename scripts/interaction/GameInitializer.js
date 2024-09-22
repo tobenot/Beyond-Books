@@ -27,7 +27,8 @@ async function initializeGame(section, isReplay = false) {
     section.commonKnowledge,
     section.GMDetails,
     gameManager.playerInfo,
-    section.objective // 添加这一行
+    section.objective,
+    section.endConditions
   );
 }
 

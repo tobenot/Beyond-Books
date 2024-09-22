@@ -1,10 +1,11 @@
 class Moderator {
-    constructor(startEvent, commonKnowledge, GMDetails, playerInfo, sectionObjective) {
+    constructor(startEvent, commonKnowledge, GMDetails, playerInfo, sectionObjective, endConditions) {
         this.startEvent = startEvent;
         this.commonKnowledge = commonKnowledge;
         this.GMDetails = GMDetails;
         this.playerInfo = playerInfo;
         this.sectionObjective = sectionObjective;
+        this.endConditions = endConditions; // 添加这一行
     }
 
     async validateAction(action) {
@@ -39,7 +40,7 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
 - reason: 解释玩家行动是否可行的原因
 - suggestion: 如果行动不可行，给出的建议。如果可行，则留空。
 - isValid: 玩家行动是否可行的结论（布尔值）
-- specificAction: 请具体描述玩家实际做的事情和说得话，避免歧义，同时也尽量保留原话，最重要的是具体化对象。例如，如果玩家说'你好'，可以描述为'向在场的人问好'，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力或技能，以及其具体的效果。`;
+- specificAction: 请具体描述玩家实际做的事情和说得话，避免歧义，同时也尽量保留原话，最重要的是具体化对象。例如，如果玩家说'你好'，可以描述为'向在场的人问好'，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力，对能力的效果至少要有一句描写。`;
 
         const response = await this.callLargeLanguageModel(prompt, VALIDATE_ACTION_SCHEMA);
         return response;
@@ -81,13 +82,14 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
                         additionalProperties: false
                     }
                 },
+                endReason: { type: "string" },
                 endSectionFlag: { type: "boolean" },
                 suggestions: {
                     type: "array",
                     items: { type: "string" }
                 }
             },
-            required: ["triggerChecks", "collision", "summary", "endSectionFlag", "suggestions"],
+            required: ["triggerChecks", "collision", "summary", "endReason","endSectionFlag",  "suggestions"],
             additionalProperties: false
         };
 
@@ -98,6 +100,8 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
 起始事件：${this.startEvent}
 公共信息：${this.commonKnowledge}
 主持人信息：${this.GMDetails}
+结束条件：
+${this.endConditions.map((condition, index) => `${index + 1}. ${condition}`).join('\n')}
 
 优化后的对话历史：
 ${optimizedHistory}
@@ -126,7 +130,8 @@ ${plotTriggers.filter(trigger => !trigger.consumed).map(trigger => `- ID: ${trig
   - name: 角色名字
   - note: 对该行动的结论性判定，例如"攻击"、"防御"、"行动"等，只简单写行动类型，不写成败。
   - successProbability: 行动成功的可能性，必须是以下五个选项之一："impossible"（不可能）、"unlikely"（不太可能）、"possible"（可能）、"likely"（很可能）、"certain"（必然）
-- endSectionFlag: 布尔值，是否满足了桥段结束条件？如果是，将进入桥段复盘环节
+  - endReason: 判断是否满足了桥段结束条件
+- endSectionFlag: 布尔值，是否结束桥段
 - suggestions: 一个数组，包含1-2个对主角继续推进剧情的建议。这些建议应该考虑当前情况和桥段目标。
 
 请只提供简短的结论性判定，不要重复原始行动描述。`;
@@ -189,11 +194,12 @@ ${optimizedHistory}
 
 本回合各角色的行动和结果：
 ${actionsWithResults.map(item => `${item.name}: ${item.action}\n判定: ${item.isSuccessful ? '成功' : '失败或有意外'}`).join('\n\n')}
+行动有冲突的情况，你可自行斟酌。
 
 本回合触发的剧情触发器：
 ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
-请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动，以及触发的剧情触发器。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
+请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动，以及触发的剧情触发器。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。写三个自然段就行。如果有剧情触发器的话，必须体现在你的描述里，优先级很高。`;
 
         console.log("生成最终结果提示", prompt);
 
