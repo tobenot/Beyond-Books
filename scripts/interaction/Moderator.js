@@ -9,14 +9,14 @@ class Moderator {
     async validateAction(action) {
         const VALIDATE_ACTION_SCHEMA = {
             type: "object",
-            properties: {
+            properties: {   
                 reason: { 
                     type: "string",
                     description: "解释玩家行动是否可行的原因"
                 },
                 suggestion: { 
                     type: "string",
-                    description: "如果行动不可行，给出的建议"
+                    description: "如果行动不可行，给出的建议。如果可行，则留空。"
                 },
                 isValid: { 
                     type: "boolean",

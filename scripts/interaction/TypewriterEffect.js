@@ -125,11 +125,11 @@ class MessageManager {
 
 function getDelay(char) {
     if ('.。!！?？'.includes(char)) {
-        return 300;
+        return 250;
     } else if (',，;；'.includes(char)) {
-        return 100;
+        return 80;
     } else {
-        return Math.random() * 20 + 10;
+        return Math.random() * 20 + 1;
     }
 }
 
