@@ -1,0 +1,19 @@
+h1, h2 {
+    color: #333;
+    margin-bottom: 10px
+    }
+
+h1 {
+    font-size: 22px
+    }
+
+h2 {
+    font-size: 18px
+    }
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    border-top: 1px solid #ccc
+    }

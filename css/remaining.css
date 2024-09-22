@@ -1,0 +1,52 @@
+/* styles.css */
+
+/* 通用样式 */
+
+/* 排版样式 */
+
+/* 按钮样式 */
+
+/* 图片样式 */
+
+/* 文本容器样式 */
+
+/* 消息样式 */
+
+/* 控件样式 */
+
+.settings-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 10px auto;
+    color: #333;
+    background-color: #FFF
+    }
+
+/* 加载器样式 */
+
+/* 章节样式 */
+
+/* 故事容器样式 */
+
+/* 设置页面样式 */
+
+/* 模态框样式 */
+
+/* 特殊术语样式 */
+
+/* 术语解释样式 */
+
+.term-tooltip-image {
+    max-width: 256px;
+    max-height: 384px;
+    margin-top: 10px;
+    justify-content: center
+    }
+
+/* 回顾样式 */
+
+/* 响应式样式 */

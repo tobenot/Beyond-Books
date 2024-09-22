@@ -1,0 +1,25 @@
+.interaction-stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    padding: 10px 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    z-index: 1000;
+    text-align: center
+    }
+
+.suggestions-container {
+    display: none;
+    margin-bottom: 10px;
+    padding: 5px;
+    background-color: #f5f5f5;
+    border-radius: 5px
+    }
+
+.suggestion {
+    color: #666;
+    font-size: 0.9em;
+    margin: 5px 0
+    }
