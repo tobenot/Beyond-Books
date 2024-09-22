@@ -100,7 +100,7 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
                     items: { type: "string" }
                 }
             },
-            required: ["triggerChecks", "collision", "summary", "endReasons", "endSectionFlag", "suggestions"],
+            required: ["triggerChecks","endReasons", "endSectionFlag",  "collision", "summary", "suggestions"],
             additionalProperties: false
         };
 

@@ -80,7 +80,8 @@ function setupSections() {
                 replayButton.innerText = `${section.title}（已完成） - 重玩`;
                 replayButton.onclick = () => chooseSection(section.file, true);
                 sectionDiv.appendChild(replayButton);
-            } else if (unlockedSections.includes(section.id) && (!onlyUnlockFirstTwo || section.id <= 3)) {
+            } else if (//unlockedSections.includes(section.id) && 
+                (!onlyUnlockFirstTwo || section.id <= 3)) {
                 const button = document.createElement('button');
                 button.className = 'button';
                 button.innerText = section.title;
