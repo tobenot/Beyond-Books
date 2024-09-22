@@ -25,7 +25,7 @@ const settingsText = {
     settingsResetAlert: "设置已恢复默认",
     publicKeyFetching: "获取中...",
     publicKeyFetched: "公共 Key 已成功获取并保存",
-    publicKeyFetchedAlert: "公共 Key 已成功获取并保存\n\n请使用指定API URL：\nhttps://llm.tobenot.top/api/v1/",
+    publicKeyFetchedAlert: "公共 Key 已成功获取并保存\n\n请使用指定API URL：\nhttps://api.deepbricks.ai/v1/",
     publicKeyFetchFailed: "公共 Key 获取失败，可尝试其他网络环境",
     advancedModelLabel: "进阶模型 (用于桥段总结)",
     basicModelLabel: "基本模型 (用于其他操作)",
@@ -117,7 +117,7 @@ function loadSettings() {
         // 默认设置
         const settings = {
             apiKey: '',
-            apiUrl: isLocalDevelopment() ? DEV_API_URL : 'https://llm.tobenot.top/api/v1/',
+            apiUrl: isLocalDevelopment() ? DEV_API_URL : 'https://api.deepbricks.ai/v1/',
             [ModelType.ADVANCED]: ModelMapping[ModelType.ADVANCED],
             [ModelType.BASIC]: ModelMapping[ModelType.BASIC]
         };
@@ -134,7 +134,7 @@ function loadSettings() {
 function resetSettings() {
     const defaultSettings = {
         apiKey: '',
-        apiUrl: 'https://llm.tobenot.top/api/v1/',
+        apiUrl: 'https://api.deepbricks.ai/v1/',
         [ModelType.ADVANCED]: ModelMapping[ModelType.ADVANCED],
         [ModelType.BASIC]: ModelMapping[ModelType.BASIC]
     };
@@ -181,7 +181,7 @@ function getPublicKey(isAuto = false) {
 
             if(!isAuto){
                 alert(settingsText.publicKeyFetchedAlert);
-                const url = 'https://llm.tobenot.top/api/v1/';
+                const url = 'https://api.deepbricks.ai/v1/';
                 navigator.clipboard.writeText(url).then(function() {
                     console.log('复制到剪贴板成功');
                 }, function(err) {
@@ -231,7 +231,7 @@ function migrateOldKeys() {
 
     if ((isFreeTrialKey || isPublicKey) && savedSettings && savedSettings.apiUrl === 'https://openkey.cloud/v1/') {
         // 7.10更新 迁移 API URL
-        savedSettings.apiUrl = 'https://llm.tobenot.top/api/v1/';
+        savedSettings.apiUrl = 'https://api.deepbricks.ai/v1/';
         localStorage.setItem('settings', JSON.stringify(savedSettings));
 
         // 如果是旧的免费试用 Key，则迁移并重新获取公共 Key
@@ -260,7 +260,7 @@ function isLocalDevelopment() {
 // 新增函数，用于获取当前环境的API URL
 function getApiUrl() {
     const savedSettings = JSON.parse(localStorage.getItem('settings'));
-    return isLocalDevelopment() ? DEV_API_URL : (savedSettings ? savedSettings.apiUrl : 'https://llm.tobenot.top/api/v1/');
+    return isLocalDevelopment() ? DEV_API_URL : (savedSettings ? savedSettings.apiUrl : 'https://api.deepbricks.ai/v1/');
 }
 
 // 新增函数，用于获取当前环境的模型
