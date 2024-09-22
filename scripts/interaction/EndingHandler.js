@@ -1,12 +1,15 @@
 async function endSection() {
   alert("桥段已超出20轮，自动结算结果。");
-  disableInput();
-  const summary = await getSectionSummary(currentSection);
-  await handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
+  await commonSectionEndLogic();
 }
 
 async function handleSectionEnd() {
+  await commonSectionEndLogic();
+}
+
+async function commonSectionEndLogic() {
   disableInput();
+  messageManager.completeAllMessages();
   const summary = await getSectionSummary(currentSection);
   await handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
 }

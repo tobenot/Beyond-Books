@@ -180,6 +180,8 @@ async function handleOutcome(sectionId, summary, section, isReplay = false, isSk
             <p style="color: green;">${objective_judge}</p><p style="color: green;">桥段目标达成</p><p>造成后续影响数量：${changedInfluencePoints}</p>
         `;
 
+        messageManager.completeAllMessages();
+        
         // bugfix: 如果用 innerHTML += resultText 会刷新iframe导致BGM骤停
         updateDisplay('info', resultText);
 

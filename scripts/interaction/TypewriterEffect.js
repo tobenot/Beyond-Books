@@ -41,6 +41,13 @@ class TypewriterMessage {
         }
     }
 
+    async completeImmediately() {
+        // 立即完成打字效果
+        this.currentTypedLength = this.content.length;
+        this.element.innerHTML = formatContent(this.role, this.content) + '<br><br>';
+        this.scrollIfNeeded();
+    }
+
     scrollIfNeeded() {
         const storyContentDiv = document.getElementById('storyContent');
         const scrollPosition = storyContentDiv.scrollTop + storyContentDiv.clientHeight;
@@ -110,6 +117,12 @@ class MessageManager {
             }
         }
         return false;
+    }
+
+    completeAllMessages() {
+        this.messages.forEach(({ message }) => {
+            message.completeImmediately();
+        });
     }
 
     // 新增方法：计算字符串的 Unicode 长度
