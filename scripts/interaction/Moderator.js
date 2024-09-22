@@ -4,7 +4,7 @@ class Moderator {
         this.commonKnowledge = commonKnowledge;
         this.GMDetails = GMDetails;
         this.playerInfo = playerInfo;
-        this.sectionObjective = sectionObjective; // 新增这一行
+        this.sectionObjective = sectionObjective;
     }
 
     async validateAction(action) {
@@ -45,10 +45,24 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
         return response;
     }
 
-    async summarizeActions(mainPlayerAction, aiActions) {
+    async summarizeActions(mainPlayerAction, aiActions, plotTriggers, turnCount) {
         const SUMMARIZE_ACTIONS_SCHEMA = {
             type: "object",
             properties: {
+                triggerChecks: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            id: { type: "string" },
+                            triggerCondition: { type: "string" },
+                            currentProgress: { type: "string" },
+                            isTriggered: { type: "boolean" }
+                        },
+                        required: ["id", "triggerCondition", "currentProgress", "isTriggered"],
+                        additionalProperties: false
+                    }
+                },
                 collision: { type: "string" },
                 summary: {
                     type: "array",
@@ -73,7 +87,7 @@ ${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimiz
                     items: { type: "string" }
                 }
             },
-            required: ["collision", "summary", "endSectionFlag", "suggestions"],
+            required: ["triggerChecks", "collision", "summary", "endSectionFlag", "suggestions"],
             additionalProperties: false
         };
 
@@ -96,7 +110,17 @@ ${optimizedHistory}
 其他角色行动：
 ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`).join('\n')}
 
+当前回合数：${turnCount}
+
+剧情触发器列表：
+${plotTriggers.filter(trigger => !trigger.consumed).map(trigger => `- ID: ${trigger.id}, 触发条件: ${trigger.triggerCondition}`).join('\n')}
+
 请按照指定的JSON格式回复，包括以下字段：
+- triggerChecks: 一个数组，包含每个剧情触发器的以下信息：
+  - id: 触发器ID
+  - triggerCondition: 触发条件
+  - currentProgress: 当前触发进度的简单描述
+  - isTriggered: 布尔值，表示该触发器是否在这个回合被触发
 - collision: 角色之间行动的冲突，哪个角色做的可能让另一个角色达不到最终的效果
 - summary: 一个数组，包含每个角色的名字、行动结果注释和成功可能性。
   - name: 角色名字
@@ -135,7 +159,7 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
         return response;
     }
 
-    async generateFinalResult(actionSummary, mainPlayerAction, aiActions) {
+    async generateFinalResult(actionSummary, mainPlayerAction, aiActions, triggeredPlots) {
         const optimizedHistory = optimizedConversationHistory.map(entry => `${entry.role}: ${entry.content}`).join('\n');
         
         const actionsWithResults = [
@@ -154,7 +178,7 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
             })
         ];
 
-        const prompt = `请考虑以下背景信息和优化后的对话历史：
+        const prompt = `请考虑以下背景信息、优化后的对话历史和触发的剧情触发器：
 
 起始事件：${this.startEvent}
 公共信息：${this.commonKnowledge}
@@ -166,7 +190,10 @@ ${optimizedHistory}
 本回合各角色的行动和结果：
 ${actionsWithResults.map(item => `${item.name}: ${item.action}\n判定: ${item.isSuccessful ? '成功' : '失败或有意外'}`).join('\n\n')}
 
-请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不需要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
+本回合触发的剧情触发器：
+${triggeredPlots.map(trigger => trigger.content).join('\n')}
+
+请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动，以及触发的剧情触发器。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
 
         console.log("生成最终结果提示", prompt);
 

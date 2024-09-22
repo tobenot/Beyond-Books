@@ -9,6 +9,8 @@ class GameManager {
         this.semaphore = new Semaphore(this.concurrencyLimit);
         this.characterTagBase = null;
         this.playerInfo = null;
+        this.turnCount = 0; // 添加回合计数器
+        this.plotTriggers = [];
     }
 
     log(message, data = null) {
@@ -47,6 +49,9 @@ class GameManager {
                 this.mainPlayer = character;
             }
         });
+
+        this.initializePlotTriggers(section.plotTriggers);
+
         this.currentContext = section.backgroundInfo;
         if (!this.mainPlayer.isAI) {
             this.playerInfo = this.createPlayerInfo(this.mainPlayer);
@@ -55,8 +60,13 @@ class GameManager {
             section.startEvent,
             section.commonKnowledge,
             section.GMDetails,
-            this.playerInfo
+            this.playerInfo,
+            section.objective // 添加桥段目标
         );
+    }
+
+    initializePlotTriggers(triggers) {
+        this.plotTriggers = triggers.map(trigger => ({...trigger, consumed: false}));
     }
 
     createPlayerInfo(playerCharacter) {
@@ -90,6 +100,7 @@ class GameManager {
             hideInteractionStage();
             return { feedback, isValid: false };
         }
+        this.turnCount++; // 每次处理主玩家动作时增加回合计数
 
         const specificAction = validationResult.specificAction;
         this.log("玩家的行为:", specificAction);
@@ -101,11 +112,14 @@ class GameManager {
         this.log("AI玩家响应:", aiResponses);
         updateInteractionStage("总结", "那么究竟是...");
 
-        const actionSummary = await this.moderator.summarizeActions(specificAction, aiResponses);
+        const actionSummary = await this.moderator.summarizeActions(specificAction, aiResponses, this.plotTriggers, this.turnCount);
         this.log("行动总结:", actionSummary);
 
+        // 更新已触发的剧情触发器
+        const triggeredPlots = this.updateTriggeredPlots(actionSummary.triggerChecks);
+
         updateInteractionStage("叙述", "好的，现在...");
-        const finalResult = await this.moderator.generateFinalResult(actionSummary, specificAction, aiResponses);
+        const finalResult = await this.moderator.generateFinalResult(actionSummary, specificAction, aiResponses, triggeredPlots);
         this.log("最终结果:", finalResult);
 
         this.updateContext(finalResult);
@@ -121,7 +135,7 @@ class GameManager {
     updateContext(finalResult) {
         this.currentContext += `\n${finalResult.display}`;
     }
-
+    
     async getAIPlayersResponses(action) {
         const responsePromises = Object.entries(this.aiPlayers).map(async ([name, aiPlayer]) => {
             await this.semaphore.acquire();
@@ -140,6 +154,18 @@ class GameManager {
 
     getCharacterTag(key) {
         return this.characterTagBase ? this.characterTagBase[key] : null;
+    }
+
+    updateTriggeredPlots(triggerChecks) {
+        const triggeredPlots = [];
+        triggerChecks.forEach(check => {
+            const trigger = this.plotTriggers.find(t => t.id === check.id);
+            if (trigger && check.isTriggered && !trigger.consumed) {
+                trigger.consumed = true;
+                triggeredPlots.push(trigger);
+            }
+        });
+        return triggeredPlots;
     }
 }
 
