@@ -73,9 +73,9 @@ ${situation}
     }
 
     updateMemory(situation, response) {
-        // 提取思考过程的最后两个步骤
+        // 提取思考过程的第二和第四个步骤
         const summarizedThoughts = response.thoughts
-            .slice(-2)  // 只保留最后2个思考步骤
+            .filter((t, index) => index === 1 || index === 3)  // 保留第二和第四个思考步骤
             .map(t => `${t.step}: ${t.content}`)
             .join('; ');
 
