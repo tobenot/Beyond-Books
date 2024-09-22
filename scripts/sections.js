@@ -6,6 +6,8 @@ let completedSections = [];
 let unlockedSections = [];
 let globalInfluencePoints = [];
 
+let onlyUnlockFirstTwo = true;
+
 function decryptJSONText(encryptedText, secretKey) {
     const bytes = CryptoJS.AES.decrypt(encryptedText, secretKey);
     const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
@@ -49,6 +51,7 @@ function loadSectionsIndex() {
         });
 }
 
+// 修改 setupSections 函数
 function setupSections() {
     const sectionsList = document.getElementById('sections');
     sectionsList.innerHTML = '';
@@ -77,7 +80,7 @@ function setupSections() {
                 replayButton.innerText = `${section.title}（已完成） - 重玩`;
                 replayButton.onclick = () => chooseSection(section.file, true);
                 sectionDiv.appendChild(replayButton);
-            } else if (unlockedSections.includes(section.id)) {
+            } else if (unlockedSections.includes(section.id) && (!onlyUnlockFirstTwo || section.id <= 3)) {
                 const button = document.createElement('button');
                 button.className = 'button';
                 button.innerText = section.title;
@@ -97,7 +100,7 @@ function setupSections() {
                 sectionDiv.appendChild(skipButton);
             } else {
                 sectionDiv.classList.add('locked');
-                sectionDiv.innerText = `${section.title}（未解锁）`;
+                sectionDiv.innerText = onlyUnlockFirstTwo && section.id > 3 ? `${section.title} - 翻新中` : `${section.title}（未解锁）`;
             }
 
             chapterDiv.appendChild(sectionDiv);
@@ -349,7 +352,7 @@ function updateGameState(sectionId, result) {
     setupSections();
 }
 
-
+// 修改 initializeGameState 函数
 function initializeGameState(savedData = null) {
     if (savedData) {
         currentSectionId = savedData.currentSectionId;
@@ -435,4 +438,11 @@ async function preloadSectionImages(batchSize = 1, delay = 1500) { // batchSize 
     }
 
     console.log('All section images preloaded successfully');
+}
+
+// 添加切换函数
+function toggleUnlockMode() {
+    onlyUnlockFirstTwo = !onlyUnlockFirstTwo;
+    setupSections();
+    console.log(`仅解锁前两个桥段模式: ${onlyUnlockFirstTwo ? '开启' : '关闭'}`);
 }
