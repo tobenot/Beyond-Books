@@ -206,3 +206,25 @@ function updateInteractionStage(stage, info) {
 function hideInteractionStage() {
     document.getElementById('interactionStage').style.display = 'none';
 }
+
+function displaySuggestions(suggestions) {
+    const suggestionsContainer = document.getElementById('suggestionsContainer');
+    if (!suggestionsContainer) {
+        console.error('Suggestions container not found');
+        return;
+    }
+
+    suggestionsContainer.innerHTML = suggestions.map(suggestion => 
+        `<div class="suggestion">建议：${suggestion}</div>`
+    ).join('');
+
+    suggestionsContainer.style.display = 'block';
+}
+
+function clearSuggestions() {
+    const suggestionsContainer = document.getElementById('suggestionsContainer');
+    if (suggestionsContainer) {
+        suggestionsContainer.innerHTML = '';
+        suggestionsContainer.style.display = 'none';
+    }
+}

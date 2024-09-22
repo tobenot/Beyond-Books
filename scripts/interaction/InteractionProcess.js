@@ -37,6 +37,7 @@ async function processUserInput(userInput) {
 
   try {
     const result = await gameManager.processMainPlayerAction(userInput, (specificAction) => {
+      clearSuggestions();
       // 玩家的操作暂时不加入公共记忆
       //addToOptimizedConversationHistory({ role: "user", content: specificAction });
     });

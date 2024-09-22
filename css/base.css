@@ -531,3 +531,17 @@ h2 {
     z-index: 1000;
     text-align: center;
 }
+
+.suggestions-container {
+    display: none;
+    margin-bottom: 10px;
+    padding: 5px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+.suggestion {
+    color: #666;
+    font-size: 0.9em;
+    margin: 5px 0;
+}

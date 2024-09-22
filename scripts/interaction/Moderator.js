@@ -1,9 +1,10 @@
 class Moderator {
-    constructor(startEvent, commonKnowledge, GMDetails, playerInfo) {
+    constructor(startEvent, commonKnowledge, GMDetails, playerInfo, sectionObjective) {
         this.startEvent = startEvent;
         this.commonKnowledge = commonKnowledge;
         this.GMDetails = GMDetails;
         this.playerInfo = playerInfo;
+        this.sectionObjective = sectionObjective; // 新增这一行
     }
 
     async validateAction(action) {
@@ -58,9 +59,14 @@ ${this.playerInfo}
                         additionalProperties: false
                     }
                 },
-                endSectionFlag: { type: "boolean" }
+                endSectionFlag: { type: "boolean" },
+                // 新增字段
+                suggestions: {
+                    type: "array",
+                    items: { type: "string" }
+                }
             },
-            required: ["collision", "summary", "endSectionFlag"],
+            required: ["collision", "summary", "endSectionFlag", "suggestions"],
             additionalProperties: false
         };
 
@@ -75,6 +81,8 @@ ${this.playerInfo}
 优化后的对话历史：
 ${optimizedHistory}
 
+主角目标：${this.sectionObjective}
+
 现在，请分析这个回合中每个角色的行动：
 主角行动：${mainPlayerAction}
 
@@ -87,11 +95,18 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
   - name: 角色名字
   - note: 对该行动的结论性判定，例如"攻击成功"、"防御失败"、"行动受阻"等，只简单写被谁影响、成败，不写心理。
 - endSectionFlag: 布尔值，是否满足了桥段结束条件？如果是，将进入桥段复盘环节
+- suggestions: 一个数组，包含1-2个对主角继续推进剧情的建议。这些建议应该考虑当前情况和桥段目标。
 
 请只提供简短的结论性判定，不要重复原始行动描述。`;
 
         console.log("生成总结提示", prompt);
         const response = await this.callLargeLanguageModel(prompt, SUMMARIZE_ACTIONS_SCHEMA);
+        
+        // 使用新的UI函数显示建议
+        if (response.suggestions && response.suggestions.length > 0) {
+            displaySuggestions(response.suggestions);
+        }
+        
         return response;
     }
 

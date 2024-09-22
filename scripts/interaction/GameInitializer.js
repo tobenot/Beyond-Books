@@ -21,6 +21,14 @@ async function initializeGame(section, isReplay = false) {
   
   setCurrentSection(section);
   setCurrentIsReplay(isReplay);
+  
+  gameManager.moderator = new Moderator(
+    section.startEvent,
+    section.commonKnowledge,
+    section.GMDetails,
+    gameManager.playerInfo,
+    section.objective // 添加这一行
+  );
 }
 
 function initializeSettings() {
