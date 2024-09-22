@@ -1,4 +1,7 @@
 async function initializeGame(section, isReplay = false) {
+  // 重置全局状态
+  resetGlobalState();
+  
   // 初始化设置
   initializeSettings();
   

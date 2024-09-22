@@ -47,6 +47,7 @@ function setApiSettings(url, key, model) {
     API_URL = url;
     API_KEY = key;
     MODEL = model;
+    console.log('API设置已更新:', { API_URL, MODEL });
 }
 
 let isCompressing = false;
@@ -213,6 +214,17 @@ function addToOptimizedConversationHistory(entry) {
 // 新增函数，用于重置压缩状态（在需要时调用，比如开始新对话时）
 function resetCompressionState() {
     compressedMessageIndices.clear();
+}
+
+// 新增函数：重置全局状态
+function resetGlobalState() {
+    isSubmitting = false;
+    isCooldown = false;
+    conversationHistory = [];
+    optimizedConversationHistory = [];
+    currentSection = null;
+    currentIsReplay = false;
+    resetCompressionState();
 }
 
 // 添加调试函数
