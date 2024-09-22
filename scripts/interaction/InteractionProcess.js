@@ -32,8 +32,8 @@ function shouldEndSection() {
 }
 
 async function processUserInput(userInput) {
-  const { loadingDiv, userInputField, submitButton } = getElements();
-  toggleSubmittingState(true, loadingDiv, userInputField, submitButton);
+  const { loadingDiv } = getElements();
+  toggleSubmittingState(true, loadingDiv);
 
   try {
     const result = await gameManager.processMainPlayerAction(userInput, (specificAction) => {
@@ -46,7 +46,7 @@ async function processUserInput(userInput) {
       updateConversationWithResult(result.finalResult);
       
       // 清空输入框
-      userInputField.value = '';
+      document.getElementById('userInput').value = '';
       
       if (gameManager.moderator.endSectionFlag) {
         await handleSectionEnd();
@@ -58,7 +58,7 @@ async function processUserInput(userInput) {
   } catch (error) {
     console.error("处理用户输入时出错:", error);
   } finally {
-    toggleSubmittingState(false, loadingDiv, userInputField, submitButton);
+    toggleSubmittingState(false, loadingDiv);
     setCooldown();
   }
 }

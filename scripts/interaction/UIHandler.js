@@ -80,13 +80,16 @@ function formatContent(role, content) {
     }
 }
 
-function toggleSubmittingState(isSubmittingFlag, loadingDiv, userInputField, submitButton) {
+function toggleSubmittingState(isSubmittingFlag, loadingDiv) {
     setIsSubmitting(isSubmittingFlag);
     setIsCooldown(true);
 
     loadingDiv.style.display = isSubmittingFlag ? 'block' : 'none';
-    userInputField.style.display = isSubmittingFlag ? 'none' : 'block';
-    submitButton.style.display = isSubmittingFlag ? 'none' : 'block';
+    if (isSubmittingFlag) {
+        hideUserInput();
+    } else {
+        showUserInput();
+    }
 }
 
 function prepareUI(section) {
@@ -157,13 +160,26 @@ function disableInput() {
     submitButton.disabled = true;
 }
 
+function showUserInput() {
+    const userInputField = document.getElementById('userInput');
+    const submitButton = document.getElementById('submitInputButton');
+    userInputField.style.display = "flex";
+    submitButton.style.display = "flex";
+}
+
+function hideUserInput() {
+    const userInputField = document.getElementById('userInput');
+    const submitButton = document.getElementById('submitInputButton');
+    userInputField.style.display = "none";
+    submitButton.style.display = "none";
+}
+
 function enableInput() {
     const userInputField = document.getElementById('userInput');
     const submitButton = document.getElementById('submitInputButton');
     userInputField.disabled = false;
     submitButton.disabled = false;
-    userInputField.style.display = "flex";
-    submitButton.style.display = "flex";
+    showUserInput();
 }
 
 function createCompleteButton() {

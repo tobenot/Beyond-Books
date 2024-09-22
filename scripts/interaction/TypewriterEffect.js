@@ -5,6 +5,9 @@ class TypewriterMessage {
         this.element = this.createMessageElement();
         this.currentTypedLength = 0;
         this.typingPromise = Promise.resolve();
+        this.isPageVisible = true;
+        this.visibilityChangeHandler = this.handleVisibilityChange.bind(this);
+        document.addEventListener('visibilitychange', this.visibilityChangeHandler);
     }
 
     createMessageElement() {
@@ -24,6 +27,11 @@ class TypewriterMessage {
         let newText = this.content.slice(this.currentTypedLength);
         
         for (let i = 0; i < newText.length; i++) {
+            if (!this.isPageVisible) {
+                this.completeImmediately();
+                return;
+            }
+            
             await new Promise(resolve => {
                 setTimeout(() => {
                     this.currentTypedLength++;
@@ -42,7 +50,6 @@ class TypewriterMessage {
     }
 
     async completeImmediately() {
-        // 立即完成打字效果
         this.currentTypedLength = this.content.length;
         this.element.innerHTML = formatContent(this.role, this.content) + '<br><br>';
         this.scrollIfNeeded();
@@ -62,6 +69,17 @@ class TypewriterMessage {
         const messages = document.querySelectorAll('#storyContent .message');
         return messages[messages.length - 1] === this.element;
     }
+
+    handleVisibilityChange() {
+        this.isPageVisible = !document.hidden;
+        if (!this.isPageVisible) {
+            this.completeImmediately();
+        }
+    }
+
+    destroy() {
+        document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+    }
 }
 
 const KEY_LENGTH = 10;
@@ -77,7 +95,6 @@ class MessageManager {
         let existingMessage = this.findMatchingMessage(key);
         if (existingMessage) {
             existingMessage.updateContent(content);
-            // 更新key为更长的消息的key
             const existingIndex = this.messages.findIndex(item => item.message === existingMessage);
             if (existingIndex !== -1) {
                 this.messages[existingIndex].key = key;
@@ -91,14 +108,11 @@ class MessageManager {
     findMatchingMessage(key) {
         for (let i = this.messages.length - 1; i >= 0; i--) {
             const { key: existingKey, message } = this.messages[i];
-            // 添加长度检查
             if (this.getUnicodeLength(message.content) > CONTENT_LENGTH_THRESHOLD) {
-                // 如果消息长度超过阈值，要求完全匹配
                 if (key === existingKey) {
                     return message;
                 }
             } else {
-                // 对于较短的消息，保持原有的部分匹配逻辑
                 if (key.startsWith(existingKey) || existingKey.startsWith(key)) {
                     return message;
                 }
@@ -125,14 +139,17 @@ class MessageManager {
         });
     }
 
-    // 新增方法：计算字符串的 Unicode 长度
     getUnicodeLength(str) {
         return [...str].length;
     }
 
-    // 新增方法：按 Unicode 长度截取字符串
     getUnicodeLengthSlice(str, start, end) {
         return [...str].slice(start, end).join('');
+    }
+
+    destroy() {
+        this.messages.forEach(({ message }) => message.destroy());
+        this.messages = [];
     }
 }
 
