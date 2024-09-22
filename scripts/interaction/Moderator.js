@@ -24,7 +24,7 @@ class Moderator {
                 },
                 specificAction: { 
                     type: "string",
-                    description: "请具体描述玩家实际做的事情，避免歧义，最重要的是具体化对象。例如，如果玩家说‘你好’，可以描述为‘向在场的人问好’，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力或技能，以及其效果。"
+                    description: "请具体描述玩家实际做的事情，避免歧义，最重要的是具体化对象。例如，如果玩家说‘你好’，可以描述为‘向在场的人问好’，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力或技能，以及其具体的效果。"
                 }
             },
             required: ["reason", "suggestion", "isValid", "specificAction"],
@@ -32,7 +32,7 @@ class Moderator {
         };
 
         const prompt = `
-作为游戏主持人，请评估玩家行动的可行性，背景：
+作为游戏主持人，请评估玩家是否有能力进行他描述的行动，背景：
 
 开始事件：${this.startEvent}
 公共知识：${this.commonKnowledge}
@@ -42,8 +42,8 @@ GM细节：${this.GMDetails}
 ${this.playerInfo}
 
 玩家行动：${action}
-注意，玩家的行为可以不理智，你主要判断可行性，只要有能力做到，就可以做。
-请按照指定的JSON格式回答。`;
+注意，玩家的行为可以胡闹，你主要判断可行性，只要有能力做到，就可以做。
+请用JSON格式回答。`;
 
         const response = await this.callLargeLanguageModel(prompt, VALIDATE_ACTION_SCHEMA);
         return response;
@@ -99,7 +99,7 @@ ${optimizedHistory}
 
 现在，请总结这个回合中每个角色实际上做的事情：
 主角之间行动可能会有冲突，所以可能需要处理，比如角色A攻击角色B，角色B防御，则这次攻击可能达不到A想达到的效果，同样的B防御也不一定达到最终的效果。
-注意这里要保留原本的描写，比如具体说的话，不要简写了。
+注意只要没有很大的影响，就要完全保留原本的描写，比如具体说的话和行为，不要简写。
 主角行动：${mainPlayerAction}
 
 其他角色行动：

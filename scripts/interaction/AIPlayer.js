@@ -130,11 +130,10 @@ ${situation}
         const responseData = await handleApiResponse(response);
         const parsedResponse = JSON.parse(responseData.choices[0].message.content);
 
-        this.log("能否行动", parsedResponse.checkCanAct);
-        this.log("布尔：", String(parsedResponse.canAct));
+        this.log(`AI 反应`, parsedResponse);
 
         if (parsedResponse.canAct === false) {
-            parsedResponse.action = "不能做出任何行动";
+            parsedResponse.action = parsedResponse.checkCanAct;
             parsedResponse.thoughts = "无法思考";
         }
 
@@ -144,7 +143,7 @@ ${situation}
             action: parsedResponse.action
         };
 
-        this.log(`AI 响应`, finalResponse);
+        this.log(`AI 提交动作`, finalResponse);
         return finalResponse;
     }
 }
