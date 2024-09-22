@@ -105,7 +105,7 @@ class GameManager {
         this.log("行动总结:", actionSummary);
 
         updateInteractionStage("叙述", "好的，现在...");
-        const finalResult = await this.moderator.generateFinalResult(actionSummary);
+        const finalResult = await this.moderator.generateFinalResult(actionSummary, specificAction, aiResponses);
         this.log("最终结果:", finalResult);
 
         this.updateContext(finalResult);

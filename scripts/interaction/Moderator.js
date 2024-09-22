@@ -52,9 +52,9 @@ ${this.playerInfo}
                         type: "object",
                         properties: {
                             name: { type: "string" },
-                            action: { type: "string" }
+                            note: { type: "string" }
                         },
-                        required: ["name", "action"],
+                        required: ["name", "note"],
                         additionalProperties: false
                     }
                 },
@@ -75,8 +75,7 @@ ${this.playerInfo}
 优化后的对话历史：
 ${optimizedHistory}
 
-现在，请总结这个回合中每个角色实际上做的事情：
-主角之间行动可能会有冲突，所以可能需要处理，比如角色A攻击角色B，角色B防御，则这次攻击可能达不到A想达到的效果，同样的B防御也不一定达到最终的效果。
+现在，请分析这个回合中每个角色的行动：
 主角行动：${mainPlayerAction}
 
 其他角色行动：
@@ -84,30 +83,43 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 
 请按照指定的JSON格式回复，包括以下字段：
 - collision: 角色之间行动的冲突，哪个角色做的可能让另一个角色达不到最终的效果
-- summary: 一个数组，包含每个角色的名字和实际行动。注意只要没有很大的影响，就要完全保留原本的描写，比如具体说的话和行为，不要略写。
-- endSectionFlag: 布尔值，是否满足了桥段结束条件？如果是，将进入桥段复盘环节`;
+- summary: 一个数组，包含每个角色的名字和行动结果注释。
+  - name: 角色名字
+  - note: 对该行动的结论性判定，例如"攻击成功"、"防御失败"、"行动受阻"等，只简单写被谁影响、成败，不写心理。
+- endSectionFlag: 布尔值，是否满足了桥段结束条件？如果是，将进入桥段复盘环节
+
+请只提供简短的结论性判定，不要重复原始行动描述。`;
 
         console.log("生成总结提示", prompt);
         const response = await this.callLargeLanguageModel(prompt, SUMMARIZE_ACTIONS_SCHEMA);
         return response;
     }
 
-    async generateFinalResult(actionSummary) {
+    async generateFinalResult(actionSummary, mainPlayerAction, aiActions) {
         const optimizedHistory = optimizedConversationHistory.map(entry => `${entry.role}: ${entry.content}`).join('\n');
         
+        const actionsWithNotes = [
+            { name: selectedCharacter, action: mainPlayerAction, note: actionSummary.summary.find(s => s.name === selectedCharacter)?.note || "" },
+            ...Object.entries(aiActions).map(([name, action]) => ({
+                name,
+                action: action.action,
+                note: actionSummary.summary.find(s => s.name === name)?.note || ""
+            }))
+        ];
+
         const prompt = `请考虑以下背景信息和优化后的对话历史：
 
 起始事件：${this.startEvent}
 公共信息：${this.commonKnowledge}
 主持人信息：${this.GMDetails}
 
-优化后的对话历史：
+过去回合历史：
 ${optimizedHistory}
 
-各角色的行动总结：
-${actionSummary.summary.map(item => `${item.name}: ${item.action}`).join('\n')}
+本回合各角色的行动和结果：
+${actionsWithNotes.map(item => `${item.name}: ${item.action}\n结论: ${item.note}`).join('\n\n')}
 
-请小说化地、详细描述这个回合的结果,包括其他角色说出来的话、做的动作等。请用第三人称方式描写，但DO NOT描写主角的心理活动。DO NOT描写气氛等主观的事物。请确保描述中包含每个角色实际成功做出的行动。注意你的回复会直接展示为小说内容，所以不要写前导后缀提示。也不需要写太多内容。`;
+请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中包含每个角色实际成功做出的行动，并考虑行动结果注释。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不需要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
 
         console.log("生成最终结果提示", prompt);
 
