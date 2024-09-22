@@ -30,7 +30,10 @@ GM细节：${this.GMDetails}
 玩家信息：
 ${this.playerInfo}
 
-玩家行动：${action}
+上一回合：
+${optimizedConversationHistory.length > 0 ? optimizedConversationHistory[optimizedConversationHistory.length - 1].content : '无'}
+
+本回合玩家行动：${action}
 注意，玩家的行为可以胡闹，你主要判断可行性，只要有能力做到，就可以做。
 请用JSON格式回答，包含以下字段：
 - reason: 解释玩家行动是否可行的原因
@@ -161,9 +164,9 @@ ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`)
 ${optimizedHistory}
 
 本回合各角色的行动和结果：
-${actionsWithResults.map(item => `${item.name}: ${item.action}\n判定: ${item.isSuccessful ? '成功' : '失败'}`).join('\n\n')}
+${actionsWithResults.map(item => `${item.name}: ${item.action}\n判定: ${item.isSuccessful ? '成功' : '失败或有意外'}`).join('\n\n')}
 
-请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动，比如失败的行动可能会起到反效果。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不需要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
+请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行动。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不需要写太多内容，不要写重复了。也不要描写主角${selectedCharacter}的心理活动或主观气氛。`;
 
         console.log("生成最终结果提示", prompt);
 

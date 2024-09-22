@@ -3,7 +3,7 @@
     <div class="text-container" id="storyContent"></div>
     <div id="suggestionsContainer" class="suggestions-container"></div>
     <div class="controls">
-        <input type="text" maxlength="200" id="userInput" placeholder="你要怎么做？" onkeydown="if(event.keyCode==13) handleUserInput()"/>
+        <input type="text" maxlength="200" id="userInput" placeholder="你要怎么做？" onkeydown="if(event.keyCode==13) handleUserInput()" autocomplete="off"/>
         <button class="button" id="submitInputButton" onclick="handleUserInput()">开始</button>
     </div>
     <div id="interactionStage" class="interaction-stage" style="display: none;">

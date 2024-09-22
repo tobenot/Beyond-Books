@@ -9,7 +9,6 @@ async function handleSectionEnd() {
 
 async function commonSectionEndLogic() {
   disableInput();
-  messageManager.completeAllMessages();
   const summary = await getSectionSummary(currentSection);
   await handleOutcome(currentSection.id, summary, currentSection, currentIsReplay);
 }
