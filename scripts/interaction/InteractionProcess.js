@@ -40,10 +40,16 @@ async function processUserInput(userInput) {
       // 玩家的操作暂时不加入公共记忆
       //addToOptimizedConversationHistory({ role: "user", content: specificAction });
     });
-    updateConversationWithResult(result);
-    
-    if (gameManager.moderator.endSectionFlag) {
-      await handleSectionEnd();
+
+    if (result.isValid) {
+      updateConversationWithResult(result.finalResult);
+      
+      if (gameManager.moderator.endSectionFlag) {
+        await handleSectionEnd();
+      }
+    } else {
+      // 处理无效操作
+      displayFeedback(result.feedback);
     }
   } catch (error) {
     console.error("处理用户输入时出错:", error);
@@ -53,12 +59,16 @@ async function processUserInput(userInput) {
   }
 }
 
+function displayFeedback(feedback) {
+  // 只显示反馈，不更新历史记录
+  updateDisplay('system', feedback);
+}
+
 function updateConversationWithResult(result) {
   addToConversationHistory({ role: "assistant", content: result });
   addToOptimizedConversationHistory({ role: "system", content: result });
   updateDisplay('assistant', result);
 }
-
 
 function setCooldown() {
   setTimeout(() => {

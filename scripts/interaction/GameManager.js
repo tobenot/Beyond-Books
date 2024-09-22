@@ -82,7 +82,7 @@ class GameManager {
             const feedback = `<i style="color: red;">你的行动不可行。原因：${validationResult.reason}\n建议：${validationResult.suggestion}</i>`;
             this.log("操作不可行，返回反馈:", feedback);
             hideInteractionStage();
-            return feedback;
+            return { feedback, isValid: false };
         }
 
         const specificAction = validationResult.specificAction;
@@ -109,7 +109,7 @@ class GameManager {
         }
 
         hideInteractionStage();
-        return finalResult;
+        return { finalResult, isValid: true };
     }
 
     updateContext(finalResult) {
