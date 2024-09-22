@@ -57,7 +57,16 @@ ${recentPrivateMemory}
 ${situation}
 再次强调你的角色是${this.name}。
 
-用json格式回复，包括详细的思考过程和最终的行动。`;
+请用JSON格式回复，包括以下字段：
+1. checkCanAct：解释你能否思考或说话的原因。比如说遇到时间类型的能力，比如你被困住。注意这是'能否行动'，而不是'要不要行动'。
+2. canAct：布尔值，表示是否能够行动。
+3. thoughts：数组，包含你的思考过程。每个思考步骤应包含思考阶段和内容。思考过程：
+   a. 分析当前情况：仔细考虑当前的环境、其他角色的行动和可能的影响。
+   b. 回顾个人目标：思考你的角色目标，以及当前情况如何影响这些目标。
+   c. 考虑可能的行动：列出几个可能的行动方案，包括可能推动剧情发展的行动。
+   d. 选择最佳行动：根据前面的分析，选择一个最能推进剧情进度的行动，避免进入对峙。
+4. action：你的最终行动和说的话。`;
+
         this.log("创建提示", { prompt });
         
         return prompt;
@@ -84,12 +93,10 @@ ${situation}
             type: "object",
             properties: {
                 checkCanAct: {
-                    type: "string",
-                    description: "解释你能否思考或说话的原因。比如说遇到时间类型的能力，比如你被困住。注意这是'能否行动'，而不是'要不要行动'。"
+                    type: "string"
                 },
                 canAct: {
-                    type: "boolean",
-                    description: "是否能够行动"
+                    type: "boolean"
                 },
                 thoughts: {
                     type: "array",
@@ -97,22 +104,18 @@ ${situation}
                         type: "object",
                         properties: {
                             step: { 
-                                type: "string",
-                                description: "思考的阶段，思考过程可能包括：1. 分析当前情况：仔细考虑当前的环境、其他角色的行动和可能的影响。2. 回顾个人目标：思考你的角色目标，以及当前情况如何影响这些目标。3. 考虑可能的行动：列出几个可能的行动方案，包括可能推动剧情发展的行动。4. 选择最佳行动：根据前面的分析，选择一个最能推进剧情进度的行动，避免进入对峙。" 
+                                type: "string"
                             },
                             content: { 
-                                type: "string",
-                                description: "思考的内容" 
+                                type: "string"
                             }
                         },
                         required: ["step", "content"],
                         additionalProperties: false
-                    },
-                    description: "角色的思考过程，包括分析情况、如何大幅推进剧情和考虑可能的行动"
+                    }
                 },
                 action: {
-                    type: "string",
-                    description: "角色的最终行动和说的话，无法行动时返回空字符串"
+                    type: "string"
                 }
             },
             required: ["checkCanAct", "canAct", "thoughts", "action"],

@@ -10,22 +10,10 @@ class Moderator {
         const VALIDATE_ACTION_SCHEMA = {
             type: "object",
             properties: {   
-                reason: { 
-                    type: "string",
-                    description: "解释玩家行动是否可行的原因"
-                },
-                suggestion: { 
-                    type: "string",
-                    description: "如果行动不可行，给出的建议。如果可行，则留空。"
-                },
-                isValid: { 
-                    type: "boolean",
-                    description: "玩家行动是否可行的结论"
-                },
-                specificAction: { 
-                    type: "string",
-                    description: "请具体描述玩家实际做的事情，避免歧义，最重要的是具体化对象。例如，如果玩家说‘你好’，可以描述为‘向在场的人问好’，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力或技能，以及其具体的效果。"
-                }
+                reason: { type: "string" },
+                suggestion: { type: "string" },
+                isValid: { type: "boolean" },
+                specificAction: { type: "string" }
             },
             required: ["reason", "suggestion", "isValid", "specificAction"],
             additionalProperties: false
@@ -43,7 +31,11 @@ ${this.playerInfo}
 
 玩家行动：${action}
 注意，玩家的行为可以胡闹，你主要判断可行性，只要有能力做到，就可以做。
-请用JSON格式回答。`;
+请用JSON格式回答，包含以下字段：
+- reason: 解释玩家行动是否可行的原因
+- suggestion: 如果行动不可行，给出的建议。如果可行，则留空。
+- isValid: 玩家行动是否可行的结论（布尔值）
+- specificAction: 请具体描述玩家实际做的事情和说得话，避免歧义，同时也尽量保留原话，最重要的是具体化对象。例如，如果玩家说'你好'，可以描述为'向在场的人问好'，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力或技能，以及其具体的效果。`;
 
         const response = await this.callLargeLanguageModel(prompt, VALIDATE_ACTION_SCHEMA);
         return response;
@@ -53,34 +45,20 @@ ${this.playerInfo}
         const SUMMARIZE_ACTIONS_SCHEMA = {
             type: "object",
             properties: {
-                collision: { 
-                    type: "string",
-                    description: "角色之间行动的冲突，哪个角色做的可能让另一个角色达不到最终的效果"
-                },
+                collision: { type: "string" },
                 summary: {
                     type: "array",
                     items: {
                         type: "object",
                         properties: {
-                            name: { 
-                                type: "string",
-                                description: "角色名字"
-                            },
-                            action: { 
-                                type: "string",
-                                description: "角色的实际行动"
-                            },
+                            name: { type: "string" },
+                            action: { type: "string" }
                         },
                         required: ["name", "action"],
                         additionalProperties: false
-                    },
-                    required: ["mainPlayer", "aiPlayers"],
-                    additionalProperties: false
+                    }
                 },
-                endSectionFlag: { 
-                    type: "boolean",
-                    description: "布尔值,是否满足了桥段结束条件？如果是,将进入桥段复盘环节"
-                }
+                endSectionFlag: { type: "boolean" }
             },
             required: ["collision", "summary", "endSectionFlag"],
             additionalProperties: false
@@ -99,14 +77,17 @@ ${optimizedHistory}
 
 现在，请总结这个回合中每个角色实际上做的事情：
 主角之间行动可能会有冲突，所以可能需要处理，比如角色A攻击角色B，角色B防御，则这次攻击可能达不到A想达到的效果，同样的B防御也不一定达到最终的效果。
-注意只要没有很大的影响，就要完全保留原本的描写，比如具体说的话和行为，不要简写。
 主角行动：${mainPlayerAction}
 
 其他角色行动：
 ${Object.entries(aiActions).map(([name, action]) => `${name}: ${action.action}`).join('\n')}
 
-请按照指定的JSON格式回复，包括主角和AI角色的行动及其结果。`;
+请按照指定的JSON格式回复，包括以下字段：
+- collision: 角色之间行动的冲突，哪个角色做的可能让另一个角色达不到最终的效果
+- summary: 一个数组，包含每个角色的名字和实际行动。注意只要没有很大的影响，就要完全保留原本的描写，比如具体说的话和行为，不要略写。
+- endSectionFlag: 布尔值，是否满足了桥段结束条件？如果是，将进入桥段复盘环节`;
 
+        console.log("生成总结提示", prompt);
         const response = await this.callLargeLanguageModel(prompt, SUMMARIZE_ACTIONS_SCHEMA);
         return response;
     }
