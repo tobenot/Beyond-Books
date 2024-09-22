@@ -70,6 +70,11 @@ class MessageManager {
         let existingMessage = this.findMatchingMessage(key);
         if (existingMessage) {
             existingMessage.updateContent(content);
+            // 更新key为更长的消息的key
+            const existingIndex = this.messages.findIndex(item => item.message === existingMessage);
+            if (existingIndex !== -1) {
+                this.messages[existingIndex].key = key;
+            }
         } else {
             const newMessage = new TypewriterMessage(role, content);
             this.messages.push({ key, message: newMessage });
