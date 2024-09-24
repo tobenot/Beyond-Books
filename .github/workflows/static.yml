@@ -31,41 +31,36 @@ jobs:
       
       - name: Prepare Deployment Content
         run: |
-          mkdir -p _site
           # 保存当前分支名称
           current_branch="${{ github.ref_name }}"
           
-          # 复制现有的 _site 内容（如果存在）
-          if [ -d "_site" ]; then
-            cp -r _site _site_temp
-          fi
+          # 创建临时目录
+          mkdir -p _temp_site
           
           # 复制所有分支内容
           git for-each-ref --format='%(refname:short)' refs/heads | while read branch; do
             git checkout $branch
             if [ "$branch" = "main" ]; then
-              cp -r * _site/ || true
+              cp -r * _temp_site/ 2>/dev/null || true
             else
-              mkdir -p _site/$branch
-              cp -r * _site/$branch/ || true
+              mkdir -p _temp_site/$branch
+              cp -r * _temp_site/$branch/ 2>/dev/null || true
             fi
           done
-          
-          # 如果存在之前的 _site 内容，合并回来
-          if [ -d "_site_temp" ]; then
-            cp -r _site_temp/* _site/
-            rm -rf _site_temp
-          fi
           
           # 确保当前分支内容是最新的
           git checkout $current_branch
           if [ "$current_branch" = "main" ]; then
-            cp -r * _site/ || true
+            cp -r * _temp_site/ 2>/dev/null || true
           else
-            rm -rf _site/$current_branch
-            mkdir -p _site/$current_branch
-            cp -r * _site/$current_branch/ || true
+            rm -rf _temp_site/$current_branch
+            mkdir -p _temp_site/$current_branch
+            cp -r * _temp_site/$current_branch/ 2>/dev/null || true
           fi
+          
+          # 移动临时目录到最终位置
+          rm -rf _site
+          mv _temp_site _site
       
       - name: List deployment content
         run: ls -R _site
