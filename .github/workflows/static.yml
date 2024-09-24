@@ -33,9 +33,12 @@ jobs:
           if [ "${{ github.ref_name }}" = "main" ]; then
             cp -r * _site/ || true
           else
-            mkdir -p _site/${{ github.ref_name }}
-            cp -r * _site/${{ github.ref_name }}/ || true
+            mkdir -p _site/branches/${{ github.ref_name }}
+            cp -r * _site/branches/${{ github.ref_name }}/ || true
           fi
+      
+      - name: List deployment content
+        run: ls -R _site
       
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
