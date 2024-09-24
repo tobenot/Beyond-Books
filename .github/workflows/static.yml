@@ -16,13 +16,22 @@ jobs:
         id: branch-name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
       
+      - name: Create temporary directory for deployment
+        run: |
+          mkdir deploy_temp
+          if [ -f .deployignore ]; then
+            rsync -av --exclude-from=.deployignore . deploy_temp/
+          else
+            rsync -av . deploy_temp/
+          fi
+      
       - name: Deploy to Pages Repository
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
           external_repository: tobenot/beyond-books-pages
           publish_branch: main
-          publish_dir: .
+          publish_dir: ./deploy_temp
           destination_dir: ${{ steps.branch-name.outputs.BRANCH_NAME }}
           
       - name: Update Index Page
