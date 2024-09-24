@@ -1,8 +1,8 @@
-name: 部署静态内容到 GitHub Pages
+name: Deploy Static Content to GitHub Pages
 
 on:
   push:
-    branches: ["main", "develop", "feature/*", "R1"]
+    branches: ["main", "develop", "feature/*", "R*"]
   workflow_dispatch:
 
 permissions:
@@ -21,13 +21,13 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
+      - name: Checkout
         uses: actions/checkout@v4
       
-      - name: 设置 Pages
+      - name: Setup Pages
         uses: actions/configure-pages@v5
       
-      - name: 准备部署内容
+      - name: Prepare Deployment Content
         run: |
           mkdir -p _site
           if [ "${{ github.ref_name }}" = "main" ]; then
@@ -37,11 +37,11 @@ jobs:
             cp -r * _site/${{ github.ref_name }}/ || true
           fi
       
-      - name: 上传内容
+      - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
       
-      - name: 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
