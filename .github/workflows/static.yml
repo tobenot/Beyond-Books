@@ -1,109 +1,45 @@
-name: Deploy Content to GitHub Pages
+name: Deploy to Pages Repository
 
 on:
   push:
-    branches: ["main", "develop", "feature/*", "R*"]
-  workflow_dispatch:
+    branches:
+      - main
+      - 'R*'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure Git
+      - uses: actions/checkout@v3
+      
+      - name: Get branch name
+        id: branch-name
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+      
+      - name: Deploy to Pages Repository
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          external_repository: tobenot/beyond-books-pages
+          publish_branch: main
+          publish_dir: .
+          destination_dir: ${{ steps.branch-name.outputs.BRANCH_NAME }}
+          
+      - name: Update Index Page
         run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-
-      - name: Clone target repository
-        run: |
-          git clone https://x-access-token:${{ secrets.PAGES_DEPLOY_TOKEN }}@github.com/tobenot/beyond-books-pages.git
-          cd beyond-books-pages
-          git checkout -b ${{ github.ref_name }} || git checkout ${{ github.ref_name }}
-
-      - name: Copy content and commit
-        run: |
-          rm -rf beyond-books-pages/${{ github.ref_name }}
-          mkdir -p beyond-books-pages/${{ github.ref_name }}
-          cp -r * beyond-books-pages/${{ github.ref_name }}/ 2>/dev/null || true
-          cd beyond-books-pages
-          git add .
-          git commit -m "Update ${{ github.ref_name }} branch content"
-          git push origin ${{ github.ref_name }}
-
-      - name: Update index page
-        run: |
-          cd beyond-books-pages
-          echo '<!DOCTYPE html>
-          <html lang="zh-CN">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Beyond Books - 选择版本</title>
-              <style>
-                  body { 
-                      font-family: "Microsoft YaHei", "Hiragino Sans GB", sans-serif; 
-                      line-height: 1.8; 
-                      margin: 0; 
-                      padding: 40px; 
-                      background-color: #f5f5f5;
-                  }
-                  .container {
-                      max-width: 800px;
-                      margin: 0 auto;
-                      background-color: #ffffff;
-                      padding: 30px;
-                      border-radius: 8px;
-                      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                  }
-                  h1 { 
-                      color: #2c3e50; 
-                      text-align: center;
-                      margin-bottom: 30px;
-                      border-bottom: 2px solid #ecf0f1;
-                      padding-bottom: 15px;
-                  }
-                  ul { 
-                      list-style-type: none; 
-                      padding: 0; 
-                  }
-                  li { 
-                      margin-bottom: 15px; 
-                      background-color: #f8f9fa;
-                      border-radius: 4px;
-                      transition: background-color 0.3s;
-                  }
-                  li:hover {
-                      background-color: #e9ecef;
-                  }
-                  a { 
-                      color: #3498db; 
-                      text-decoration: none; 
-                      display: block;
-                      padding: 10px 15px;
-                  }
-                  a:hover { 
-                      color: #2980b9; 
-                  }
-              </style>
-          </head>
-          <body>
-              <div class="container">
-                  <h1>Beyond Books - 选择版本</h1>
-                  <ul>' > index.html
-          for branch in $(git branch -r | grep -v '\->' | sed "s/origin\///"); do
-              if [ "$branch" = "main" ]; then
-                  echo "<li><a href='/main'>最新版</a></li>" >> index.html
-              else
-                  echo "<li><a href='/$branch'>$branch</a></li>" >> index.html
-              fi
+          git clone https://tobenot:${{ secrets.PAGES_DEPLOY_TOKEN }}@github.com/tobenot/beyond-books-pages.git temp_pages
+          cd temp_pages
+          echo "# Beyond Books 索引页面" > index.md
+          echo "" >> index.md
+          echo "## 可用分支:" >> index.md
+          for dir in */; do
+            branch=${dir%/}
+            echo "- [$branch]($branch/)" >> index.md
           done
-          echo '    </ul>
-              </div>
-          </body>
-          </html>' >> index.html
-          git add index.html
-          git commit -m "更新索引页面，将main分支显示为'最新版'"
-          git push origin ${{ github.ref_name }}
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add index.md
+          git commit -m "更新索引页面"
+          git push
+          cd ..
+          rm -rf temp_pages
