@@ -41,7 +41,8 @@ jobs:
           git for-each-ref --format='%(refname:short)' refs/heads | while read branch; do
             git checkout $branch
             if [ "$branch" = "main" ]; then
-              cp -r * _temp_site/ 2>/dev/null || true
+              mkdir -p _temp_site/main
+              cp -r * _temp_site/main/ 2>/dev/null || true
             else
               mkdir -p _temp_site/$branch
               cp -r * _temp_site/$branch/ 2>/dev/null || true
@@ -51,12 +52,22 @@ jobs:
           # 确保当前分支内容是最新的
           git checkout $current_branch
           if [ "$current_branch" = "main" ]; then
-            cp -r * _temp_site/ 2>/dev/null || true
+            rm -rf _temp_site/main
+            mkdir -p _temp_site/main
+            cp -r * _temp_site/main/ 2>/dev/null || true
           else
             rm -rf _temp_site/$current_branch
             mkdir -p _temp_site/$current_branch
             cp -r * _temp_site/$current_branch/ 2>/dev/null || true
           fi
+          
+          # 创建索引页面
+          echo "<html><body><h1>分支列表</h1><ul>" > _temp_site/index.html
+          for dir in _temp_site/*/; do
+            branch=$(basename "$dir")
+            echo "<li><a href='/$branch'>$branch</a></li>" >> _temp_site/index.html
+          done
+          echo "</ul></body></html>" >> _temp_site/index.html
           
           # 移动临时目录到最终位置
           rm -rf _site
