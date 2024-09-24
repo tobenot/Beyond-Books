@@ -1,4 +1,5 @@
 .vscode
+.deployignore
 LICENSE
 README.md
 start_game.ps1
