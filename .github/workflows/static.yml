@@ -38,17 +38,39 @@ jobs:
         run: |
           git clone https://tobenot:${{ secrets.PAGES_DEPLOY_TOKEN }}@github.com/tobenot/beyond-books-pages.git temp_pages
           cd temp_pages
-          echo "# Beyond Books 索引页面" > index.md
-          echo "" >> index.md
-          echo "## 可用分支:" >> index.md
+          echo '<!DOCTYPE html>' > index.html
+          echo '<html lang="zh-CN">' >> index.html
+          echo '<head>' >> index.html
+          echo '    <meta charset="UTF-8">' >> index.html
+          echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' >> index.html
+          echo '    <title>Beyond Books 版本选择</title>' >> index.html
+          echo '    <style>' >> index.html
+          echo '        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }' >> index.html
+          echo '        h1 { color: #2c3e50; text-align: center; }' >> index.html
+          echo '        .version-list { list-style-type: none; padding: 0; }' >> index.html
+          echo '        .version-list li { margin-bottom: 10px; }' >> index.html
+          echo '        .version-list a { display: block; padding: 10px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; transition: background-color 0.3s; }' >> index.html
+          echo '        .version-list a:hover { background-color: #2980b9; }' >> index.html
+          echo '    </style>' >> index.html
+          echo '</head>' >> index.html
+          echo '<body>' >> index.html
+          echo '    <h1>Beyond Books 版本选择</h1>' >> index.html
+          echo '    <ul class="version-list">' >> index.html
           for dir in */; do
             branch=${dir%/}
-            echo "- [$branch]($branch/)" >> index.md
+            if [ "$branch" == "main" ]; then
+              echo "        <li><a href=\"$branch/\">最新版</a></li>" >> index.html
+            else
+              echo "        <li><a href=\"$branch/\">$branch</a></li>" >> index.html
+            fi
           done
+          echo '    </ul>' >> index.html
+          echo '</body>' >> index.html
+          echo '</html>' >> index.html
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add index.md
-          git commit -m "更新索引页面"
+          git add index.html
+          git commit -m "Update index page"
           git push
           cd ..
           rm -rf temp_pages
