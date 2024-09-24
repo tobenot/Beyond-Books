@@ -52,6 +52,8 @@ async function initializeApp() {
         await loadComponent('Menu');
         await loadComponent('SectionsContainer');
         await loadComponent('StoryContainer');
+        await loadComponent('ReviewContainer');
+        await loadComponent('ReviewDetailContainer');
         await loadComponent('Settings');
         await loadComponent('Modal');
 
