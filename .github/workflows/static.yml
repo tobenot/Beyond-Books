@@ -1,86 +1,109 @@
-name: Deploy Static Content to GitHub Pages
+name: Deploy Content to GitHub Pages
 
 on:
   push:
     branches: ["main", "develop", "feature/*", "R*"]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      
-      - name: Prepare Deployment Content
+
+      - name: Configure Git
         run: |
-          # 保存当前分支名称
-          current_branch="${{ github.ref_name }}"
-          
-          # 创建临时目录
-          mkdir -p _temp_site
-          
-          # 复制所有分支内容
-          git for-each-ref --format='%(refname:short)' refs/heads | while read branch; do
-            git checkout $branch
-            if [ "$branch" = "main" ]; then
-              mkdir -p _temp_site/main
-              cp -r * _temp_site/main/ 2>/dev/null || true
-            else
-              mkdir -p _temp_site/$branch
-              cp -r * _temp_site/$branch/ 2>/dev/null || true
-            fi
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+
+      - name: Clone target repository
+        run: |
+          git clone https://x-access-token:${{ secrets.PAGES_DEPLOY_TOKEN }}@github.com/tobenot/beyond-books-pages.git
+          cd beyond-books-pages
+          git checkout -b ${{ github.ref_name }} || git checkout ${{ github.ref_name }}
+
+      - name: Copy content and commit
+        run: |
+          rm -rf beyond-books-pages/${{ github.ref_name }}
+          mkdir -p beyond-books-pages/${{ github.ref_name }}
+          cp -r * beyond-books-pages/${{ github.ref_name }}/ 2>/dev/null || true
+          cd beyond-books-pages
+          git add .
+          git commit -m "Update ${{ github.ref_name }} branch content"
+          git push origin ${{ github.ref_name }}
+
+      - name: Update index page
+        run: |
+          cd beyond-books-pages
+          echo '<!DOCTYPE html>
+          <html lang="zh-CN">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Beyond Books - 选择版本</title>
+              <style>
+                  body { 
+                      font-family: "Microsoft YaHei", "Hiragino Sans GB", sans-serif; 
+                      line-height: 1.8; 
+                      margin: 0; 
+                      padding: 40px; 
+                      background-color: #f5f5f5;
+                  }
+                  .container {
+                      max-width: 800px;
+                      margin: 0 auto;
+                      background-color: #ffffff;
+                      padding: 30px;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                  }
+                  h1 { 
+                      color: #2c3e50; 
+                      text-align: center;
+                      margin-bottom: 30px;
+                      border-bottom: 2px solid #ecf0f1;
+                      padding-bottom: 15px;
+                  }
+                  ul { 
+                      list-style-type: none; 
+                      padding: 0; 
+                  }
+                  li { 
+                      margin-bottom: 15px; 
+                      background-color: #f8f9fa;
+                      border-radius: 4px;
+                      transition: background-color 0.3s;
+                  }
+                  li:hover {
+                      background-color: #e9ecef;
+                  }
+                  a { 
+                      color: #3498db; 
+                      text-decoration: none; 
+                      display: block;
+                      padding: 10px 15px;
+                  }
+                  a:hover { 
+                      color: #2980b9; 
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Beyond Books - 选择版本</h1>
+                  <ul>' > index.html
+          for branch in $(git branch -r | grep -v '\->' | sed "s/origin\///"); do
+              if [ "$branch" = "main" ]; then
+                  echo "<li><a href='/main'>最新版</a></li>" >> index.html
+              else
+                  echo "<li><a href='/$branch'>$branch</a></li>" >> index.html
+              fi
           done
-          
-          # 确保当前分支内容是最新的
-          git checkout $current_branch
-          if [ "$current_branch" = "main" ]; then
-            rm -rf _temp_site/main
-            mkdir -p _temp_site/main
-            cp -r * _temp_site/main/ 2>/dev/null || true
-          else
-            rm -rf _temp_site/$current_branch
-            mkdir -p _temp_site/$current_branch
-            cp -r * _temp_site/$current_branch/ 2>/dev/null || true
-          fi
-          
-          # 创建索引页面
-          echo "<html><body><h1>分支列表</h1><ul>" > _temp_site/index.html
-          for dir in _temp_site/*/; do
-            branch=$(basename "$dir")
-            echo "<li><a href='/$branch'>$branch</a></li>" >> _temp_site/index.html
-          done
-          echo "</ul></body></html>" >> _temp_site/index.html
-          
-          # 移动临时目录到最终位置
-          rm -rf _site
-          mv _temp_site _site
-      
-      - name: List deployment content
-        run: ls -R _site
-      
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '_site'
-      
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          echo '    </ul>
+              </div>
+          </body>
+          </html>' >> index.html
+          git add index.html
+          git commit -m "更新索引页面，将main分支显示为'最新版'"
+          git push origin ${{ github.ref_name }}
