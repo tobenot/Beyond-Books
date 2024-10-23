@@ -1,5 +1,6 @@
 // 在文件顶部添加
 import { defineOptions } from 'vue'
+import { highlightSpecialTerms } from '@/utils/termsHandler.js'
 
 <template>
   <div class="story-container">
@@ -17,8 +18,17 @@ import { defineOptions } from 'vue'
     />
 
     <!-- 故事内容容器 -->
-    <div class="text-container" ref="storyContent">
-      <div v-html="formattedContent"></div>
+    <div class="text-container" ref="storyContentRef">
+      <!-- 使用 v-html 渲染初始内容 -->
+      <div v-html="storyContent"></div>
+      
+      <!-- 对话历史 -->
+      <div v-for="(message, index) in conversationHistory" 
+           :key="index" 
+           class="message"
+           :class="message.role">
+        <div v-html="formatContent(message)"></div>
+      </div>
     </div>
 
     <!-- 建议容器 -->
@@ -62,8 +72,10 @@ import { defineOptions } from 'vue'
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
+import { defineOptions } from 'vue'
+import { highlightSpecialTerms } from '@/utils/termsHandler.js'
 import LazyImage from '@/components/LazyImage.vue'
 import MusicPlayer from '@/components/MusicPlayer.vue'
 
@@ -74,7 +86,7 @@ defineOptions({
 
 const store = useStore()
 const userInput = ref('')
-const storyContent = ref(null)
+const storyContentRef = ref(null)
 
 // 计算属性
 const section = computed(() => store.state.sections.currentSection)
@@ -82,12 +94,18 @@ const suggestions = computed(() => store.state.game.suggestions)
 const isSubmitting = computed(() => store.state.game.isSubmitting)
 const isCooldown = computed(() => store.state.game.isCooldown)
 const isLoading = computed(() => store.state.game.isLoading)
-const formattedContent = computed(() => store.state.game.storyContent)
 const interactionStage = computed(() => ({
   stage: store.state.game.interactionStage?.stage || '',
   info: store.state.game.interactionStage?.info || '',
   visible: store.state.game.interactionStage?.visible || false
 }))
+const conversationHistory = computed(() => store.state.game.conversationHistory)
+
+// storyContent 计算属性
+const storyContent = computed(() => {
+  const content = store.state.game.storyContent
+  return content ? highlightSpecialTerms(content) : ''
+})
 
 // 方法
 const handleUserInput = async () => {
@@ -97,12 +115,12 @@ const handleUserInput = async () => {
 
   try {
     await store.dispatch('game/handleUserInput', userInput.value)
-    userInput.value = '' // 清空输入
+    userInput.value = ''
     
-    // 滚动到底部
-    if (storyContent.value) {
+    // 修改这里
+    if (storyContentRef.value) {
       setTimeout(() => {
-        storyContent.value.scrollTop = storyContent.value.scrollHeight
+        storyContentRef.value.scrollTop = storyContentRef.value.scrollHeight
       }, 100)
     }
   } catch (error) {
@@ -110,10 +128,39 @@ const handleUserInput = async () => {
   }
 }
 
+// 修改 formatContent 方法为统一的格式化处理
+const formatContent = (message) => {
+  if (!message || !message.content) return ''
+  
+  let formattedText = message.content
+  
+  // 处理换行
+  formattedText = formattedText.replace(/\n/g, '<br>')
+  
+  // 根据消息类型添加特殊格式
+  if (message.role === 'user') {
+    formattedText = `<br><i>${formattedText}</i><br><br>`
+  } else if (message.role === 'info') {
+    formattedText = `<div class="info-message">${formattedText}</div>`
+  }
+  
+  // 所有内容都经过高亮处理
+  return highlightSpecialTerms(formattedText)
+}
+
+// 监听对话历史变化，自动滚动到底部
+watch(conversationHistory, () => {
+  if (storyContentRef.value) {
+    setTimeout(() => {
+      storyContentRef.value.scrollTop = storyContentRef.value.scrollHeight
+    }, 100)
+  }
+}, { deep: true })
+
 // 生命周期钩子
 onMounted(() => {
-  if (storyContent.value) {
-    storyContent.value.scrollTop = 0
+  if (storyContentRef.value) {
+    storyContentRef.value.scrollTop = 0
   }
 })
 </script>
@@ -175,5 +222,26 @@ onMounted(() => {
   background: rgba(0,0,0,0.1);
   border-radius: 4px;
   margin-bottom: 10px;
+}
+
+/* 添加消息样式 */
+.message {
+  margin-bottom: 1em;
+}
+
+.message.user {
+  color: #666;
+  font-style: italic;
+}
+
+.message.info {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.message.assistant {
+  color: #333;
 }
 </style>

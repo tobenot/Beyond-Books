@@ -228,11 +228,27 @@ const actions = {
   async initializeGame({ commit, dispatch }, section) {
     commit('SET_LOADING', true)
     try {
-      // 传入 section 参数
       await dispatch('initializeGameManager', section)
+      
+      const initialContent = createInitialContent(section)
+      commit('SET_STORY_CONTENT', initialContent)
+      
       await dispatch('showGameTutorial')
+      
       commit('SET_STORY_TITLE', section.title)
-      commit('SET_STORY_CONTENT', section.backgroundInfo)
+      
+      // 使用 dispatch 调用 createPlayerInfo action
+      const playerInfo = await dispatch('createPlayerInfo', section)
+      commit('ADD_TO_CONVERSATION_HISTORY', {
+        role: 'info',
+        content: playerInfo
+      })
+      
+      commit('ADD_TO_CONVERSATION_HISTORY', {
+        role: 'assistant',
+        content: section.startEvent
+      })
+      
     } finally {
       commit('SET_LOADING', false)
     }
@@ -363,6 +379,33 @@ const actions = {
   },
   hideInteractionStage({ commit }) {
     commit('HIDE_INTERACTION_STAGE')
+  },
+  createPlayerInfo({ state }, section) {
+    if (!section || !section.characters) {
+      console.error('Section或characters未定义:', section)
+      return ''
+    }
+
+    const playerCharacter = section.characters.find(char => !char.isAI)
+    if (!playerCharacter) {
+      console.warn('未找到玩家角色')
+      return ''
+    }
+
+    let info = `<b>你的角色：</b>
+    <b>${playerCharacter.name}</b>
+    ${playerCharacter.description}`
+    
+    if (playerCharacter.characterTags && state.gameManager) {
+      playerCharacter.characterTags.forEach(tagKey => {
+        const tagValue = state.gameManager.getCharacterTag(tagKey)
+        if (tagValue) {
+          info += `<br>- ${tagKey}: ${tagValue}`
+        }
+      })
+    }
+    
+    return info
   }
 }
 
@@ -392,4 +435,16 @@ export default {
   mutations,
   actions,
   getters
+}
+
+// 在 actions 外部添加辅助函数
+function createInitialContent(section) {
+  let content = `
+    <h2>${section.title}</h2>
+    ${section.image ? `<div class="image-container"><img src="${section.image}" alt="桥段图片"></div>` : ''}
+    ${section.musicUrl ? `<div class="music-player" id="musicPlayer"></div>` : ''}
+    <p><b>目标：${section.objective}</b></p>
+    <p>${section.backgroundInfo}</p>
+  `
+  return content
 }

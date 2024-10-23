@@ -41,23 +41,33 @@ const actions = {
       throw error
     }
   },
-  async loadSection({ commit }, fileName) {
-    const sectionData = await loadSectionData(fileName)
-    
-    if (!sectionData) {
-      throw new Error(`章节数据加载失败: ${fileName} 返回空数据`)
-    }
+  async loadSection({ commit, dispatch }, fileName) {
+    try {
+      const sectionData = await loadSectionData(fileName)
+      
+      if (!sectionData) {
+        throw new Error(`章节数据加载失败: ${fileName} 返回空数据`)
+      }
 
-    if (!sectionData.startEvent) {
-      throw new Error(`章节数据格式错误: ${fileName} 缺少 startEvent 属性`)
+      if (!sectionData.startEvent) {
+        throw new Error(`章节数据格式错误: ${fileName} 缺少 startEvent 属性`)
+      }
+      
+      // 预加载图片
+      if (sectionData.image) {
+        await imageLoader.preloadImage(sectionData.image)
+      }
+      
+      commit('SET_CURRENT_SECTION', sectionData)
+      
+      // 初始化游戏状态
+      await dispatch('game/initializeGame', sectionData, { root: true })
+      
+      return sectionData
+    } catch (error) {
+      console.error('加载章节失败:', error)
+      throw error
     }
-    
-    if (sectionData.image) {
-      await imageLoader.preloadImage(sectionData.image)
-    }
-    
-    commit('SET_CURRENT_SECTION', sectionData)
-    return sectionData
   },
   unlockSection({ commit, state }, sectionId) {
     const newUnlockedSections = [...state.unlockedSections, sectionId]
