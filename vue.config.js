@@ -1,7 +1,7 @@
 module.exports = {
   // Vue CLI 配置
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/beyond-books-pages/'
+    ? '/' + process.env.BRANCH_NAME + '/'
     : '/',
   outputDir: 'dist',
   assetsDir: 'assets',
