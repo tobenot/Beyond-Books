@@ -58,40 +58,50 @@ jobs:
         run: |
           git clone https://tobenot:${{ secrets.PAGES_DEPLOY_TOKEN }}@github.com/tobenot/beyond-books-pages.git temp_pages
           cd temp_pages
-          echo '<!DOCTYPE html>' > index.html
-          echo '<html lang="zh-CN">' >> index.html
-          echo '<head>' >> index.html
-          echo '    <meta charset="UTF-8">' >> index.html
-          echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' >> index.html
-          echo '    <title>Beyond Books 版本选择</title>' >> index.html
-          echo '    <style>' >> index.html
-          echo '        body { font-family: "Microsoft YaHei", Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }' >> index.html
-          echo '        h1 { color: #2c3e50; text-align: center; font-size: 2.5em; margin-bottom: 30px; }' >> index.html
-          echo '        .version-list { list-style-type: none; padding: 0; }' >> index.html
-          echo '        .version-list li { margin-bottom: 15px; }' >> index.html
-          echo '        .version-list a { display: block; padding: 15px; background-color: #3498db; color: white; text-decoration: none; border-radius: 8px; transition: all 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }' >> index.html
-          echo '        .version-list a:hover { background-color: #2980b9; transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }' >> index.html
-          echo '        .latest-version { background-color: #2ecc71 !important; }' >> index.html
-          echo '        .latest-version:hover { background-color: #27ae60 !important; }' >> index.html
-          echo '    </style>' >> index.html
-          echo '</head>' >> index.html
-          echo '<body>' >> index.html
-          echo '    <h1>Beyond Books 版本选择</h1>' >> index.html
-          echo '    <ul class="version-list">' >> index.html
-          echo '        <li><a href="main/" class="latest-version">最新版 (main)</a></li>' >> index.html
+          
+          # 生成新的 index.html
+          echo '<!DOCTYPE html>' > new_index.html
+          echo '<html lang="zh-CN">' >> new_index.html
+          echo '<head>' >> new_index.html
+          echo '    <meta charset="UTF-8">' >> new_index.html
+          echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' >> new_index.html
+          echo '    <title>Beyond Books 版本选择</title>' >> new_index.html
+          echo '    <style>' >> new_index.html
+          echo '        body { font-family: "Microsoft YaHei", Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }' >> new_index.html
+          echo '        h1 { color: #2c3e50; text-align: center; font-size: 2.5em; margin-bottom: 30px; }' >> new_index.html
+          echo '        .version-list { list-style-type: none; padding: 0; }' >> new_index.html
+          echo '        .version-list li { margin-bottom: 15px; }' >> new_index.html
+          echo '        .version-list a { display: block; padding: 15px; background-color: #3498db; color: white; text-decoration: none; border-radius: 8px; transition: all 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }' >> new_index.html
+          echo '        .version-list a:hover { background-color: #2980b9; transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }' >> new_index.html
+          echo '        .latest-version { background-color: #2ecc71 !important; }' >> new_index.html
+          echo '        .latest-version:hover { background-color: #27ae60 !important; }' >> new_index.html
+          echo '    </style>' >> new_index.html
+          echo '</head>' >> new_index.html
+          echo '<body>' >> new_index.html
+          echo '    <h1>Beyond Books 版本选择</h1>' >> new_index.html
+          echo '    <ul class="version-list">' >> new_index.html
+          echo '        <li><a href="main/" class="latest-version">最新版 (main)</a></li>' >> new_index.html
           for dir in */; do
             branch=${dir%/}
             if [ "$branch" != "main" ]; then
-              echo "        <li><a href=\"$branch/\">$branch</a></li>" >> index.html
+              echo "        <li><a href=\"$branch/\">$branch</a></li>" >> new_index.html
             fi
           done
-          echo '    </ul>' >> index.html
-          echo '</body>' >> index.html
-          echo '</html>' >> index.html
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add index.html
-          git commit -m "Update index page"
-          git push
+          echo '    </ul>' >> new_index.html
+          echo '</body>' >> new_index.html
+          echo '</html>' >> new_index.html
+          
+          # 比较文件是否有变化
+          if ! cmp -s new_index.html index.html; then
+            mv new_index.html index.html
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add index.html
+            git commit -m "Update index page"
+            git push
+          else
+            echo "No changes needed for index.html"
+          fi
+          
           cd ..
           rm -rf temp_pages
