@@ -1,20 +1,61 @@
-// 重构时需要参考的文件:
-// - scripts/sections.js
+import { loadSectionData, loadSectionsIndex } from '@/utils/sectionLoader'
 
 const state = {
-  // 章节状态
+  chapters: [],
+  unlockedSections: [],
+  completedSections: [],
+  currentSection: null
 }
 
 const mutations = {
-  // 修改章节状态的方法
+  SET_CHAPTERS(state, chapters) {
+    state.chapters = chapters
+  },
+  SET_UNLOCKED_SECTIONS(state, sections) {
+    state.unlockedSections = sections
+  },
+  SET_COMPLETED_SECTIONS(state, sections) {
+    state.completedSections = sections
+  },
+  SET_CURRENT_SECTION(state, section) {
+    state.currentSection = section
+  }
 }
 
 const actions = {
-  // 异步操作和复杂逻辑
+  async loadSectionsIndex({ commit }) {
+    const sectionsIndex = await loadSectionsIndex()
+    commit('SET_CHAPTERS', sectionsIndex.chapters)
+  },
+  async loadSection({ commit }, fileName) {
+    const sectionData = await loadSectionData(fileName)
+    commit('SET_CURRENT_SECTION', sectionData)
+  },
+  unlockSection({ commit, state }, sectionId) {
+    const newUnlockedSections = [...state.unlockedSections, sectionId]
+    commit('SET_UNLOCKED_SECTIONS', newUnlockedSections)
+  },
+  completeSection({ commit, state }, sectionId) {
+    const newCompletedSections = [...state.completedSections, sectionId]
+    commit('SET_COMPLETED_SECTIONS', newCompletedSections)
+  },
+  async skipSection({ dispatch }, fileName) {
+    const sectionData = await loadSectionData(fileName)
+    // 这里可能需要一些逻辑来处理跳过章节的影响
+    // 例如,更新游戏状态,解锁下一个章节等
+    dispatch('completeSection', sectionData.id)
+    dispatch('unlockSection', sectionData.id + 1) // 假设下一个章节的id是当前id+1
+  }
 }
 
 const getters = {
-  // 获取章节状态的计算属性
+  isSectionUnlocked: (state) => (sectionId) => {
+    return state.unlockedSections.includes(sectionId)
+  },
+  isSectionCompleted: (state) => (sectionId) => {
+    return state.completedSections.includes(sectionId)
+  },
+  getCurrentSection: (state) => state.currentSection
 }
 
 export default {

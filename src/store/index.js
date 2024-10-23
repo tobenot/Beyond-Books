@@ -8,6 +8,7 @@ import Vuex from 'vuex'
 import game from './modules/game'
 import settings from './modules/settings'
 import sections from './modules/sections'
+import review from './modules/review'
 
 Vue.use(Vuex)
 
@@ -15,6 +16,7 @@ export default new Vuex.Store({
   modules: {
     game,
     settings,
-    sections
+    sections,
+    review
   }
 })

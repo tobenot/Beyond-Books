@@ -1,6 +1,12 @@
 <template>
-  <div class="loading-indicator">
-    <!-- 加载指示器内容 -->
+  <div class="loading-indicator" v-if="show">
+    <div class="loader">
+      <div class="loaderSpin"></div>
+      <div id="progressText">{{ progressText }}</div>
+      <div id="loadingBar">
+        <div id="progress" :style="{ width: progress + '%' }"></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -10,7 +16,12 @@
 // - scripts/ui.js (用于加载指示器逻辑)
 
 export default {
-  name: 'LoadingIndicator'
+  name: 'LoadingIndicator',
+  props: {
+    show: Boolean,
+    progressText: String,
+    progress: Number
+  }
 }
 </script>
 
