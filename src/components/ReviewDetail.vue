@@ -2,7 +2,7 @@
   <div class="review-detail">
     <h2>{{ record.review_title }}</h2>
     <div class="button-group">
-      <button @click="$emit('close')">{{ $t('return') }}</button>
+      <button @click="emit('close')">{{ $t('return') }}</button>
       <button @click="exportAsHTML">{{ $t('exportAsHTML') }}</button>
       <button @click="exportAsImage">{{ $t('exportAsImage') }}</button>
       <button @click="exportAsMultipleImages">{{ $t('exportAsMultipleImages') }}</button>
@@ -12,31 +12,29 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ReviewDetail',
-  props: {
-    record: {
-      type: Object,
-      required: true
-    }
-  },
-  data() {
-    return {
-      showFullRecord: false
-    }
-  },
-  methods: {
-    exportAsHTML() {
-      this.$emit('export-html', this.record)
-    },
-    exportAsImage() {
-      this.$emit('export-image', this.record)
-    },
-    exportAsMultipleImages() {
-      this.$emit('export-multiple-images', this.record)
-    }
+<script setup>
+import { ref } from 'vue'
+
+const props = defineProps({
+  record: {
+    type: Object,
+    required: true
   }
+})
+
+const emit = defineEmits(['close', 'export-html', 'export-image', 'export-multiple-images'])
+const showFullRecord = ref(false)
+
+const exportAsHTML = () => {
+  emit('export-html', props.record)
+}
+
+const exportAsImage = () => {
+  emit('export-image', props.record)
+}
+
+const exportAsMultipleImages = () => {
+  emit('export-multiple-images', props.record)
 }
 </script>
 

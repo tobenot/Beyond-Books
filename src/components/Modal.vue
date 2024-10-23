@@ -14,55 +14,59 @@
   </transition>
 </template>
 
-<script>
-export default {
-  name: 'BaseModal',
-  props: {
-    show: {
-      type: Boolean,
-      required: true
-    },
-    title: {
-      type: String,
-      default: ''
-    },
-    content: {
-      type: String,
-      default: ''
-    },
-    closeButtonText: {
-      type: String,
-      default: '关闭'
-    },
-    closeOnBackdrop: {
-      type: Boolean,
-      default: true
-    },
-    large: {
-      type: Boolean,
-      default: false
-    }
+<script setup>
+import { watch, onBeforeUnmount } from 'vue'
+import { defineProps, defineEmits } from 'vue'
+
+// 重命名组件以符合多词命名规则
+defineOptions({
+  name: 'ModalDialog'
+})
+
+const props = defineProps({
+  show: {
+    type: Boolean,
+    required: true
   },
-  methods: {
-    close() {
-      this.$emit('close')
-    }
+  title: {
+    type: String,
+    default: ''
   },
-  watch: {
-    show(newVal) {
-      if (newVal) {
-        document.body.style.overflow = 'hidden'
-      } else {
-        document.body.style.overflow = ''
-      }
-    }
+  content: {
+    type: String,
+    default: ''
   },
-  beforeUnmount() {
-    if (this.escapeEnabled) {
-      document.removeEventListener('keydown', this.handleEscape)
-    }
+  closeButtonText: {
+    type: String,
+    default: '关闭'
+  },
+  closeOnBackdrop: {
+    type: Boolean,
+    default: true
+  },
+  large: {
+    type: Boolean,
+    default: false
   }
+})
+
+const emit = defineEmits(['close'])
+
+const close = () => {
+  emit('close')
 }
+
+watch(() => props.show, (newVal) => {
+  if (newVal) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
+
+onBeforeUnmount(() => {
+  document.body.style.overflow = ''
+})
 </script>
 
 <style scoped>

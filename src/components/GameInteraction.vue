@@ -15,16 +15,17 @@
   </div>
 </template>
 
-<script>
-import { mapState, mapActions } from 'vuex'
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  name: 'GameInteraction',
-  computed: {
-    ...mapState('game', ['isSubmitting', 'isCooldown', 'userInput'])
-  },
-  methods: {
-    ...mapActions('interaction', ['handleUserInput'])
-  }
+const store = useStore()
+
+const isSubmitting = computed(() => store.state.game.isSubmitting)
+const isCooldown = computed(() => store.state.game.isCooldown)
+const userInput = computed(() => store.state.game.userInput)
+
+const handleUserInput = () => {
+  store.dispatch('interaction/handleUserInput')
 }
 </script>

@@ -2,6 +2,7 @@
 // - scripts/interaction/Moderator.js
 
 // 主持人类
+import { inject } from 'vue'
 import { getModel, ModelType } from '@/store/modules/settings'
 import { handleApiResponse } from '@/utils/apiHandler'
 import StreamHandler from '@/utils/streamHandler'
@@ -16,6 +17,7 @@ export default class Moderator {
     this.endConditions = endConditions;
     this.streamHandler = new StreamHandler();
     this.endSectionFlag = false;
+    this.store = inject('store') // 注入 store
   }
 
   async validateAction(action) {
@@ -241,14 +243,12 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
   // 辅助方法
   getOptimizedHistory() {
-    // 从Vuex store获取优化后的对话历史
-    return this.$store?.state.interaction.optimizedConversationHistory
-      .map(entry => `${entry.role}: ${entry.content}`).join('\n') || '';
+    return this.store.state.interaction.optimizedConversationHistory
+      .map(entry => `${entry.role}: ${entry.content}`).join('\n') || ''
   }
 
   getSelectedCharacter() {
-    // 从Vuex store获取当前选中的角色
-    return this.$store?.state.game.selectedCharacter || '';
+    return this.store.state.game.selectedCharacter || ''
   }
 
   // API调用方法

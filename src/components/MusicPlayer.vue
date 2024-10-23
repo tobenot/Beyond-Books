@@ -23,24 +23,19 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'MusicPlayer',
-  props: {
-    musicUrl: {
-      type: String,
-      required: true
-    }
-  },
-  computed: {
-    isBilibili() {
-      return this.musicUrl.includes('bilibili.com')
-    },
-    isNetease() {
-      return this.musicUrl.includes('music.163.com')
-    }
+<script setup>
+import { computed } from 'vue'
+import { defineProps } from 'vue'  // 添加这行
+
+const props = defineProps({
+  musicUrl: {
+    type: String,
+    required: true
   }
-}
+})
+
+const isBilibili = computed(() => props.musicUrl.includes('bilibili.com'))
+const isNetease = computed(() => props.musicUrl.includes('music.163.com'))
 </script>
 
 <style scoped>

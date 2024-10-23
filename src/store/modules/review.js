@@ -1,6 +1,6 @@
-const state = {
+const state = () => ({
   reviewRecords: []
-}
+})
 
 const mutations = {
   SET_REVIEW_RECORDS(state, records) {

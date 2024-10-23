@@ -2,6 +2,7 @@
 // - scripts/interaction/GameManager.js
 
 // 游戏管理器
+import { inject } from 'vue'
 import Moderator from './moderator'
 import AIPlayer from './aiPlayer'
 import StreamHandler from './streamHandler'
@@ -16,6 +17,7 @@ export default class GameManager {
     this.playerInfo = null
     this.turnCount = 0
     this.plotTriggers = []
+    this.store = inject('store') // 注入 store
   }
 
   async loadCharacterTagBase() {

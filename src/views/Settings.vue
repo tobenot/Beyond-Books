@@ -39,65 +39,69 @@
   </div>
 </template>
 
-<script>
-import { mapState, mapActions } from 'vuex'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  name: 'SettingsView',
-  data() {
-    return {
-      localSettings: {
-        apiKey: '',
-        apiUrl: '',
-        advancedModel: '',
-        basicModel: '',
-        isPublicKey: false
-      }
-    }
-  },
-  computed: {
-    ...mapState('settings', ['apiKey', 'apiUrl', 'advancedModel', 'basicModel', 'isPublicKey'])
-  },
-  methods: {
-    ...mapActions('settings', ['loadSettings', 'saveSettings', 'getPublicKey', 'resetSettings']),
-    async saveSettings() {
-      await this.saveSettings(this.localSettings)
-      this.$toast.success(this.$t('settings.savedMessage'))
-    },
-    async getPublicKey() {
-      const success = await this.getPublicKey()
-      if (success) {
-        this.$toast.success(this.$t('settings.publicKeyFetched'))
-        this.loadLocalSettings()
-      } else {
-        this.$toast.error(this.$t('settings.publicKeyFetchFailed'))
-      }
-    },
-    async resetSettings() {
-      await this.resetSettings()
-      this.loadLocalSettings()
-      this.$toast.info(this.$t('settings.resetMessage'))
-    },
-    showHelp() {
-      this.$modal.show('settings-help', {
-        title: this.$t('settings.helpTitle'),
-        content: this.$t('settings.helpContent')
-      })
-    },
-    loadLocalSettings() {
-      this.localSettings = {
-        apiKey: this.apiKey,
-        apiUrl: this.apiUrl,
-        advancedModel: this.advancedModel,
-        basicModel: this.basicModel,
-        isPublicKey: this.isPublicKey
-      }
-    }
-  },
-  created() {
-    this.loadSettings()
-    this.loadLocalSettings()
+// 添加组件名称定义
+defineOptions({
+  name: 'SettingsView'
+})
+
+const store = useStore()
+
+const localSettings = ref({
+  apiKey: '',
+  apiUrl: '',
+  advancedModel: '',
+  basicModel: '',
+  isPublicKey: false
+})
+
+// 计算属性
+const storeSettings = computed(() => ({
+  apiKey: store.state.settings.apiKey,
+  apiUrl: store.state.settings.apiUrl,
+  advancedModel: store.state.settings.advancedModel,
+  basicModel: store.state.settings.basicModel,
+  isPublicKey: store.state.settings.isPublicKey
+}))
+
+// 方法
+const loadLocalSettings = () => {
+  localSettings.value = { ...storeSettings.value }
+}
+
+const saveSettings = async () => {
+  await store.dispatch('settings/saveSettings', localSettings.value)
+  this.$toast.success(this.$t('settings.savedMessage'))
+}
+
+const getPublicKey = async () => {
+  const success = await store.dispatch('settings/getPublicKey')
+  if (success) {
+    this.$toast.success(this.$t('settings.publicKeyFetched'))
+    loadLocalSettings()
+  } else {
+    this.$toast.error(this.$t('settings.publicKeyFetchFailed'))
   }
 }
-</script>
 
+const resetSettings = async () => {
+  await store.dispatch('settings/resetSettings')
+  loadLocalSettings()
+  this.$toast.info(this.$t('settings.resetMessage'))
+}
+
+const showHelp = () => {
+  this.$modal.show('settings-help', {
+    title: this.$t('settings.helpTitle'),
+    content: this.$t('settings.helpContent')
+  })
+}
+
+onMounted(() => {
+  store.dispatch('settings/loadSettings')
+  loadLocalSettings()
+})
+</script>

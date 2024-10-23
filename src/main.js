@@ -3,7 +3,7 @@
 // - scripts/settings.js (用于加载设置)
 // - scripts/loadLanguage.js (用于加载语言文件)
 
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -12,19 +12,17 @@ import ModalPlugin from './plugins/modal'
 import { loadSettings } from '@/utils/settings'
 import './assets/styles/review.scss'
 
-Vue.use(ModalPlugin)
-
-Vue.config.productionTip = false
-
 async function initializeApp() {
   await loadSettings()
   
-  new Vue({
-    router,
-    store,
-    i18n,
-    render: h => h(App)
-  }).$mount('#app')
+  const app = createApp(App)
+  
+  app.use(router)
+  app.use(store)
+  app.use(i18n)
+  app.use(ModalPlugin)
+  
+  app.mount('#app')
 }
 
 initializeApp()

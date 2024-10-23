@@ -17,23 +17,21 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import LazyImage from '@/components/LazyImage.vue'
 import MusicPlayer from '@/components/MusicPlayer.vue'
 
-export default defineComponent({
-  name: 'StoryView',
-  components: {
-    LazyImage,
-    MusicPlayer
-  },
-  computed: {
-    section() {
-      return this.$store.state.sections.currentSection
-    }
-  }
+// 添加组件名称定义
+defineOptions({
+  name: 'StoryView'
 })
+
+const store = useStore()
+
+// 计算属性
+const section = computed(() => store.state.sections.currentSection)
 </script>
 
 <style scoped>

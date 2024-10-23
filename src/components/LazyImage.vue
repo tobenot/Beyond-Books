@@ -14,43 +14,37 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue'
+import { defineProps } from 'vue'  // 添加这行
 import { imageLoader } from '@/utils/imageLoader'
 
-export default {
-  name: 'LazyImage',
-  props: {
-    src: {
-      type: String,
-      required: true
-    },
-    alt: {
-      type: String,
-      default: ''
-    }
+const props = defineProps({
+  src: {
+    type: String,
+    required: true
   },
-  setup(props) {
-    const isLoaded = ref(imageLoader.isImageLoaded(props.src))
+  alt: {
+    type: String,
+    default: ''
+  }
+})
 
-    onMounted(async () => {
-      if (!isLoaded.value) {
-        try {
-          await imageLoader.preloadImage(props.src)
-          isLoaded.value = true
-        } catch (error) {
-          console.error('Failed to load image:', error)
-        }
-      }
-    })
+const isLoaded = ref(imageLoader.isImageLoaded(props.src))
 
-    return {
-      isLoaded,
-      onLoad: () => isLoaded.value = true,
-      onError: () => console.error('Image load error:', props.src)
+onMounted(async () => {
+  if (!isLoaded.value) {
+    try {
+      await imageLoader.preloadImage(props.src)
+      isLoaded.value = true
+    } catch (error) {
+      console.error('Failed to load image:', error)
     }
   }
-}
+})
+
+const onLoad = () => isLoaded.value = true
+const onError = () => console.error('Image load error:', props.src)
 </script>
 
 <style scoped>

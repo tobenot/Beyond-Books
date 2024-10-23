@@ -8,7 +8,7 @@ import StreamHandler from '@/utils/streamHandler'
 import { ModelType } from '@/constants/models'
 import { getModel } from '@/utils/settings'
 
-const state = {
+const state = () => ({
   currentSectionId: null,
   completedSections: [],
   unlockedSections: [],
@@ -35,7 +35,7 @@ const state = {
   optimizedConversationHistory: [],
   turnCount: 0,
   plotTriggers: []
-}
+})
 
 const mutations = {
   SET_CURRENT_SECTION(state, section) {
@@ -278,7 +278,7 @@ const actions = {
         <p>你可以把本游戏理解为<strong>跑团（DND或COC）</strong>、<strong>语C</strong>、<strong>剧本杀</strong>或<strong>过家家</strong>🧑‍🤝‍🧑。本游戏制作时面向的玩家是<strong>喜欢剧情向游戏</strong>，愿意<strong>认真扮演角色</strong>🎭  的语C、跑团玩家👥。</p>
         <ol>
           <li>📝 <strong>目标</strong>：在每一个桥段里，你需要完成<strong>桥段目标</strong>🎯，目标可能是<strong>沟通</strong>💬、<strong>战斗</strong>⚔️、<strong>解密</strong>🧩等。</li>
-          <li>🎮 <strong>操作</strong>：根据你的人设和起始事件，在对话框中打字输入以<strong>你的角色的角度</strong>进行的行动、说的话🗣️。比如输入"我挥起武器说，与我何干！"，不需要特别注意格式。</li>
+          <li>🎮 <strong>操作</strong>：根据你的人设和起始事件，在对话框中打字输入以<strong>你的角色的角度</strong>进行的行动、说的话🗣️。比如输入"我挥起武器说，与我何干！"，不需要特别注意格式���</li>
           <li>💡 <strong>技巧</strong>：很多角色有<strong>超能力</strong>🔮，比如银月篇主角罗伯特，可以<strong>减缓时间流速</strong>🕰️，你可以接住敌方扔来的飞刀扔回去🗡️，也能准确地瞄准你要攻击的物件🎯，只要你能想到。</li>
         </ol>
 

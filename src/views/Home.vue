@@ -79,86 +79,83 @@
   </div>
 </template>
 
-<script>
-import { mapGetters, mapActions } from 'vuex'
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
-export default {
-  // 将组件名改为多词组合
-  name: 'HomeView', // 或者 'HomePage'
-  
-  computed: {
-    ...mapGetters('save', ['hasSave'])
-  },
-  
-  methods: {
-    ...mapActions('save', [
-      'clearSave',
-      'exportSave',
-      'importSave'
-    ]),
-    
-    startNewGame() {
-      this.clearSave()
-      this.$router.push('/sections')
-    },
-    
-    continueGame() {
-      this.$router.push('/sections')
-    },
-    
-    showReviewRecords() {
-      this.$router.push('/review')
-    },
-    
-    openSettings() {
-      this.$router.push('/settings')
-    },
-    
-    triggerFileInput() {
-      if (this.hasSave) {
-        if (!confirm(this.$t('confirmImport'))) {
-          return
-        }
-      }
-      this.$refs.fileInput.click()
-    },
-    
-    async handleFileSelect(event) {
-      const file = event.target.files[0]
-      if (!file) return
-      
-      try {
-        await this.importSave(file)
-        this.$modal.show('success', {
-          title: this.$t('success'),
-          content: this.$t('importSuccess')
-        })
-        location.reload()
-      } catch (error) {
-        this.$modal.show('error', {
-          title: this.$t('error'),
-          content: error.message
-        })
-      } finally {
-        event.target.value = '' // 清空文件输入
-      }
-    },
-    
-    async confirmDeleteSave() {
-      if (confirm(this.$t('confirmDelete'))) {
-        await this.clearSave()
-        location.reload()
-      }
-    },
-    
-    showCreatorsMessage() {
-      this.$modal.show('creators-message')
-    },
-    
-    showUpdateLog() {
-      this.$modal.show('update-log')
+// 添加组件名称定义
+defineOptions({
+  name: 'HomeView'
+})
+
+const store = useStore()
+const router = useRouter()
+
+// 计算属性
+const hasSave = computed(() => store.getters['save/hasSave'])
+
+// 方法
+const startNewGame = () => {
+  store.dispatch('save/clearSave')
+  router.push('/sections')
+}
+
+const continueGame = () => {
+  router.push('/sections')
+}
+
+const showReviewRecords = () => {
+  router.push('/review')
+}
+
+const openSettings = () => {
+  router.push('/settings')
+}
+
+const triggerFileInput = () => {
+  if (hasSave.value) {
+    if (!confirm(this.$t('confirmImport'))) {
+      return
     }
   }
+  fileInput.value.click()
+}
+
+const handleFileSelect = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  try {
+    await store.dispatch('save/importSave', file)
+    this.$modal.show('success', {
+      title: this.$t('success'),
+      content: this.$t('importSuccess')
+    })
+    location.reload()
+  } catch (error) {
+    this.$modal.show('error', {
+      title: this.$t('error'),
+      content: error.message
+    })
+  } finally {
+    event.target.value = ''
+  }
+}
+
+const confirmDeleteSave = async () => {
+  if (confirm(this.$t('confirmDelete'))) {
+    await store.dispatch('save/clearSave')
+    location.reload()
+  }
+}
+
+const showCreatorsMessage = () => {
+  this.$modal.show('creators-message')
+}
+
+const showUpdateLog = () => {
+  this.$modal.show('update-log')
 }
 </script>
 

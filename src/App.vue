@@ -21,58 +21,71 @@
   </div>
 </template>
 
-<script>
-import { ref } from 'vue'
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useStore } from 'vuex'
 import BaseModal from '@/components/Modal.vue'
 import TermTooltip from '@/components/TermTooltip.vue'
-// 修改这一行，添加 termsConfig 的导入
 import { loadTermsConfig, loadColorsConfig, termsConfig } from '@/utils/termsHandler'
 
-export default {
-  name: 'App',
-  components: {
-    BaseModal,
-    TermTooltip
-  },
-  setup() {
-    const tooltipShow = ref(false)
-    const tooltipDescription = ref('')
-    const tooltipImageUrl = ref('')
-    const tooltipTerm = ref('')
-    const tooltipEvent = ref(null)
+defineOptions({
+  name: 'AppRoot'
+})
 
-    // 初始化加载配置
-    loadTermsConfig()
-    loadColorsConfig()
+// 响应式状态
+const tooltipShow = ref(false)
+const tooltipDescription = ref('')
+const tooltipImageUrl = ref('')
+const tooltipTerm = ref('')
+const tooltipEvent = ref(null)
+const store = useStore()
+const modals = ref({})
 
-    // 处理点击事件
-    function handleClick(event) {
-      if (event.target.classList.contains('special-term')) {
-        const term = event.target.getAttribute('data-term')
-        const termConfig = termsConfig.value.terms[term]
-        
-        tooltipDescription.value = termConfig.description
-        tooltipImageUrl.value = termConfig.imageUrl
-        tooltipTerm.value = term
-        tooltipEvent.value = event
-        tooltipShow.value = true
-      } else if (!event.target.closest('#term-tooltip')) {
-        tooltipShow.value = false
-      }
-    }
+// 初始化加载配置
+onMounted(() => {
+  loadTermsConfig()
+  loadColorsConfig()
+})
 
-    // 添加全局点击事件监听
-    document.addEventListener('click', handleClick)
-
-    return {
-      tooltipShow,
-      tooltipDescription,
-      tooltipImageUrl,
-      tooltipTerm,
-      tooltipEvent
-    }
+// 处理点击事件
+const handleClick = (event) => {
+  if (event.target.classList.contains('special-term')) {
+    const term = event.target.getAttribute('data-term')
+    const termConfig = termsConfig.value.terms[term]
+    
+    tooltipDescription.value = termConfig.description
+    tooltipImageUrl.value = termConfig.imageUrl
+    tooltipTerm.value = term
+    tooltipEvent.value = event
+    tooltipShow.value = true
+  } else if (!event.target.closest('#term-tooltip')) {
+    tooltipShow.value = false
   }
 }
+
+// 模态框方法
+const showModal = (name, props = {}) => {
+  modals.value[name] = {
+    ...props,
+    show: true
+  }
+}
+
+const hideModal = (name) => {
+  if (modals.value[name]) {
+    modals.value[name].show = false
+    delete modals.value[name]
+  }
+}
+
+// 添加和移除全局点击事件监听
+onMounted(() => {
+  document.addEventListener('click', handleClick)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClick)
+})
 </script>
 
 <style>

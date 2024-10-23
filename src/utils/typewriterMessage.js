@@ -1,10 +1,12 @@
+import { ref } from 'vue'
+
 export default class TypewriterMessage {
   constructor(role, initialContent, updateCallback) {
     this.role = role
-    this.content = initialContent
-    this.currentTypedLength = 0
+    this.content = ref(initialContent)
+    this.currentTypedLength = ref(0)
     this.typingPromise = Promise.resolve()
-    this.isPageVisible = true
+    this.isPageVisible = ref(true)
     this.updateCallback = updateCallback
     
     this.visibilityChangeHandler = this.handleVisibilityChange.bind(this)
@@ -12,23 +14,23 @@ export default class TypewriterMessage {
   }
 
   async updateContent(newContent) {
-    this.content = newContent
+    this.content.value = newContent
     this.typingPromise = this.typingPromise.then(() => this.typewriterEffect())
   }
 
   async typewriterEffect() {
-    let newText = this.content.slice(this.currentTypedLength)
+    let newText = this.content.value.slice(this.currentTypedLength.value)
     
     for (let i = 0; i < newText.length; i++) {
-      if (!this.isPageVisible) {
+      if (!this.isPageVisible.value) {
         this.completeImmediately()
         return
       }
       
       await new Promise(resolve => {
         setTimeout(() => {
-          this.currentTypedLength++
-          this.updateCallback(this.content.slice(0, this.currentTypedLength))
+          this.currentTypedLength.value++
+          this.updateCallback(this.content.value.slice(0, this.currentTypedLength.value))
           resolve()
         }, 10)
       })
@@ -42,8 +44,8 @@ export default class TypewriterMessage {
   }
 
   async completeImmediately() {
-    this.currentTypedLength = this.content.length
-    this.updateCallback(this.content)
+    this.currentTypedLength.value = this.content.value.length
+    this.updateCallback(this.content.value)
   }
 
   getDelay(char) {
@@ -57,8 +59,8 @@ export default class TypewriterMessage {
   }
 
   handleVisibilityChange() {
-    this.isPageVisible = !document.hidden
-    if (!this.isPageVisible) {
+    this.isPageVisible.value = !document.hidden
+    if (!this.isPageVisible.value) {
       this.completeImmediately()
     }
   }

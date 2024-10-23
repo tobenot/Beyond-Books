@@ -40,46 +40,55 @@
   </div>
 </template>
 
-<script>
-import { mapState, mapActions, mapGetters } from 'vuex'
+<script setup>
+import { computed, onMounted } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
-export default {
-  name: 'SectionsView',
-  computed: {
-    ...mapState('sections', ['chapters', 'unlockedSections', 'completedSections']),
-    ...mapGetters('sections', ['isSectionUnlocked', 'isSectionCompleted'])
-  },
-  methods: {
-    ...mapActions('sections', ['loadSection', 'skipSection']),
-    ...mapActions('game', ['initializeGame']),
-    async chooseSection(fileName) {
-      await this.loadSection(fileName)
-      const section = this.$store.getters['sections/getCurrentSection']
-      await this.initializeGame(section)
-      this.$router.push('/story')
-    },
-    async replaySection(fileName) {
-      await this.loadSection(fileName)
-      const section = this.$store.getters['sections/getCurrentSection']
-      await this.initializeGame(section, true) // 传入 true 表示这是重玩
-      this.$router.push('/story')
-    },
-    async skipSection(fileName) {
-      await this.skipSection(fileName)
-      // 可能需要更新UI或显示一些消息
-      this.$toast.success(this.$t('sectionSkipped'))
-    },
-    returnToMenu() {
-      this.$router.push('/')
-    }
-  },
-  created() {
-    // 确保章节数据已加载
-    if (this.chapters.length === 0) {
-      this.$store.dispatch('sections/loadSectionsIndex')
-    }
-  }
+// 添加组件名称定义
+defineOptions({
+  name: 'SectionsView'
+})
+
+const store = useStore()
+const router = useRouter()
+
+// 计算属性
+const chapters = computed(() => store.state.sections.chapters)
+const unlockedSections = computed(() => store.state.sections.unlockedSections)
+const completedSections = computed(() => store.state.sections.completedSections)
+const isSectionUnlocked = computed(() => store.getters['sections/isSectionUnlocked'])
+const isSectionCompleted = computed(() => store.getters['sections/isSectionCompleted'])
+
+// 方法
+const chooseSection = async (fileName) => {
+  await store.dispatch('sections/loadSection', fileName)
+  const section = store.getters['sections/getCurrentSection']
+  await store.dispatch('game/initializeGame', section)
+  router.push('/story')
 }
+
+const replaySection = async (fileName) => {
+  await store.dispatch('sections/loadSection', fileName)
+  const section = store.getters['sections/getCurrentSection']
+  await store.dispatch('game/initializeGame', { section, isReplay: true })
+  router.push('/story')
+}
+
+const skipSection = async (fileName) => {
+  await store.dispatch('sections/skipSection', fileName)
+  this.$toast.success(this.$t('sectionSkipped'))
+}
+
+const returnToMenu = () => {
+  router.push('/')
+}
+
+onMounted(() => {
+  if (chapters.value.length === 0) {
+    store.dispatch('sections/loadSectionsIndex')
+  }
+})
 </script>
 
 <style scoped>

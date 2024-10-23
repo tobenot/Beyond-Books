@@ -10,15 +10,12 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'LoadingIndicator',
-  props: {
-    show: Boolean,
-    progressText: String,
-    progress: Number
-  }
-}
+<script setup>
+defineProps({
+  show: Boolean,
+  progressText: String,
+  progress: Number
+})
 </script>
 
 <style scoped>

@@ -10,13 +10,13 @@ export function getModel(modelType = ModelType.BASIC) {
   return modelType === ModelType.ADVANCED ? 'gpt-4o-mini' : 'gpt-4o-mini';
 }
 
-const state = {
+const state = () => ({
   apiKey: '',
   apiUrl: 'https://api.deepbricks.ai/v1/',
   advancedModel: 'gpt-4o-mini',
   basicModel: 'gpt-4o-mini',
   isPublicKey: false
-}
+})
 
 const mutations = {
   SET_SETTINGS(state, settings) {

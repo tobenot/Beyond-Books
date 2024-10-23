@@ -1,12 +1,12 @@
 import { loadSectionData, loadSectionsIndex } from '@/utils/sectionLoader'
 import { imageLoader } from '@/utils/imageLoader'
 
-const state = {
+const state = () => ({
   chapters: [],
   unlockedSections: [],
   completedSections: [],
   currentSection: null
-}
+})
 
 const mutations = {
   SET_CHAPTERS(state, chapters) {

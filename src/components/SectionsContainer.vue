@@ -20,26 +20,27 @@
   </div>
 </template>
 
-<script>
-import { mapState, mapActions } from 'vuex'
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
-export default {
-  name: 'SectionsContainer',
-  computed: {
-    ...mapState('sections', ['chapters', 'unlockedSections'])
-  },
-  methods: {
-    ...mapActions('sections', ['loadSection']),
-    isSectionUnlocked(sectionId) {
-      return this.unlockedSections.includes(sectionId)
-    },
-    async chooseSection(fileName) {
-      await this.loadSection(fileName)
-      this.$router.push('/story')
-    },
-    returnToMenu() {
-      this.$router.push('/')
-    }
-  }
+const store = useStore()
+const router = useRouter()
+
+const chapters = computed(() => store.state.sections.chapters)
+const unlockedSections = computed(() => store.state.sections.unlockedSections)
+
+const isSectionUnlocked = (sectionId) => {
+  return unlockedSections.value.includes(sectionId)
+}
+
+const chooseSection = async (fileName) => {
+  await store.dispatch('sections/loadSection', fileName)
+  router.push('/story')
+}
+
+const returnToMenu = () => {
+  router.push('/')
 }
 </script>

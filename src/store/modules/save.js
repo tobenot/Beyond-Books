@@ -4,13 +4,13 @@ const SAVE_KEY = "beyondBooksSaveData"
 const EXPORT_SECRET_KEY = "YourExportSecretKey"
 const REVIEW_KEY = "reviewRecords"
 
-const state = {
+const state = () => ({
   hasSave: false,
   currentSectionId: null,
   completedSections: [],
   unlockedSections: [],
   globalInfluencePoints: []
-}
+})
 
 const mutations = {
   SET_HAS_SAVE(state, value) {

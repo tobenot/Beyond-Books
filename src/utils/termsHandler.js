@@ -1,16 +1,21 @@
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 
 // 状态管理
-const termsConfig = ref({})
-const colorsConfig = ref({})
+const termsConfig = reactive({
+  terms: {}
+})
+const colorsConfig = reactive({
+  colors: {}
+})
 
 // 加载配置
 export async function loadTermsConfig() {
   try {
     const response = await fetch('lang/terms_explanations_zh-CN.json?v=' + new Date().getTime())
-    termsConfig.value = await response.json()
+    const data = await response.json()
+    Object.assign(termsConfig, data)
     if (process.env.NODE_ENV === 'development') {
-      console.log('Loaded terms config:', termsConfig.value)
+      console.log('Loaded terms config:', termsConfig)
     }
   } catch (error) {
     console.error('加载名词配置文件时出错:', error)
@@ -21,8 +26,9 @@ export async function loadTermsConfig() {
 export async function loadColorsConfig() {
   try {
     const response = await fetch('config/colors.json?v=' + new Date().getTime())
-    colorsConfig.value = await response.json()
-    console.log('Loaded colors config:', colorsConfig.value)
+    const data = await response.json()
+    Object.assign(colorsConfig, data)
+    console.log('Loaded colors config:', colorsConfig)
   } catch (error) {
     console.error('加载色盘配置文件时出错:', error)
   }
@@ -40,8 +46,8 @@ function isColorDark(color) {
 
 // 高亮处理
 export function highlightSpecialTerms(text, excludeTerm = '') {
-  const terms = termsConfig.value.terms
-  const colors = colorsConfig.value.colors
+  const terms = termsConfig.terms
+  const colors = colorsConfig.colors
   const replacements = []
   const cooldownLimit = 2
   const termOccurrences = {}
@@ -85,7 +91,7 @@ export function highlightSpecialTerms(text, excludeTerm = '') {
 async function preloadTermsImages(batchSize = 5, delay = 1000) {
   const imageUrls = []
 
-  Object.values(termsConfig.value.terms).forEach(term => {
+  Object.values(termsConfig.terms).forEach(term => {
     if (term.imageUrl) {
       imageUrls.push(term.imageUrl)
     }
