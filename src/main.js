@@ -15,26 +15,37 @@ import Toast from './plugins/toast'
 import { toastOptions } from './plugins/toast'
 
 async function initializeApp() {
-  await loadSettings()
-  
-  console.log('Vue app initialization starting...');
-  
-  const app = createApp(App)
-  
-  console.log('Creating Vue app instance...');
-  
-  app.use(router)
-  app.use(store)
-  app.use(i18n)
-  app.use(ModalPlugin)
-  app.use(Toast, toastOptions)
-  
-  console.log('Adding plugins and router...');
-  
-  console.log('Mounting app...');
-  app.mount('#app');
-  
-  console.log('App mounted!');
+  try {
+    await loadSettings()
+    console.log('Settings loaded successfully')
+    
+    const app = createApp(App)
+    
+    app.config.errorHandler = (err, vm, info) => {
+      console.error('Vue Error:', err)
+      console.log('Component:', vm)
+      console.log('Error Info:', info)
+    }
+    
+    console.log('Vue app initialization starting...');
+    
+    console.log('Creating Vue app instance...');
+    
+    app.use(router)
+    app.use(store)
+    app.use(i18n)
+    app.use(ModalPlugin)
+    app.use(Toast, toastOptions)
+    
+    console.log('Adding plugins and router...');
+    
+    console.log('Mounting app...');
+    app.mount('#app');
+    
+    console.log('App mounted!');
+  } catch (error) {
+    console.error('初始化失败:', error)
+  }
 }
 
 initializeApp()

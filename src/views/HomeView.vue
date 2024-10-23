@@ -83,7 +83,7 @@ import { defineOptions } from 'vue'
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 
@@ -161,6 +161,14 @@ const showCreatorsMessage = () => {
 const showUpdateLog = () => {
   store.$modal.show('update-log')
 }
+
+onMounted(() => {
+  console.log('HomeView mounted')
+  // 打印组件的数据状态
+  console.log('Component data:', {
+    // ... 您的组件数据
+  })
+})
 </script>
 
 <style scoped>

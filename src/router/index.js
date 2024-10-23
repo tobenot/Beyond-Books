@@ -21,7 +21,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/'),
+  history: createWebHistory('/vue/'),  // 必须匹配部署路径
   routes
 })
 

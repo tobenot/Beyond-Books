@@ -12,7 +12,7 @@ export const colorsConfig = ref({
 // 加载术语配置
 export const loadTermsConfig = async () => {
   try {
-    const response = await fetch('lang/terms_explanations_zh-CN.json?v=' + new Date().getTime())
+    const response = await fetch('/vue/lang/terms_explanations_zh-CN.json?v=' + new Date().getTime())
     const data = await response.json()
     termsConfig.value = data
     if (process.env.NODE_ENV === 'development') {
@@ -27,7 +27,7 @@ export const loadTermsConfig = async () => {
 // 加载颜色配置
 export const loadColorsConfig = async () => {
   try {
-    const response = await fetch('config/colors.json?v=' + new Date().getTime())
+    const response = await fetch('/vue/config/colors.json?v=' + new Date().getTime())
     const data = await response.json()
     colorsConfig.value = data
     console.log('Loaded colors config:', colorsConfig.value)
