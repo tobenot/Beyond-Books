@@ -104,8 +104,10 @@ const hasSave = computed(() => store.getters['save/hasSave'])
 // 方法
 const startNewGame = async () => {
   await store.dispatch('save/clearSave')
-  // 添加加载章节的逻辑
+  // 加载章节索引
   await store.dispatch('sections/loadSectionsIndex')
+  // 创建新存档并保存（这样会包含解锁的第一个章节）
+  await store.dispatch('save/saveSave')
   router.push('/sections')
 }
 

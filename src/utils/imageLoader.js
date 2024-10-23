@@ -13,19 +13,19 @@ class ImageLoader {
       return this.loading.get(url)
     }
 
-    const loadPromise = new Promise((resolve, reject) => {
-      const img = new Image()
-      img.onload = () => {
+    const loadPromise = fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to load image: ${url}`)
+        }
         this.loadedImages.add(url)
         this.loading.delete(url)
-        resolve(url)
-      }
-      img.onerror = () => {
+        return url
+      })
+      .catch(error => {
         this.loading.delete(url)
-        reject(new Error(`Failed to load image: ${url}`))
-      }
-      img.src = url
-    })
+        throw error
+      })
 
     this.loading.set(url, loadPromise)
     return loadPromise

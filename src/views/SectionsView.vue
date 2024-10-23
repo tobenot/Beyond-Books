@@ -100,9 +100,21 @@ const returnToMenu = () => {
   router.push('/')
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 先加载存档
+  await store.dispatch('save/loadSave')
+  
+  // 如果没有加载过章节索引，则加载
   if (chapters.value.length === 0) {
-    store.dispatch('sections/loadSectionsIndex')
+    await store.dispatch('sections/loadSectionsIndex')
+  }
+  
+  // 确保解锁状态同步
+  const saveData = store.getters['save/saveData']
+  if (saveData.unlockedSections.length > 0) {
+    saveData.unlockedSections.forEach(sectionId => {
+      store.dispatch('sections/unlockSection', sectionId)
+    })
   }
 })
 </script>

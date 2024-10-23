@@ -24,12 +24,18 @@ const mutations = {
 }
 
 const actions = {
-  async loadSectionsIndex({ commit }) {
+  async loadSectionsIndex({ commit, dispatch, rootGetters }) {
     try {
       console.log('开始加载章节索引...')
       const sectionsIndex = await loadSectionsIndex()
       console.log('章节索引加载成功:', sectionsIndex)
       commit('SET_CHAPTERS', sectionsIndex.chapters)
+      
+      // 检查是否有存档，如果没有则解锁第一个章节
+      const saveData = rootGetters['save/saveData']
+      if (!saveData.unlockedSections || saveData.unlockedSections.length === 0) {
+        dispatch('unlockSection', 1)
+      }
     } catch (error) {
       console.error('加载章节索引失败:', error)
       throw error

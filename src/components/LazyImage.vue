@@ -1,14 +1,14 @@
 <template>
   <div class="lazy-image-container">
     <img 
-      v-if="isLoaded"
-      :src="src" 
+      :src="isLoaded ? src : ''" 
       :alt="alt"
       class="lazy-image"
+      :class="{ 'is-loaded': isLoaded }"
       @load="onLoad"
       @error="onError"
     >
-    <div v-else class="image-placeholder">
+    <div v-if="!isLoaded" class="image-placeholder">
       <span>加载中...</span>
     </div>
   </div>
@@ -38,7 +38,7 @@ onMounted(async () => {
       await imageLoader.preloadImage(props.src)
       isLoaded.value = true
     } catch (error) {
-      console.error('Failed to load image:', error)
+      console.error('图片加载失败:', error)
     }
   }
 })
@@ -54,6 +54,17 @@ const onError = () => console.error('Image load error:', props.src)
   min-height: 100px;
 }
 
+.lazy-image {
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.lazy-image.is-loaded {
+  opacity: 1;
+}
+
 .image-placeholder {
   display: flex;
   justify-content: center;
@@ -62,10 +73,5 @@ const onError = () => console.error('Image load error:', props.src)
   width: 100%;
   height: 100%;
   min-height: 100px;
-}
-
-.lazy-image {
-  width: 100%;
-  height: auto;
 }
 </style>
