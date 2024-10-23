@@ -21,11 +21,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(
-    process.env.NODE_ENV === 'production' 
-      ? '/' + (process.env.BRANCH_NAME || 'main') + '/'
-      : '/'
-  ),
+  history: createWebHistory('/'),
   routes
 })
 

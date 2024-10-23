@@ -1,8 +1,6 @@
 module.exports = {
   // Vue CLI 配置
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/' + (process.env.BRANCH_NAME || 'main') + '/'
-    : '/',
+  publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'assets',
   productionSourceMap: false,
