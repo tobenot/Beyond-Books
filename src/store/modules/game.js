@@ -36,7 +36,12 @@ const state = () => ({
   turnCount: 0,
   plotTriggers: [],
   isGameInitialized: false,
-  userInput: ''
+  userInput: '',
+  interactionStage: {
+    stage: '',
+    info: '',
+    visible: false
+  }
 })
 
 const mutations = {
@@ -121,6 +126,16 @@ const mutations = {
   },
   SET_GAME_INITIALIZED(state, value) {
     state.isGameInitialized = value
+  },
+  SET_INTERACTION_STAGE(state, { stage, info }) {
+    state.interactionStage = {
+      stage,
+      info,
+      visible: true
+    }
+  },
+  HIDE_INTERACTION_STAGE(state) {
+    state.interactionStage.visible = false
   }
 }
 
@@ -342,6 +357,12 @@ const actions = {
 
     const responseData = await response.json()
     return responseData.choices[0].message.content
+  },
+  updateInteractionStage({ commit }, { stage, info }) {
+    commit('SET_INTERACTION_STAGE', { stage, info })
+  },
+  hideInteractionStage({ commit }) {
+    commit('HIDE_INTERACTION_STAGE')
   }
 }
 
@@ -360,7 +381,9 @@ const getters = {
   gameManager: state => state.gameManager,
   turnCount: state => state.turnCount,
   plotTriggers: state => state.plotTriggers,
-  isGameInitialized: state => state.isGameInitialized
+  isGameInitialized: state => state.isGameInitialized,
+  interactionStage: state => state.interactionStage,
+  storyContent: state => state.storyContent
 }
 
 export default {
