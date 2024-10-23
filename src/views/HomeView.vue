@@ -86,6 +86,7 @@ import { defineOptions } from 'vue'
 import { computed, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { inject } from 'vue'
 
 // 添加组件名称定义
 defineOptions({
@@ -95,6 +96,7 @@ defineOptions({
 const store = useStore()
 const router = useRouter()
 const fileInput = ref(null)
+const $modal = inject('$modal') // 注入 modal 服务
 
 // 计算属性
 const hasSave = computed(() => store.getters['save/hasSave'])
@@ -132,14 +134,14 @@ const handleFileSelect = async (event) => {
   
   try {
     await store.dispatch('save/importSave', file)
-    store.$modal.show('success', {
-      title: store.$i18n.t('success'),
-      content: store.$i18n.t('importSuccess')
+    $modal.show('success', {
+      title: '成功',
+      content: '导入存档成功'
     })
     location.reload()
   } catch (error) {
-    store.$modal.show('error', {
-      title: store.$i18n.t('error'),
+    $modal.show('error', {
+      title: '错误',
       content: error.message
     })
   } finally {
@@ -155,11 +157,19 @@ const confirmDeleteSave = async () => {
 }
 
 const showCreatorsMessage = () => {
-  store.$modal.show('creators-message')
+  $modal.show('creators-message', {
+    title: '制作者信息',
+    content: '这里是制作者信息内容...',
+    closeButtonText: '关闭'
+  })
 }
 
 const showUpdateLog = () => {
-  store.$modal.show('update-log')
+  $modal.show('update-log', {
+    title: '更新日志',
+    content: '这里是更新日志内容...',
+    closeButtonText: '关闭'
+  })
 }
 
 onMounted(() => {

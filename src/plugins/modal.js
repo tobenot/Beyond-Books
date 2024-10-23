@@ -1,34 +1,47 @@
-import { h } from 'vue'
+import { ref, h, createApp } from 'vue'
 import ModalDialog from '@/components/ModalDialog.vue'
 
 export const ModalPlugin = {
   install(app) {
-    const eventBus = new Map()
-    
-    app.config.globalProperties.$modal = {
+    const modalState = ref({
+      show: false,
+      title: '',
+      content: '',
+      closeButtonText: '关闭',
+      buttons: [],
+      large: false
+    })
+
+    const modal = {
       show(name, options = {}) {
-        const { buttons, ...otherOptions } = options
-        
-        if (buttons) {
-          otherOptions.slots = {
-            buttons: () => buttons.map(button => {
-              return h('button', {
-                class: 'button',
-                onClick: button.handler
-              }, button.text)
-            })
-          }
+        modalState.value = {
+          ...modalState.value,
+          show: true,
+          ...options
         }
-        
-        eventBus.set('show', { name, ...otherOptions })
       },
-      hide(name) {
-        eventBus.set('hide', name)
-      },
-      EventBus: eventBus
+      hide() {
+        modalState.value.show = false
+      }
     }
+
+    app.provide('$modal', modal)
     
-    app.component('base-modal', ModalDialog)
+    // 创建全局 Modal 组件
+    const modalComponent = createApp({
+      setup() {
+        return () => h(ModalDialog, {
+          ...modalState.value,
+          'onUpdate:show': (value) => modalState.value.show = value,
+          onClose: () => modal.hide()
+        })
+      }
+    })
+
+    // 挂载 Modal 到 body
+    const modalContainer = document.createElement('div')
+    document.body.appendChild(modalContainer)
+    modalComponent.mount(modalContainer)
   }
 }
 
