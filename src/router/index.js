@@ -2,7 +2,7 @@
 // - scripts/ui.js (用于路由逻辑)
 
 import Vue from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import VueRouter from 'vue-router'  // 改用 VueRouter 而不是 createRouter
 import Home from '../views/Home.vue'
 import Sections from '../views/Sections.vue'
 import Story from '../views/Story.vue'
@@ -18,10 +18,11 @@ const routes = [
   { path: '/review', name: 'Review', component: () => import('../views/Review.vue'), meta: { title: 'reviewTitle' } }
 ]
 
-const router = createRouter({
-  history: createWebHistory(process.env.NODE_ENV === 'production' 
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.NODE_ENV === 'production' 
     ? '/' + process.env.BRANCH_NAME + '/'
-    : '/'),
+    : '/',
   routes
 })
 
