@@ -5,6 +5,8 @@
 import GameManager from '@/utils/gameManager'
 import Moderator from '@/utils/moderator'
 import StreamHandler from '@/utils/streamHandler'
+import { ModelType } from '@/constants/models'
+import { getModel } from '@/utils/settings'
 
 const state = {
   currentSectionId: null,
@@ -24,12 +26,20 @@ const state = {
   tutorialContent: {
     title: '',
     content: ''
-  }
+  },
+  isSubmitting: false,
+  isCooldown: false,
+  selectedCharacter: '罗伯特',
+  currentSection: null,
+  currentIsReplay: false,
+  optimizedConversationHistory: [],
+  turnCount: 0,
+  plotTriggers: []
 }
 
 const mutations = {
-  SET_CURRENT_SECTION(state, sectionId) {
-    state.currentSectionId = sectionId
+  SET_CURRENT_SECTION(state, section) {
+    state.currentSection = section
   },
   SET_COMPLETED_SECTIONS(state, sections) {
     state.completedSections = sections
@@ -46,8 +56,8 @@ const mutations = {
   SET_STORY_CONTENT(state, content) {
     state.storyContent = content
   },
-  SET_GAME_MANAGER(state, gameManager) {
-    state.gameManager = gameManager
+  SET_GAME_MANAGER(state, manager) {
+    state.gameManager = manager
   },
   SET_SUGGESTIONS(state, suggestions) {
     state.suggestions = suggestions
@@ -69,6 +79,40 @@ const mutations = {
   },
   SET_TUTORIAL_CONTENT(state, content) {
     state.tutorialContent = content
+  },
+  SET_SUBMITTING(state, value) {
+    state.isSubmitting = value
+  },
+  SET_COOLDOWN(state, value) {
+    state.isCooldown = value
+  },
+  SET_SELECTED_CHARACTER(state, character) {
+    state.selectedCharacter = character
+  },
+  SET_CURRENT_IS_REPLAY(state, value) {
+    state.currentIsReplay = value
+  },
+  ADD_CONVERSATION_HISTORY(state, entry) {
+    state.conversationHistory.push(entry)
+  },
+  ADD_OPTIMIZED_CONVERSATION_HISTORY(state, entry) {
+    state.optimizedConversationHistory.push(entry)
+  },
+  INCREMENT_TURN_COUNT(state) {
+    state.turnCount++
+  },
+  SET_PLOT_TRIGGERS(state, triggers) {
+    state.plotTriggers = triggers
+  },
+  RESET_STATE(state) {
+    state.isSubmitting = false
+    state.isCooldown = false
+    state.conversationHistory = []
+    state.optimizedConversationHistory = []
+    state.currentSection = null
+    state.currentIsReplay = false
+    state.turnCount = 0
+    state.plotTriggers = []
   }
 }
 
@@ -118,21 +162,39 @@ const actions = {
     )
     commit('SET_MODERATOR', moderator)
   },
-  async processUserInput({ state, commit }, input) {
-    if (!state.moderator) {
-      throw new Error('Moderator not initialized')
-    }
-    const validationResult = await state.moderator.validateAction(input)
-    if (!validationResult.isValid) {
-      return {
-        content: validationResult.reason,
-        isValid: false,
-        suggestions: validationResult.suggestion ? [validationResult.suggestion] : []
+  async processUserInput({ commit, state, dispatch }, userInput) {
+    commit('SET_SUBMITTING', true);
+
+    try {
+      const result = await state.gameManager.processMainPlayerAction(userInput, (specificAction) => {
+        dispatch('clearSuggestions');
+        commit('ADD_OPTIMIZED_CONVERSATION_HISTORY', { 
+          role: 'user', 
+          content: specificAction 
+        });
+      });
+
+      if (result.isValid) {
+        await dispatch('updateConversationWithResult', result.finalResult);
+        
+        if (state.gameManager.moderator.endSectionFlag) {
+          await dispatch('handleSectionEnd');
+        }
+      } else {
+        commit('ADD_TO_CONVERSATION_HISTORY', {
+          role: 'system',
+          content: result.feedback
+        });
       }
+    } catch (error) {
+      console.error("处理用户输入时出错:", error);
+    } finally {
+      commit('SET_SUBMITTING', false);
+      commit('SET_COOLDOWN', true);
+      setTimeout(() => {
+        commit('SET_COOLDOWN', false);
+      }, 1000);
     }
-    // ... 处理有效输入的逻辑
-    commit('ADD_TO_CONVERSATION_HISTORY', { role: 'user', content: input })
-    // ... 其他处理逻辑
   },
   async initializeGame({ commit, dispatch }, section) {
     commit('SET_LOADING', true)
@@ -145,8 +207,41 @@ const actions = {
       commit('SET_LOADING', false)
     }
   },
-  async handleOutcome({ commit, dispatch }, { sectionId, summary, section, isReplay }) {
-    // 实现handleOutcome逻辑...
+  async handleOutcome({ commit, dispatch }, { sectionId, summary, isReplay }) {
+    try {
+      if (summary.objective) {
+        if (!isReplay) {
+          await dispatch('updateGameState', {
+            sectionId,
+            result: {
+              objectiveAchieved: summary.objective,
+              influencePoints: summary.influencePoints
+            }
+          });
+        }
+        
+        commit('ADD_TO_CONVERSATION_HISTORY', {
+          role: 'system',
+          content: `${summary.objective_judge}\n桥段目标完成`
+        });
+
+        if (!isReplay) {
+          await dispatch('review/storeSectionReview', {
+            sectionId,
+            conversationHistory: state.conversationHistory,
+            storyContent: document.getElementById('storyContent').innerHTML
+          }, { root: true });
+        }
+      } else {
+        commit('ADD_TO_CONVERSATION_HISTORY', {
+          role: 'system', 
+          content: `${summary.objective_judge}\n桥段目标未达成`
+        });
+      }
+    } catch (error) {
+      console.error('处理结果时出错:', error);
+      throw error;
+    }
   },
   async processStreamingResponse({ commit, state }, prompt) {
     const options = {
@@ -196,6 +291,42 @@ const actions = {
     }
     commit('SET_TUTORIAL_CONTENT', tutorialContent)
     commit('SET_SHOW_TUTORIAL', true)
+  },
+  async handleUserInput({ commit, state, dispatch }) {
+    if (state.isSubmitting || state.isCooldown) return
+
+    const userInput = state.userInput
+    if (!userInput) return
+
+    commit('ADD_CONVERSATION_HISTORY', { role: 'user', content: userInput })
+    dispatch('updateDisplay', { role: 'user', content: userInput })
+
+    if (state.conversationHistory.length > 40) {
+      await dispatch('endSection')
+      return
+    }
+
+    await dispatch('processUserInput', userInput)
+  },
+
+  async callLargeLanguageModel({ state }, prompt) {
+    const response = await fetch(state.apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.apiKey}`,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ 
+        model: getModel(ModelType.BASIC),
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 1000
+      }),
+      credentials: 'include'
+    })
+
+    const responseData = await response.json()
+    return responseData.choices[0].message.content
   }
 }
 
@@ -204,7 +335,16 @@ const getters = {
   getLastRound: (state) => {
     const lastFiveMessages = state.conversationHistory.slice(-5)
     return lastFiveMessages.map(m => `${m.role}: ${m.content}`).join('\n')
-  }
+  },
+  isSubmitting: state => state.isSubmitting,
+  isCooldown: state => state.isCooldown,
+  selectedCharacter: state => state.selectedCharacter,
+  currentSection: state => state.currentSection,
+  conversationHistory: state => state.conversationHistory,
+  optimizedConversationHistory: state => state.optimizedConversationHistory,
+  gameManager: state => state.gameManager,
+  turnCount: state => state.turnCount,
+  plotTriggers: state => state.plotTriggers
 }
 
 export default {

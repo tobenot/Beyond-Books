@@ -72,6 +72,10 @@
       accept=".savegame"
       @change="handleFileSelect"
     >
+    
+    <router-link to="/review" class="menu-item">
+      {{ $t('reviewTitle') }}
+    </router-link>
   </div>
 </template>
 
@@ -79,7 +83,8 @@
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  name: 'Home',
+  // 将组件名改为多词组合
+  name: 'HomeView', // 或者 'HomePage'
   
   computed: {
     ...mapGetters('save', ['hasSave'])

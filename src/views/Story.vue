@@ -23,7 +23,7 @@ import LazyImage from '@/components/LazyImage.vue'
 import MusicPlayer from '@/components/MusicPlayer.vue'
 
 export default defineComponent({
-  name: 'Story',
+  name: 'StoryView',
   components: {
     LazyImage,
     MusicPlayer

@@ -44,7 +44,7 @@
 import { mapState, mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'Sections',
+  name: 'SectionsView',
   computed: {
     ...mapState('sections', ['chapters', 'unlockedSections', 'completedSections']),
     ...mapGetters('sections', ['isSectionUnlocked', 'isSectionCompleted'])

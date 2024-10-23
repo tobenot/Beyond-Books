@@ -6,19 +6,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import game from './modules/game'
-import settings from './modules/settings'
-import sections from './modules/sections'
-import review from './modules/review'
-import saveManager from './modules/saveManager'
+import interaction from './modules/interaction'
+import ui from './modules/ui'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
     game,
-    settings,
-    sections,
-    review,
-    saveManager
+    interaction,
+    ui
   }
 })

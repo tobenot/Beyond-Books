@@ -12,7 +12,8 @@ export default class StreamHandler {
     const reader = response.body.getReader();
     let result = '';
 
-    while (true) {
+    let shouldContinue = true;
+    while (shouldContinue) {
       const { done, value } = await reader.read();
       if (done) break;
 
@@ -38,6 +39,7 @@ export default class StreamHandler {
         }
       }
       this.buffer = lines[lines.length - 1];
+      // 在适当的条件下设置 shouldContinue = false
     }
 
     return result;

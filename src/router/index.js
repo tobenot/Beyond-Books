@@ -7,7 +7,6 @@ import Home from '../views/Home.vue'
 import Sections from '../views/Sections.vue'
 import Story from '../views/Story.vue'
 import Settings from '../views/Settings.vue'
-import Review from '../views/Review.vue'
 
 Vue.use(VueRouter)
 
@@ -16,7 +15,7 @@ const routes = [
   { path: '/sections', name: 'Sections', component: Sections },
   { path: '/story', name: 'Story', component: Story },
   { path: '/settings', name: 'Settings', component: Settings },
-  { path: '/review', name: 'Review', component: Review }
+  { path: '/review', name: 'Review', component: () => import('../views/Review.vue'), meta: { title: 'reviewTitle' } }
 ]
 
 const router = new VueRouter({

@@ -1,0 +1,33 @@
+.review-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .review-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    
+    span {
+      margin-right: 15px;
+    }
+    
+    button {
+      margin-left: 10px;
+    }
+  }
+}
+
+.rename-form {
+  margin: 20px 0;
+  
+  .rename-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+}

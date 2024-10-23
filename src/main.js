@@ -10,6 +10,7 @@ import store from './store'
 import i18n from './plugins/i18n'
 import ModalPlugin from './plugins/modal'
 import { loadSettings } from '@/utils/settings'
+import './assets/styles/review.scss'
 
 Vue.use(ModalPlugin)
 

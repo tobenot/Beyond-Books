@@ -43,7 +43,7 @@
 import { mapState, mapActions } from 'vuex'
 
 export default {
-  name: 'Settings',
+  name: 'SettingsView',
   data() {
     return {
       localSettings: {
@@ -100,3 +100,4 @@ export default {
   }
 }
 </script>
+
