@@ -41,6 +41,7 @@ const zhCN = {
   }
 }
 
+// 在现有的翻译对象中添加存档相关的文本
 const messages = {
   'zh-CN': {
     reviewTitle: '桥段回顾',
@@ -55,7 +56,28 @@ const messages = {
     exportAsMultipleImages: '导出为多图',
     enterNewTitle: '请输入新的标题',
     confirmDelete: '您确定要删除这条回顾记录吗？',
-    close: '关闭'
+    close: '关闭',
+    newGame: '开始新游戏',
+    continueGame: '继续游戏',
+    reviewRecords: '回顾记录',
+    importSave: '导入存档',
+    exportSave: '导出存档',
+    deleteSave: '删除存档',
+    settings: '设置',
+    confirmImport: '您确定要导入并覆盖存档吗？此操作无法撤销。您可以先导出自己的存档进行备份。',
+    confirmDelete: '您确定要删除存档吗？此操作无法撤销。',
+    importSuccess: '存档已成功导入',
+    success: '成功',
+    error: '错误',
     // ... 其他翻译 ...
+    tutorial: {
+      title: '游戏教程',
+      close: '关闭',
+      understand: '我明白了',
+      content: {
+        intro: '你可以把本游戏理解为...',
+        // ... 其他教程内容的翻译
+      }
+    }
   }
 }

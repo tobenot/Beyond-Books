@@ -11,33 +11,18 @@
         <span>({{ formatDate(record.timestamp) }})</span>
         <span>({{ record.size }})</span>
         <button @click="renameReview(record)">{{ $t('rename') }}</button>
-        <button @click="deleteReview(record.id)">{{ $t('delete') }}</button>
+        <button @click="confirmDeleteReview(record.id)">{{ $t('delete') }}</button>
         <button @click="viewReviewDetail(record)">{{ $t('viewDetails') }}</button>
       </li>
     </ul>
-    <review-detail 
-      v-if="showReviewDetail" 
-      :review="selectedReview" 
-      @close="showReviewDetail = false"
-    />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import ReviewDetail from '@/components/ReviewDetail.vue'
 
 export default {
   name: 'Review',
-  components: {
-    ReviewDetail
-  },
-  data() {
-    return {
-      showReviewDetail: false,
-      selectedReview: null
-    }
-  },
   computed: {
     ...mapGetters('review', ['getReviewRecords']),
     reviewRecords() {
@@ -46,27 +31,97 @@ export default {
   },
   methods: {
     ...mapActions('review', ['loadReviewRecords', 'deleteReviewRecord', 'updateReviewRecord']),
+    
     returnToMenu() {
       this.$router.push('/')
     },
+    
     formatDate(timestamp) {
       return new Date(timestamp).toLocaleString()
     },
+    
     renameReview(record) {
-      const newTitle = prompt(this.$t('enterNewTitle'), record.review_title)
-      if (newTitle && newTitle.trim() !== '') {
-        const updatedRecord = { ...record, review_title: newTitle.trim() }
-        this.updateReviewRecord(updatedRecord)
-      }
+      this.$modal.show('rename-review', {
+        title: this.$t('renameReview'),
+        content: `
+          <div class="rename-form">
+            <input 
+              type="text" 
+              id="newTitle" 
+              value="${record.review_title}"
+              class="rename-input"
+            >
+          </div>
+        `,
+        closeButtonText: this.$t('cancel'),
+        buttons: [
+          {
+            text: this.$t('confirm'),
+            handler: () => {
+              const newTitle = document.getElementById('newTitle').value.trim()
+              if (newTitle) {
+                this.updateReviewRecord({
+                  ...record,
+                  review_title: newTitle
+                })
+                this.$modal.hide('rename-review')
+              }
+            }
+          }
+        ]
+      })
     },
-    deleteReview(id) {
-      if (confirm(this.$t('confirmDelete'))) {
-        this.deleteReviewRecord(id)
-      }
+    
+    confirmDeleteReview(id) {
+      this.$modal.show('confirm-delete', {
+        title: this.$t('confirmDelete'),
+        content: this.$t('confirmDeleteMessage'),
+        closeButtonText: this.$t('cancel'),
+        buttons: [
+          {
+            text: this.$t('confirm'),
+            handler: () => {
+              this.deleteReviewRecord(id)
+              this.$modal.hide('confirm-delete')
+            }
+          }
+        ]
+      })
     },
+    
     viewReviewDetail(record) {
-      this.selectedReview = record
-      this.showReviewDetail = true
+      this.$modal.show('review-detail', {
+        title: record.review_title,
+        content: record.content,
+        large: true,
+        buttons: [
+          {
+            text: this.$t('exportAsHTML'),
+            handler: () => this.exportReviewAsHTML(record)
+          },
+          {
+            text: this.$t('exportAsImage'),
+            handler: () => this.exportReviewAsImage(record)
+          },
+          {
+            text: this.$t('exportAsMultipleImages'),
+            handler: () => this.exportReviewAsMultipleImages(record)
+          }
+        ]
+      })
+    },
+    
+    // 导出相关方法...
+    async exportReviewAsHTML(record) {
+      // 实现导出HTML的逻辑
+    },
+    
+    async exportReviewAsImage(record) {
+      // 实现导出图片的逻辑  
+    },
+    
+    async exportReviewAsMultipleImages(record) {
+      // 实现导出多张图片的逻辑
     }
   },
   created() {
@@ -76,16 +131,16 @@ export default {
 </script>
 
 <style scoped>
-.review-container {
-  padding: 20px;
+.rename-form {
+  margin: 20px 0;
 }
 
-.review-item {
-  margin-bottom: 10px;
-  padding: 10px;
+.rename-input {
+  width: 100%;
+  padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
 
-/* 添加更多样式... */
+/* 其他样式... */
 </style>

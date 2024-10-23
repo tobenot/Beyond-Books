@@ -1,4 +1,5 @@
 import { loadSectionData, loadSectionsIndex } from '@/utils/sectionLoader'
+import { imageLoader } from '@/utils/imageLoader'
 
 const state = {
   chapters: [],
@@ -27,8 +28,14 @@ const actions = {
     const sectionsIndex = await loadSectionsIndex()
     commit('SET_CHAPTERS', sectionsIndex.chapters)
   },
-  async loadSection({ commit }, fileName) {
+  async loadSection({ commit, dispatch }, fileName) {
     const sectionData = await loadSectionData(fileName)
+    
+    // 预加载当前章节的图片
+    if (sectionData.image) {
+      await imageLoader.preloadImage(sectionData.image)
+    }
+    
     commit('SET_CURRENT_SECTION', sectionData)
   },
   unlockSection({ commit, state }, sectionId) {
@@ -45,6 +52,19 @@ const actions = {
     // 例如,更新游戏状态,解锁下一个章节等
     dispatch('completeSection', sectionData.id)
     dispatch('unlockSection', sectionData.id + 1) // 假设下一个章节的id是当前id+1
+  },
+  async preloadSectionImages({ state }) {
+    const imageUrls = []
+    
+    state.chapters.forEach(chapter => {
+      chapter.sections.forEach(section => {
+        if (section.image) {
+          imageUrls.push(section.image)
+        }
+      })
+    })
+
+    await imageLoader.preloadBatch(imageUrls)
   }
 }
 

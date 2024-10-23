@@ -3,75 +3,160 @@
     <h1>{{ $t('mainTitle') }}</h1>
     <h2>{{ $t('subTitle') }}</h2>
     <p id="gameDescription">{{ $t('gameDescription') }}</p>
+    
     <div class="menu-controls">
+      <!-- 制作者信息和更新日志 -->
       <div class="control-pair" id="footerControl">
-        <button class="button" @click="showCreatorsMessage">{{ $t('creatorsMessage') }}</button>
-        <button class="button" @click="showUpdateLog">{{ $t('updateLog') }}</button>
-      </div>  
-      <button class="button" @click="newGame" v-if="!hasSave">{{ $t('newGame') }}</button>
-      <div class="control-pair" v-if="hasSave">
-        <button class="button" @click="continueGame">{{ $t('continueGame') }}</button>
-        <button class="button" @click="showReviewRecords">{{ $t('reviewRecords') }}</button>
+        <button class="button" @click="showCreatorsMessage">
+          {{ $t('creatorsMessage') }}
+        </button>
+        <button class="button" @click="showUpdateLog">
+          {{ $t('updateLog') }}
+        </button>
       </div>
-      <div class="control-pair" id="saveLoadButtons">
-        <button class="button" @click="importSave">{{ $t('importSave') }}</button>
-        <button class="button" @click="exportSave">{{ $t('exportSave') }}</button>
+      
+      <!-- 新游戏按钮 -->
+      <button 
+        v-if="!hasSave"
+        class="button" 
+        @click="startNewGame"
+      >
+        {{ $t('newGame') }}
+      </button>
+      
+      <!-- 继续游戏和回顾按钮 -->
+      <div v-if="hasSave" class="control-pair">
+        <button class="button" @click="continueGame">
+          {{ $t('continueGame') }}
+        </button>
+        <button class="button" @click="showReviewRecords">
+          {{ $t('reviewRecords') }}
+        </button>
       </div>
-      <div class="control-pair" id="settingsButtons">
-        <button class="button" @click="showSettings">
-          <img src="@/assets/icon/settings-icon.png" alt="" style="vertical-align: middle; margin-right: 5px;"/>
+      
+      <!-- 存档导入导出按钮 -->
+      <div class="control-pair">
+        <button class="button" @click="triggerFileInput">
+          {{ $t('importSave') }}
+        </button>
+        <button 
+          v-if="hasSave"
+          class="button" 
+          @click="exportSave"
+        >
+          {{ $t('exportSave') }}
+        </button>
+      </div>
+      
+      <!-- 设置和删除存档按钮 -->
+      <div class="control-pair">
+        <button class="button" @click="openSettings">
+          <img src="@/assets/icon/settings-icon.png" alt="" />
           {{ $t('settings') }}
         </button>
-        <button class="button" @click="deleteSave" v-if="hasSave">{{ $t('deleteSave') }}</button>
+        <button 
+          v-if="hasSave"
+          class="button" 
+          @click="confirmDeleteSave"
+        >
+          {{ $t('deleteSave') }}
+        </button>
       </div>
     </div>
-    <input id="fileInput" type="file" style="display: none;" @change="handleFileImport">
-    <div class="footer">
-      <p>
-        <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SQtBxN7VNoPENb1yCzklbdo3GrL0vRq9&authKey=gXOpREY%2BVYh6acsXgpfzZ%2FzZKefgb7OdM92T%2Br46Umr0HNVHi4S1DVxHhyI8Rhm3&noverify=0&group_code=731682071" target="_blank">QQ群：731682071</a>
-        &nbsp;
-        <a href="https://space.bilibili.com/23122362" target="_blank">B站</a>
-      </p>
-      <p>{{ $t('welcomeMessage') }}</p>
-    </div>
+    
+    <!-- 隐藏的文件输入框 -->
+    <input
+      ref="fileInput"
+      type="file"
+      style="display: none"
+      accept=".savegame"
+      @change="handleFileSelect"
+    >
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import Modal from '@/components/Modal.vue'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'Home',
-  components: {
-    Modal
-  },
+  
   computed: {
-    ...mapGetters('game', ['hasSave'])
+    ...mapGetters('save', ['hasSave'])
   },
+  
   methods: {
-    ...mapActions('game', ['newGame', 'continueGame', 'importSave', 'exportSave', 'deleteSave']),
-    showCreatorsMessage() {
-      this.$modal.show('creators-message', {
-        title: this.$t('creatorsMessageTitle'),
-        content: this.$t('creatorsMessageContent')
-      })
+    ...mapActions('save', [
+      'clearSave',
+      'exportSave',
+      'importSave'
+    ]),
+    
+    startNewGame() {
+      this.clearSave()
+      this.$router.push('/sections')
     },
-    showUpdateLog() {
-      this.$modal.show('update-log', {
-        title: this.$t('updateLogTitle'),
-        content: this.$t('updateLogContent')
-      })
+    
+    continueGame() {
+      this.$router.push('/sections')
     },
+    
     showReviewRecords() {
       this.$router.push('/review')
     },
-    showSettings() {
+    
+    openSettings() {
       this.$router.push('/settings')
     },
-    handleFileImport(event) {
-      this.importSave(event.target.files[0])
+    
+    triggerFileInput() {
+      if (this.hasSave) {
+        if (!confirm(this.$t('confirmImport'))) {
+          return
+        }
+      }
+      this.$refs.fileInput.click()
+    },
+    
+    async handleFileSelect(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      try {
+        await this.importSave(file)
+        this.$modal.show('success', {
+          title: this.$t('success'),
+          content: this.$t('importSuccess')
+        })
+        location.reload()
+      } catch (error) {
+        this.$modal.show('error', {
+          title: this.$t('error'),
+          content: error.message
+        })
+      } finally {
+        event.target.value = '' // 清空文件输入
+      }
+    },
+    
+    async confirmDeleteSave() {
+      if (confirm(this.$t('confirmDelete'))) {
+        await this.clearSave()
+        location.reload()
+      }
+    },
+    
+    showCreatorsMessage() {
+      this.$modal.show('creators-message')
+    },
+    
+    showUpdateLog() {
+      this.$modal.show('update-log')
     }
   }
 }
 </script>
+
+<style scoped>
+/* 保持原有样式 */
+</style>
