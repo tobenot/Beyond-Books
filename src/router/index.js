@@ -25,4 +25,10 @@ const router = createRouter({
   routes
 })
 
+// 添加导航守卫来调试
+router.beforeEach((to, from, next) => {
+  console.log('路由跳转:', { to, from })
+  next()
+})
+
 export default router
