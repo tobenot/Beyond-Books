@@ -21,7 +21,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(`/${process.env.VITE_BRANCH_NAME}/`),
+  history: createWebHistory(process.env.VITE_BRANCH_NAME ? `/${process.env.VITE_BRANCH_NAME}/` : '/'),
   routes
 })
 
