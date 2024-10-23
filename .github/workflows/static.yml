@@ -1,43 +1,45 @@
-name: Deploy Vue App to Pages Repository
+name: Deploy to Pages Repository
 
 on:
   push:
     branches:
       - main
       - 'R*'
+      - vue
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Get branch name
         id: branch-name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      # Vue 分支特殊处理：需要构建
+      - name: Setup Node.js (Vue branch only)
+        if: endsWith(github.ref, '/vue')
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'  # 添加 npm 缓存以加快安装速度
           
-      # Vue 分支特殊处理：需要构建
       - name: Install dependencies (Vue branch only)
         if: endsWith(github.ref, '/vue')
         run: |
-          rm -f package-lock.json  # 删除可能存在的不同步的 lock 文件
-          npm install             # 重新生成 package-lock.json
+          npm ci  # 使用 ci 命令替代 install，更快更安全
         
       - name: Build Vue app (Vue branch only)
         if: endsWith(github.ref, '/vue')
         run: |
-          # 从 GitHub Secrets 自动读取所有以 VUE_APP_ 开头的环境变量并写入 .env.production
+          # 从 GitHub Secrets 自动读取所有以 VITE_ 开头的环境变量并写入 .env.production
           echo "# Auto-generated production environment variables" > .env.production
           # 添加 BRANCH_NAME
           echo "BRANCH_NAME=${{ steps.branch-name.outputs.BRANCH_NAME }}" >> .env.production
-          # 添加其他环境变量
-          for secret in $(echo "$SECRETS_CONTEXT" | jq -r 'to_entries | .[] | select(.key | startswith("VUE_APP_")) | "\(.key)=\(.value)"'); do
-            echo "$secret" >> .env.production
+          # 添加其他环境变量（注意：Vue 3 使用 VITE_ 前缀替代 VUE_APP_）
+          for secret in $(echo "$SECRETS_CONTEXT" | jq -r 'to_entries | .[] | select(.key | startswith("VITE_")) | "\(.key)=\(.value)"'); do
+            echo "$secret" >> .env.production 
           done
           # 执行构建
           npm run build

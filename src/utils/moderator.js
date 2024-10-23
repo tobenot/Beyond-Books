@@ -253,11 +253,11 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
   // API调用方法
   async callLargeLanguageModel(prompt, schema) {
-    const response = await fetch(process.env.VUE_APP_API_URL, {
+    const response = await fetch(process.env.VITE_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VUE_APP_API_KEY}`,
+        'Authorization': `Bearer ${process.env.VITE_API_KEY}`,
         'Accept': 'application/json'
       },
       body: JSON.stringify({ 
@@ -284,7 +284,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VUE_APP_API_KEY}`,
+        'Authorization': `Bearer ${process.env.VITE_API_KEY}`,
         'Accept': 'application/json'
       },
       body: JSON.stringify({ 
@@ -296,7 +296,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
     };
 
     let finalResult = '';
-    await this.streamHandler.fetchStream(process.env.VUE_APP_API_URL, options, (partialResponse) => {
+    await this.streamHandler.fetchStream(process.env.VITE_API_URL, options, (partialResponse) => {
       finalResult = partialResponse;
       // 触发更新UI的事件
       this.$emit('streamUpdate', partialResponse);

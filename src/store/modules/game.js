@@ -248,7 +248,7 @@ const actions = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VUE_APP_API_KEY}`
+        'Authorization': `Bearer ${process.env.VITE_API_KEY}`
       },
       body: JSON.stringify({ 
         model: getModel(ModelType.BASIC),
@@ -260,7 +260,7 @@ const actions = {
 
     try {
       await state.streamHandler.fetchStream(
-        process.env.VUE_APP_API_URL,
+        process.env.VITE_API_URL,
         options,
         (partialResponse) => {
           commit('UPDATE_STREAMING_CONTENT', partialResponse)
