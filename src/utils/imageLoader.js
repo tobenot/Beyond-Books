@@ -1,33 +1,48 @@
+import { getBasePath } from './pathManager'
+
 class ImageLoader {
   constructor() {
     this.loadedImages = new Set()
     this.loading = new Map()
+    this.basePath = getBasePath()
+  }
+
+  getFullUrl(url) {
+    // 如果是完整的URL（以http开头）或者已经包含basePath，则直接返回
+    if (url.startsWith('http') || url.startsWith(this.basePath)) {
+      return url
+    }
+    // 确保url开头没有多余的斜杠
+    const cleanUrl = url.startsWith('/') ? url.slice(1) : url
+    return `${this.basePath}/${cleanUrl}`
   }
 
   async preloadImage(url) {
-    if (this.loadedImages.has(url)) {
-      return url
+    const fullUrl = this.getFullUrl(url)
+    
+    if (this.loadedImages.has(fullUrl)) {
+      return fullUrl
     }
 
-    if (this.loading.has(url)) {
-      return this.loading.get(url)
+    if (this.loading.has(fullUrl)) {
+      return this.loading.get(fullUrl)
     }
 
-    const loadPromise = fetch(url)
+    const loadPromise = fetch(fullUrl)
       .then(response => {
         if (!response.ok) {
-          throw new Error(`Failed to load image: ${url}`)
+          throw new Error(`Failed to load image: ${fullUrl}`)
         }
-        this.loadedImages.add(url)
-        this.loading.delete(url)
-        return url
+        this.loadedImages.add(fullUrl)
+        this.loading.delete(fullUrl)
+        return fullUrl
       })
       .catch(error => {
-        this.loading.delete(url)
+        this.loading.delete(fullUrl)
         throw error
       })
 
-    this.loading.set(url, loadPromise)
+    this.loading.set(fullUrl, loadPromise)
     return loadPromise
   }
 
@@ -51,7 +66,8 @@ class ImageLoader {
   }
 
   isImageLoaded(url) {
-    return this.loadedImages.has(url)
+    const fullUrl = this.getFullUrl(url)
+    return this.loadedImages.has(fullUrl)
   }
 }
 

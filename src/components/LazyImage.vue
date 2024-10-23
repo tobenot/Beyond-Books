@@ -1,7 +1,7 @@
 <template>
   <div class="lazy-image-container">
     <img 
-      :src="isLoaded ? src : ''" 
+      :src="isLoaded ? fullImageUrl : ''" 
       :alt="alt"
       class="lazy-image"
       :class="{ 'is-loaded': isLoaded }"
@@ -15,8 +15,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { defineProps } from 'vue'  // 添加这行
+import { ref, computed, onMounted } from 'vue'
 import { imageLoader } from '@/utils/imageLoader'
 
 const props = defineProps({
@@ -30,6 +29,7 @@ const props = defineProps({
   }
 })
 
+const fullImageUrl = computed(() => imageLoader.getFullUrl(props.src))
 const isLoaded = ref(imageLoader.isImageLoaded(props.src))
 
 onMounted(async () => {
