@@ -1,29 +1,27 @@
-name: Deploy to Pages Repository
+name: Deploy Vue App to Pages Repository
 
 on:
   push:
     branches:
       - main
       - 'R*'
-      - vue
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       
       - name: Get branch name
         id: branch-name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
       
-      # Vue 分支特殊处理：需要构建
-      - name: Setup Node.js (Vue branch only)
-        if: endsWith(github.ref, '/vue')
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
           
+      # Vue 分支特殊处理：需要构建
       - name: Install dependencies (Vue branch only)
         if: endsWith(github.ref, '/vue')
         run: |

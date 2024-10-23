@@ -11,6 +11,8 @@ import i18n from './plugins/i18n'
 import ModalPlugin from './plugins/modal'
 import { loadSettings } from '@/utils/settings'
 import './assets/styles/review.scss'
+import Toast from './plugins/toast'
+import { toastOptions } from './plugins/toast'
 
 async function initializeApp() {
   await loadSettings()
@@ -21,6 +23,7 @@ async function initializeApp() {
   app.use(store)
   app.use(i18n)
   app.use(ModalPlugin)
+  app.use(Toast, toastOptions)
   
   app.mount('#app')
 }

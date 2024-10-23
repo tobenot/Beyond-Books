@@ -1,21 +1,22 @@
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 
-// 状态管理
-const termsConfig = reactive({
+// 创建响应式引用
+export const termsConfig = ref({
   terms: {}
 })
-const colorsConfig = reactive({
+
+export const colorsConfig = ref({
   colors: {}
 })
 
-// 加载配置
-export async function loadTermsConfig() {
+// 加载术语配置
+export const loadTermsConfig = async () => {
   try {
     const response = await fetch('lang/terms_explanations_zh-CN.json?v=' + new Date().getTime())
     const data = await response.json()
-    Object.assign(termsConfig, data)
+    termsConfig.value = data
     if (process.env.NODE_ENV === 'development') {
-      console.log('Loaded terms config:', termsConfig)
+      console.log('Loaded terms config:', termsConfig.value)
     }
   } catch (error) {
     console.error('加载名词配置文件时出错:', error)
@@ -23,12 +24,13 @@ export async function loadTermsConfig() {
   preloadTermsImages()
 }
 
-export async function loadColorsConfig() {
+// 加载颜色配置
+export const loadColorsConfig = async () => {
   try {
     const response = await fetch('config/colors.json?v=' + new Date().getTime())
     const data = await response.json()
-    Object.assign(colorsConfig, data)
-    console.log('Loaded colors config:', colorsConfig)
+    colorsConfig.value = data
+    console.log('Loaded colors config:', colorsConfig.value)
   } catch (error) {
     console.error('加载色盘配置文件时出错:', error)
   }
@@ -46,8 +48,8 @@ function isColorDark(color) {
 
 // 高亮处理
 export function highlightSpecialTerms(text, excludeTerm = '') {
-  const terms = termsConfig.terms
-  const colors = colorsConfig.colors
+  const terms = termsConfig.value.terms
+  const colors = colorsConfig.value.colors
   const replacements = []
   const cooldownLimit = 2
   const termOccurrences = {}
@@ -91,7 +93,7 @@ export function highlightSpecialTerms(text, excludeTerm = '') {
 async function preloadTermsImages(batchSize = 5, delay = 1000) {
   const imageUrls = []
 
-  Object.values(termsConfig.terms).forEach(term => {
+  Object.values(termsConfig.value.terms).forEach(term => {
     if (term.imageUrl) {
       imageUrls.push(term.imageUrl)
     }
@@ -120,6 +122,3 @@ async function preloadTermsImages(batchSize = 5, delay = 1000) {
 
   console.log('All images preloaded successfully')
 }
-
-// 添加这行导出语句
-export { termsConfig, colorsConfig }

@@ -23,11 +23,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useStore } from 'vuex'
 import BaseModal from '@/components/ModalDialog.vue'
 import TermTooltip from '@/components/TermTooltip.vue'
 import { loadTermsConfig, loadColorsConfig, termsConfig } from '@/utils/termsHandler'
-import { defineOptions } from 'vue'
+import { defineOptions, defineExpose } from 'vue'
 
 defineOptions({
   name: 'AppRoot'
@@ -39,8 +38,13 @@ const tooltipDescription = ref('')
 const tooltipImageUrl = ref('')
 const tooltipTerm = ref('')
 const tooltipEvent = ref(null)
-const store = useStore()
 const modals = ref({})
+
+// 将这些变量和函数导出，这样它们就可以在其他组件中使用
+defineExpose({
+  showModal,
+  hideModal
+})
 
 // 初始化加载配置
 onMounted(() => {

@@ -1,5 +1,7 @@
 // 在文件顶部添加
 import { defineOptions } from 'vue'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
 
 <template>
   <div class="sections-container">
@@ -47,6 +49,8 @@ import { defineOptions } from 'vue'
 import { computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
 
 // 添加组件名称定义
 defineOptions({
@@ -56,12 +60,20 @@ defineOptions({
 const store = useStore()
 const router = useRouter()
 
+// 添加 i18n 实例
+const { t } = useI18n()
+
 // 计算属性
 const chapters = computed(() => store.state.sections.chapters)
-const unlockedSections = computed(() => store.state.sections.unlockedSections)
-const completedSections = computed(() => store.state.sections.completedSections)
-const isSectionUnlocked = computed(() => store.getters['sections/isSectionUnlocked'])
-const isSectionCompleted = computed(() => store.getters['sections/isSectionCompleted'])
+
+// 修复 getter 的使用方式
+const isSectionUnlocked = (sectionId) => {
+  return store.getters['sections/isSectionUnlocked'](sectionId)
+}
+
+const isSectionCompleted = (sectionId) => {
+  return store.getters['sections/isSectionCompleted'](sectionId)
+}
 
 // 方法
 const chooseSection = async (fileName) => {
@@ -80,7 +92,8 @@ const replaySection = async (fileName) => {
 
 const skipSection = async (fileName) => {
   await store.dispatch('sections/skipSection', fileName)
-  this.$toast.success(this.$t('sectionSkipped'))
+  // 使用 t 函数替代 $t
+  useToast().success(t('sectionSkipped'))
 }
 
 const returnToMenu = () => {
@@ -111,19 +124,47 @@ onMounted(() => {
 .section-content {
   display: flex;
   align-items: center;
+  gap: 10px;
+  margin: 10px 0;
 }
 
 .section-content img {
   width: 50px;
   height: 50px;
-  margin-right: 10px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 .locked-section {
   color: #888;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #4CAF50;
+  color: white;
+  transition: background 0.3s;
+}
+
+.button:hover {
+  background: #45a049;
+}
+
+.button.completed {
+  background: #2196F3;
 }
 
 .button-skip {
-  margin-left: 10px;
+  background: #ff9800;
+}
+
+.button-skip:hover {
+  background: #f57c00;
 }
 </style>

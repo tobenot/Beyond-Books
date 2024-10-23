@@ -83,7 +83,7 @@ import { defineOptions } from 'vue'
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 
@@ -94,6 +94,7 @@ defineOptions({
 
 const store = useStore()
 const router = useRouter()
+const fileInput = ref(null)
 
 // 计算属性
 const hasSave = computed(() => store.getters['save/hasSave'])
@@ -118,7 +119,7 @@ const openSettings = () => {
 
 const triggerFileInput = () => {
   if (hasSave.value) {
-    if (!confirm(this.$t('confirmImport'))) {
+    if (!confirm(store.$i18n.t('confirmImport'))) {
       return
     }
   }
@@ -131,14 +132,14 @@ const handleFileSelect = async (event) => {
   
   try {
     await store.dispatch('save/importSave', file)
-    this.$modal.show('success', {
-      title: this.$t('success'),
-      content: this.$t('importSuccess')
+    store.$modal.show('success', {
+      title: store.$i18n.t('success'),
+      content: store.$i18n.t('importSuccess')
     })
     location.reload()
   } catch (error) {
-    this.$modal.show('error', {
-      title: this.$t('error'),
+    store.$modal.show('error', {
+      title: store.$i18n.t('error'),
       content: error.message
     })
   } finally {
@@ -154,11 +155,11 @@ const confirmDeleteSave = async () => {
 }
 
 const showCreatorsMessage = () => {
-  this.$modal.show('creators-message')
+  store.$modal.show('creators-message')
 }
 
 const showUpdateLog = () => {
-  this.$modal.show('update-log')
+  store.$modal.show('update-log')
 }
 </script>
 

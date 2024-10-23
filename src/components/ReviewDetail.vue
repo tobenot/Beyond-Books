@@ -2,40 +2,30 @@
   <div class="review-detail">
     <h2>{{ record.review_title }}</h2>
     <div class="button-group">
-      <button @click="emit('close')">{{ $t('return') }}</button>
-      <button @click="exportAsHTML">{{ $t('exportAsHTML') }}</button>
-      <button @click="exportAsImage">{{ $t('exportAsImage') }}</button>
-      <button @click="exportAsMultipleImages">{{ $t('exportAsMultipleImages') }}</button>
+      <button @click="$emit('close')">{{ $t('return') }}</button>
+      <button @click="$emit('export-html', record)">{{ $t('exportAsHTML') }}</button>
+      <button @click="$emit('export-image', record)">{{ $t('exportAsImage') }}</button>
+      <button @click="$emit('export-multiple-images', record)">{{ $t('exportAsMultipleImages') }}</button>
     </div>
-    <div ref="content" class="content" v-html="record.content"></div>
+    <div ref="content" id="reviewContent" class="content" v-html="record.content"></div>
     <div class="full-record" v-if="showFullRecord">{{ record.full_record }}</div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { defineProps, defineEmits } from 'vue'
 
-const props = defineProps({
+defineProps({
   record: {
     type: Object,
     required: true
   }
 })
 
-const emit = defineEmits(['close', 'export-html', 'export-image', 'export-multiple-images'])
+defineEmits(['close', 'export-html', 'export-image', 'export-multiple-images'])
+
 const showFullRecord = ref(false)
-
-const exportAsHTML = () => {
-  emit('export-html', props.record)
-}
-
-const exportAsImage = () => {
-  emit('export-image', props.record)
-}
-
-const exportAsMultipleImages = () => {
-  emit('export-multiple-images', props.record)
-}
 </script>
 
 <style scoped>

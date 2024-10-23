@@ -58,7 +58,10 @@ const zhCN = {
       intro: '你可以把本游戏理解为...'
       // ... 其他教程内容的翻译
     }
-  }
+  },
+  "exportHTML": "导出HTML",
+  "exportImage": "导出长图",
+  "exportMultipleImages": "导出多图"
 }
 
 export default createI18n({
