@@ -9,7 +9,8 @@ const state = () => ({
   currentSectionId: null,
   completedSections: [],
   unlockedSections: [],
-  globalInfluencePoints: []
+  globalInfluencePoints: [],
+  gameData: null
 })
 
 const mutations = {
@@ -30,6 +31,12 @@ const mutations = {
       state.globalInfluencePoints = []
       state.hasSave = false
     }
+  },
+  SET_GAME_DATA(state, data) {
+    state.gameData = data
+  },
+  CLEAR_SAVE(state) {
+    state.gameData = null
   }
 }
 
@@ -52,11 +59,11 @@ const actions = {
   },
   
   clearSave({ commit }) {
+    commit('CLEAR_SAVE')
     localStorage.removeItem(SAVE_KEY)
-    commit('SET_SAVE_DATA', null)
   },
   
-  async exportSave({ state, rootState }) {
+  async exportSave({ state }) {
     const gameData = JSON.stringify({
       currentSectionId: state.currentSectionId,
       completedSections: state.completedSections,
@@ -85,7 +92,7 @@ const actions = {
     URL.revokeObjectURL(url)
   },
   
-  async importSave({ commit, dispatch }, file) {
+  async importSave({ commit }, file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       
@@ -121,13 +128,13 @@ const actions = {
 }
 
 const getters = {
-  hasSave: state => state.hasSave,
   saveData: state => ({
     currentSectionId: state.currentSectionId,
     completedSections: state.completedSections,
     unlockedSections: state.unlockedSections,
     globalInfluencePoints: state.globalInfluencePoints
-  })
+  }),
+  hasSave: (state) => !!state.gameData
 }
 
 export default {

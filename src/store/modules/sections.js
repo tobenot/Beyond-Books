@@ -25,10 +25,17 @@ const mutations = {
 
 const actions = {
   async loadSectionsIndex({ commit }) {
-    const sectionsIndex = await loadSectionsIndex()
-    commit('SET_CHAPTERS', sectionsIndex.chapters)
+    try {
+      console.log('开始加载章节索引...')
+      const sectionsIndex = await loadSectionsIndex()
+      console.log('章节索引加载成功:', sectionsIndex)
+      commit('SET_CHAPTERS', sectionsIndex.chapters)
+    } catch (error) {
+      console.error('加载章节索引失败:', error)
+      throw error
+    }
   },
-  async loadSection({ commit, dispatch }, fileName) {
+  async loadSection({ commit }, fileName) {  // 移除 dispatch
     const sectionData = await loadSectionData(fileName)
     
     // 预加载当前章节的图片

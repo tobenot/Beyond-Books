@@ -102,8 +102,10 @@ const $modal = inject('$modal') // 注入 modal 服务
 const hasSave = computed(() => store.getters['save/hasSave'])
 
 // 方法
-const startNewGame = () => {
-  store.dispatch('save/clearSave')
+const startNewGame = async () => {
+  await store.dispatch('save/clearSave')
+  // 添加加载章节的逻辑
+  await store.dispatch('sections/loadSectionsIndex')
   router.push('/sections')
 }
 
@@ -150,7 +152,8 @@ const handleFileSelect = async (event) => {
 }
 
 const confirmDeleteSave = async () => {
-  if (confirm(this.$t('confirmDelete'))) {
+  // 修复 this 的使用
+  if (confirm(store.$i18n.t('confirmDelete'))) {
     await store.dispatch('save/clearSave')
     location.reload()
   }
