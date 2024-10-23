@@ -1,19 +1,9 @@
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
-import zhCN from '@/lang/zh-CN.json'
 
 Vue.use(VueI18n)
 
-export default new VueI18n({
-  locale: 'zh-CN',
-  messages: {
-    'zh-CN': zhCN
-  }
-})
-
-// 在现有的 zhCN 对象中添加以下内容
 const zhCN = {
-  // ... 其他翻译
   settings: {
     title: '设置',
     apiKeyLabel: 'API Key',
@@ -37,47 +27,46 @@ const zhCN = {
       <p>如遇无法输入API KEY，可以刷新网页</p>
     `,
     publicKeyFetchFailed: '获取公共 Key 失败，请检查网络连接或稍后再试',
-    apiKeyDisabled: 'API Key 已被禁用，因为正在使用公共 Key'
-  }
-}
-
-// 在现有的翻译对象中添加存档相关的文本
-const messages = {
-  'zh-CN': {
-    reviewTitle: '桥段回顾',
-    returnToMenu: '返回主菜单',
-    noReviewRecords: '暂无桥段回顾记录。',
-    rename: '重命名',
-    delete: '删除',
-    viewDetails: '查看详情',
-    reviewDetails: '回顾详情',
-    exportAsHTML: '导出为HTML',
-    exportAsImage: '导出为长图',
-    exportAsMultipleImages: '导出为多图',
-    enterNewTitle: '请输入新的标题',
-    confirmDelete: '您确定要删除这条回顾记录吗？',
+    apiKeyDisabled: 'API Key 已被禁用，因为正在使用公共 Key',
+    text: '设置' // 添加菜单项的翻译
+  },
+  reviewTitle: '桥段回顾',
+  returnToMenu: '返回主菜单',
+  noReviewRecords: '暂无桥段回顾记录。',
+  rename: '重命名',
+  delete: '删除',
+  viewDetails: '查看详情',
+  reviewDetails: '回顾详情',
+  exportAsHTML: '导出为HTML',
+  exportAsImage: '导出为长图',
+  exportAsMultipleImages: '导出为多图',
+  enterNewTitle: '请输入新的标题',
+  confirmDelete: '您确定要删除这条回顾记录吗？',
+  close: '关闭',
+  newGame: '开始新游戏',
+  continueGame: '继续游戏',
+  reviewRecords: '回顾记录',
+  importSave: '导入存档',
+  exportSave: '导出存档',
+  deleteSave: '删除存档',
+  confirmImport: '您确定要导入并覆盖存档吗？此操作无法撤销。您可以先导出自己的存档进行备份。',
+  success: '成功',
+  error: '错误',
+  importSuccess: '存档已成功导入',
+  tutorial: {
+    title: '游戏教程',
     close: '关闭',
-    newGame: '开始新游戏',
-    continueGame: '继续游戏',
-    reviewRecords: '回顾记录',
-    importSave: '导入存档',
-    exportSave: '导出存档',
-    deleteSave: '删除存档',
-    settings: '设置',
-    confirmImport: '您确定要导入并覆盖存档吗？此操作无法撤销。您可以先导出自己的存档进行备份。',
-    confirmDelete: '您确定要删除存档吗？此操作无法撤销。',
-    importSuccess: '存档已成功导入',
-    success: '成功',
-    error: '错误',
-    // ... 其他翻译 ...
-    tutorial: {
-      title: '游戏教程',
-      close: '关闭',
-      understand: '我明白了',
-      content: {
-        intro: '你可以把本游戏理解为...',
-        // ... 其他教程内容的翻译
-      }
+    understand: '我明白了',
+    content: {
+      intro: '你可以把本游戏理解为...'
+      // ... 其他教程内容的翻译
     }
   }
 }
+
+export default new VueI18n({
+  locale: 'zh-CN',
+  messages: {
+    'zh-CN': zhCN
+  }
+})

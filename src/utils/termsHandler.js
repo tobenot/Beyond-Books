@@ -114,3 +114,6 @@ async function preloadTermsImages(batchSize = 5, delay = 1000) {
 
   console.log('All images preloaded successfully')
 }
+
+// 添加这行导出语句
+export { termsConfig, colorsConfig }

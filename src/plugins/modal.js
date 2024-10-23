@@ -1,27 +1,35 @@
-import Vue from 'vue'
+import { createApp, h } from 'vue'
 import Modal from '@/components/Modal.vue'
 
-const ModalPlugin = {
-  install(Vue) {
-    this.EventBus = new Vue()
+export const ModalPlugin = {
+  install(app) {
+    // 创建事件总线实例
+    const eventBus = createApp({}).mount(document.createElement('div'))
+    this.EventBus = eventBus
     
-    Vue.component('Modal', Modal)
+    // 注册 Modal 组件
+    app.component('base-modal', Modal)
     
-    Vue.prototype.$modal = {
+    // 定义全局 $modal 属性
+    app.config.globalProperties.$modal = {
       show(name, options = {}) {
         const { buttons, ...otherOptions } = options
         
         // 如果提供了自定义按钮,创建按钮插槽
         if (buttons) {
           otherOptions.scopedSlots = {
-            buttons: () => buttons.map(button => (
-              <button 
-                class="button" 
-                onClick={button.handler}
-              >
-                {button.text}
-              </button>
-            ))
+            buttons: () => {
+              return buttons.map(button => {
+                return {
+                  render() {
+                    return h('button', {
+                      class: 'button',
+                      onClick: button.handler
+                    }, button.text)
+                  }
+                }
+              })
+            }
           }
         }
         

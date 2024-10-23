@@ -1,20 +1,16 @@
 <template>
   <div class="loading-indicator" v-if="show">
     <div class="loader">
-      <div class="loaderSpin"></div>
-      <div id="progressText">{{ progressText }}</div>
-      <div id="loadingBar">
-        <div id="progress" :style="{ width: progress + '%' }"></div>
+      <div class="loader-spin"></div>
+      <div class="progress-text">{{ progressText }}</div>
+      <div class="loading-bar">
+        <div class="progress" :style="{ width: progress + '%' }"></div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// 重构时需要参考的文件:
-// - components/LoadingIndicator.html
-// - scripts/ui.js (用于加载指示器逻辑)
-
 export default {
   name: 'LoadingIndicator',
   props: {
@@ -26,7 +22,54 @@ export default {
 </script>
 
 <style scoped>
-/* 加载指示器样式 */
-/* 重构时需要参考的文件:
-   - css/components.css (用于加载指示器样式) */
+.loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+}
+
+.loader {
+  text-align: center;
+}
+
+.loader-spin {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.progress-text {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 10px;
+  background-color: #f3f3f3;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: #3498db;
+  transition: width 0.3s ease;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>

@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: 'Modal',
+  name: 'BaseModal',
   props: {
     show: {
       type: Boolean,
@@ -57,8 +57,10 @@ export default {
       }
     }
   },
-  beforeDestroy() {
-    document.body.style.overflow = ''
+  beforeUnmount() {
+    if (this.escapeEnabled) {
+      document.removeEventListener('keydown', this.handleEscape)
+    }
   }
 }
 </script>

@@ -2,7 +2,6 @@
 // - scripts/interaction/GameManager.js
 // - scripts/interaction/GlobalState.js
 
-import { loadSave, saveGame, clearSave } from '@/utils/saveLoad'
 import GameManager from '@/utils/gameManager'
 import Moderator from '@/utils/moderator'
 import StreamHandler from '@/utils/streamHandler'
@@ -74,8 +73,9 @@ const mutations = {
 }
 
 const actions = {
-  initializeGameState({ commit }) {
-    const savedData = loadSave()
+  initializeGameState({ commit, dispatch }) {
+    // 使用 save 模块替代直接调用 loadSave
+    const savedData = dispatch('save/loadSave', null, { root: true })
     if (savedData) {
       commit('SET_CURRENT_SECTION', savedData.currentSectionId)
       commit('SET_COMPLETED_SECTIONS', savedData.completedSections)
@@ -89,20 +89,21 @@ const actions = {
     }
   },
   newGame({ dispatch }) {
-    clearSave()
+    // 使用 save 模块替代直接调用 clearSave
+    dispatch('save/clearSave', null, { root: true })
     dispatch('initializeGameState')
   },
   continueGame({ dispatch }) {
     dispatch('initializeGameState')
   },
-  updateGameState({ state, commit }, { sectionId, result }) {
-    // 更新游戏状态的逻辑...
-    saveGame({
+  updateGameState({ state, dispatch }, { sectionId }) {
+    // 使用 save 模块的 saveSave action
+    dispatch('save/saveSave', {
       currentSectionId: sectionId,
       completedSections: state.completedSections,
       unlockedSections: state.unlockedSections,
       globalInfluencePoints: state.globalInfluencePoints
-    })
+    }, { root: true })
   },
   initializeGameManager({ commit, state }, section) {
     const gameManager = new GameManager(state)

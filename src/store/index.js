@@ -9,7 +9,7 @@ import game from './modules/game'
 import settings from './modules/settings'
 import sections from './modules/sections'
 import review from './modules/review'
-import save from './modules/save' // 新增存档模块
+import saveManager from './modules/saveManager'
 
 Vue.use(Vuex)
 
@@ -19,6 +19,6 @@ export default new Vuex.Store({
     settings,
     sections,
     review,
-    save // 添加存档模块
+    saveManager
   }
 })
