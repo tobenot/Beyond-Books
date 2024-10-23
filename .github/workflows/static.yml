@@ -15,7 +15,7 @@ jobs:
       
       - name: Get branch name
         id: branch-name
-        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+        run: echo "VITE_BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
       
       # Vue 分支特殊处理：需要构建
       - name: Setup Node.js (Vue branch only)
@@ -35,12 +35,12 @@ jobs:
         run: |
           # 从 GitHub Secrets 自动读取所有以 VITE_ 开头的环境变量并写入 .env.production
           echo "# Auto-generated production environment variables" > .env.production
-          # 添加 BRANCH_NAME
-          echo "BRANCH_NAME=${{ steps.branch-name.outputs.BRANCH_NAME }}" >> .env.production
           # 添加其他环境变量（注意：Vue 3 使用 VITE_ 前缀替代 VUE_APP_）
-          for secret in $(echo "$SECRETS_CONTEXT" | jq -r 'to_entries | .[] | select(.key | startswith("VITE_")) | "\(.key)=\(.value)"'); do
+          for secret in $(echo "$SECRETS_CONTEXT" | jq -r 'to_entries | .[] | select(.key | startswith("VITE_") and .key != "VITE_BRANCH_NAME") | "\(.key)=\(.value)"'); do
             echo "$secret" >> .env.production 
           done
+          # 添加 VITE_BRANCH_NAME，确保不会重复定义
+          echo "VITE_BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> .env.production
           # 执行构建
           npm run build
         env:
@@ -65,7 +65,7 @@ jobs:
           external_repository: tobenot/beyond-books-pages
           publish_branch: main
           publish_dir: ./deploy_temp
-          destination_dir: ${{ steps.branch-name.outputs.BRANCH_NAME }}
+          destination_dir: ${{ steps.branch-name.outputs.VITE_BRANCH_NAME }}
       
       - name: Update Index Page
         run: |
