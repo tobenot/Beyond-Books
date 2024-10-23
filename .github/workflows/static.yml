@@ -26,7 +26,9 @@ jobs:
           
       - name: Install dependencies (Vue branch only)
         if: endsWith(github.ref, '/vue')
-        run: npm ci
+        run: |
+          rm -f package-lock.json  # 删除可能存在的不同步的 lock 文件
+          npm install             # 重新生成 package-lock.json
         
       - name: Build Vue app (Vue branch only)
         if: endsWith(github.ref, '/vue')
