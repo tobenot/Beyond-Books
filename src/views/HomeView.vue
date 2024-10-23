@@ -1,3 +1,6 @@
+// 在文件顶部添加
+import { defineOptions } from 'vue'
+
 <template>
   <div class="container" id="menu">
     <h1>{{ $t('mainTitle') }}</h1>

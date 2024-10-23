@@ -1,3 +1,6 @@
+// 在文件顶部添加
+import { defineOptions } from 'vue'
+
 <template>
   <div class="sections-container">
     <h2>{{ $t('chooseSection') }}</h2>

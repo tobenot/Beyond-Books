@@ -1,3 +1,6 @@
+// 在文件顶部添加
+import { defineOptions } from 'vue'
+
 <template>
   <div class="story-container">
     <h2>{{ section.title }}</h2>

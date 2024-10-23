@@ -24,9 +24,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
-import BaseModal from '@/components/Modal.vue'
+import BaseModal from '@/components/ModalDialog.vue'
 import TermTooltip from '@/components/TermTooltip.vue'
 import { loadTermsConfig, loadColorsConfig, termsConfig } from '@/utils/termsHandler'
+import { defineOptions } from 'vue'
 
 defineOptions({
   name: 'AppRoot'

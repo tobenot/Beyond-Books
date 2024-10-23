@@ -1,3 +1,6 @@
+// 在文件顶部添加
+import { defineOptions } from 'vue'
+
 <template>
   <div class="settings-container">
     <h2>{{ $t('settings.title') }}</h2>
@@ -105,3 +108,4 @@ onMounted(() => {
   loadLocalSettings()
 })
 </script>
+

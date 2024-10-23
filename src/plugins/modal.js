@@ -1,5 +1,5 @@
 import { h } from 'vue'
-import Modal from '@/components/Modal.vue'
+import ModalDialog from '@/components/ModalDialog.vue'
 
 export const ModalPlugin = {
   install(app) {
@@ -28,7 +28,7 @@ export const ModalPlugin = {
       EventBus: eventBus
     }
     
-    app.component('base-modal', Modal)
+    app.component('base-modal', ModalDialog)
   }
 }
 

@@ -16,7 +16,7 @@
 
 <script setup>
 import { watch, onBeforeUnmount } from 'vue'
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, defineOptions } from 'vue'
 
 // 重命名组件以符合多词命名规则
 defineOptions({
