@@ -2,14 +2,20 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 # Set source and target directory paths
-$sourceDir = (Resolve-Path ".\public\assets").Path
-$targetDir = (Resolve-Path ".\public").Path
+$sourceDir = (Resolve-Path ".\sections").Path
+$targetDir = (Resolve-Path ".\public\sections").Path
 
 # Check if source directory exists
 if (Test-Path $sourceDir) {
-    # Get all files recursively and move them
+    # Check if target directory exists, create if not
+    if (!(Test-Path $targetDir)) {
+        New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        Write-Host "Created target directory: $targetDir"
+    }
+
+    # Recursively get all files and move them
     Get-ChildItem -Path $sourceDir -File -Recurse | ForEach-Object {
-        # Calculate relative path and new destination
+        # Calculate relative path and new target location
         $relativePath = $_.DirectoryName.Replace($sourceDir, $targetDir)
         $destination = Join-Path $relativePath $_.Name
         
@@ -22,7 +28,7 @@ if (Test-Path $sourceDir) {
         git mv "$($_.FullName)" "$destination"
         Write-Host "Moved file: $($_.FullName) -> $destination"
     }
-    Write-Host "All files moved successfully"
+    Write-Host "All files have been successfully moved"
 } else {
     Write-Host "Error: Source directory $sourceDir does not exist"
 }
