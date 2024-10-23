@@ -17,7 +17,11 @@ import { toastOptions } from './plugins/toast'
 async function initializeApp() {
   await loadSettings()
   
+  console.log('Vue app initialization starting...');
+  
   const app = createApp(App)
+  
+  console.log('Creating Vue app instance...');
   
   app.use(router)
   app.use(store)
@@ -25,7 +29,12 @@ async function initializeApp() {
   app.use(ModalPlugin)
   app.use(Toast, toastOptions)
   
-  app.mount('#app')
+  console.log('Adding plugins and router...');
+  
+  console.log('Mounting app...');
+  app.mount('#app');
+  
+  console.log('App mounted!');
 }
 
 initializeApp()
