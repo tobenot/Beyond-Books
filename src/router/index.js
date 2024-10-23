@@ -2,6 +2,7 @@
 // - scripts/ui.js (用于路由逻辑)
 
 import { createRouter, createWebHistory } from 'vue-router'
+import { DEPLOY_CONFIG } from '@/config/deploy'
 import HomeView from '../views/HomeView.vue'
 import SectionsView from '../views/SectionsView.vue'
 import StoryView from '../views/StoryView.vue'
@@ -21,14 +22,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/vue/'),  // 必须匹配部署路径
+  history: createWebHistory(DEPLOY_CONFIG.BASE_PATH),
   routes
-})
-
-// 添加导航守卫来调试
-router.beforeEach((to, from, next) => {
-  console.log('路由跳转:', { to, from })
-  next()
 })
 
 export default router
