@@ -1,9 +1,11 @@
 let termsConfig = {};
 let colorsConfig = {};
 
+const BASE_URL = process.env.VUE_APP_BASE_URL || '';
+
 async function loadTermsConfig() {
     try {
-        const response = await fetch('lang/terms_explanations_zh-CN.json?v=' + new Date().getTime());
+        const response = await fetch(`/assets/config/terms_explanations_zh-CN.json?v=${new Date().getTime()}`);
         termsConfig = await response.json();
         if (isCarrotTest()) console.log('Loaded terms config:', termsConfig);
     } catch (error) {
@@ -14,7 +16,7 @@ async function loadTermsConfig() {
 
 async function loadColorsConfig() {
     try {
-        const response = await fetch('config/colors.json?v=' + new Date().getTime());
+        const response = await fetch('/assets/config/colors.json?v=' + new Date().getTime());
         colorsConfig = await response.json();
         console.log('Loaded colors config:', colorsConfig);
     } catch (error) {
