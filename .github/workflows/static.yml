@@ -17,13 +17,30 @@ jobs:
         id: branch-name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
       
-      - name: Create temporary directory for deployment
+      # Vue 分支特殊处理：需要构建
+      - name: Setup Node.js (Vue branch only)
+        if: endsWith(github.ref, '/vue')
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies (Vue branch only)
+        if: endsWith(github.ref, '/vue')
+        run: npm ci
+        
+      - name: Build Vue app (Vue branch only)
+        if: endsWith(github.ref, '/vue')
+        run: npm run build
+      
+      - name: Prepare deployment files
         run: |
           mkdir deploy_temp
-          if [ -f .deployignore ]; then
-            rsync -av --exclude-from=.deployignore . deploy_temp/
+          if [[ "${{ github.ref }}" == "refs/heads/vue" ]]; then
+            # Vue 分支：只复制 dist 目录内容
+            cp -r dist/* deploy_temp/
           else
-            rsync -av . deploy_temp/
+            # 其他分支：复制整个仓库
+            rsync -av --exclude='.git' --exclude='node_modules' . deploy_temp/
           fi
       
       - name: Deploy to Pages Repository
