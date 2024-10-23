@@ -40,7 +40,7 @@ jobs:
             echo "$secret" >> .env.production 
           done
           # 添加 VITE_BRANCH_NAME，确保不会重复定义
-          echo "VITE_BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> .env.production
+          # echo "VITE_BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> .env.production
           # 执行构建
           npm run build
         env:
