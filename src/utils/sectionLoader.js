@@ -1,15 +1,18 @@
 import CryptoJS from 'crypto-js'
+import { getBasePath } from './pathManager'
 
 const SECRET_KEY = 'ReadingThisIsASpoilerForYourself'
 
 export async function loadSectionsIndex() {
-  const response = await fetch(`sections/sections.bbs?v=${new Date().getTime()}`)
+  const basePath = getBasePath()
+  const response = await fetch(`${basePath}/sections/sections.bbs?v=${new Date().getTime()}`)
   const encryptedText = await response.text()
   return decryptJSONText(encryptedText, SECRET_KEY)
 }
 
 export async function loadSectionData(fileName) {
-  const response = await fetch(`sections/${fileName}?v=${new Date().getTime()}`)
+  const basePath = getBasePath()
+  const response = await fetch(`${basePath}/sections/${fileName}?v=${new Date().getTime()}`)
   const encryptedText = await response.text()
   return decryptJSONText(encryptedText, SECRET_KEY)
 }

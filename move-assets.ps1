@@ -2,8 +2,8 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 # Set source and target directory paths
-$sourceDir = (Resolve-Path ".\sections").Path
-$targetDir = (Resolve-Path ".\public\sections").Path
+$sourceDir = (Resolve-Path ".\public").Path
+$targetDir = (Resolve-Path ".\public\assets").Path
 
 # Check if source directory exists
 if (Test-Path $sourceDir) {
@@ -13,8 +13,8 @@ if (Test-Path $sourceDir) {
         Write-Host "Created target directory: $targetDir"
     }
 
-    # Recursively get all files and move them
-    Get-ChildItem -Path $sourceDir -File -Recurse | ForEach-Object {
+    # Recursively get all files and move them, excluding the assets folder
+    Get-ChildItem -Path $sourceDir -File -Recurse | Where-Object { $_.FullName -notlike "*\assets\*" } | ForEach-Object {
         # Calculate relative path and new target location
         $relativePath = $_.DirectoryName.Replace($sourceDir, $targetDir)
         $destination = Join-Path $relativePath $_.Name

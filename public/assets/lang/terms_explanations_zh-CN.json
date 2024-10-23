@@ -23,7 +23,7 @@
         "罗伯特": {
             "color": "罗伯特",
             "description": "Robert是银月寺的保安，异能为【苍穹缝隙】。",
-            "imageUrl": "assets/portrait/罗伯特.png"
+            "imageUrl": "/portrait/罗伯特.png"
         },
         "贝利斯": {
             "color": "贝利斯",
@@ -40,12 +40,12 @@
         "田中连": {
             "color": "田中连",
             "description": "Tolinia是贝利斯集团的新任领导。男性。",
-            "imageUrl": "assets/portrait/田中连.png"
+            "imageUrl": "/portrait/田中连.png"
         },
         "艾琳": {
             "color": "艾琳",
             "description": "Irene是银月寺内的银月大学的新生，当然也是异能者。",
-            "imageUrl": "assets/portrait/艾琳.png"
+            "imageUrl": "/portrait/艾琳.png"
         },
         "【折射】": {
             "color": "折射",
@@ -62,7 +62,7 @@
         "卡斯帕": {
             "color": "卡斯帕",
             "description": "Kaspar是银月大学的棍术老师。新任银月寺主持。",
-            "imageUrl": "assets/portrait/卡斯帕.png"
+            "imageUrl": "/portrait/卡斯帕.png"
         },
         "史蒂文": {
             "color": "史蒂文",
@@ -71,22 +71,22 @@
         "珂茵": {
             "color": "珂茵",
             "description": "Corn是银月寺的保安，具有用光弓射出光箭并瞬移到光箭位置的异能。",
-            "imageUrl": "assets/portrait/珂茵.png"
+            "imageUrl": "/portrait/珂茵.png"
         },
         "诺顿": {
             "color": "诺顿",
             "description": "Norton是银月寺的保安，未觉醒异能，但也有灵能盾，棍术也很厉害。",
-            "imageUrl": "assets/portrait/诺顿.png"
+            "imageUrl": "/portrait/诺顿.png"
         },
         "辛妮亚": {
             "color": "辛妮亚",
             "description": "Xinea是银月寺的新任保安，珂茵的闺蜜，具有使周围不能传播声音的异能。",
-            "imageUrl": "assets/portrait/辛妮亚.png"
+            "imageUrl": "/portrait/辛妮亚.png"
         },
         "图尔斯": {
             "color": "图尔斯",
             "description": "Tours是贝利斯雇佣兵，罗伯特的初中同学，异能为【芯铁消逝】。",
-            "imageUrl": "assets/portrait/图尔斯.png"
+            "imageUrl": "/portrait/图尔斯.png"
         },
         "【苍穹缝隙】": {
             "color": "苍穹缝隙",
@@ -99,22 +99,22 @@
         "斯图尔特": {
             "color": "斯图尔特",
             "description": "Stewart是贝利斯雇佣兵，异能是【内能构建】。他背上嵌入了钢铁羽翼。",
-            "imageUrl": "assets/portrait/斯图尔特.png"
+            "imageUrl": "/portrait/斯图尔特.png"
         },
         "克莱门特": {
             "color": "克莱门特",
             "description": "Clement是贝利斯雇佣兵，异能是【衔羽展翼】。武器是长锤。",
-            "imageUrl": "assets/portrait/克莱门特.png"
+            "imageUrl": "/portrait/克莱门特.png"
         },
         "琼": {
             "color": "琼",
             "description": "Joan使用生成冰的能力。",
-            "imageUrl": "assets/portrait/琼.png"
+            "imageUrl": "/portrait/琼.png"
         },
         "杰瑞斯": {
             "color": "罪恶猎手",
             "description": "Jerry是罪恶猎手高官，异能是【潜龙无影】，武器是匕首。",
-            "imageUrl": "assets/portrait/杰瑞斯.png"
+            "imageUrl": "/portrait/杰瑞斯.png"
         },
         "【内能构建】": {
             "color": "内能构建",

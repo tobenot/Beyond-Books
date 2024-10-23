@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { getBasePath } from './pathManager'
 
 // 创建响应式引用
 export const termsConfig = ref({
@@ -12,7 +13,8 @@ export const colorsConfig = ref({
 // 加载术语配置
 export const loadTermsConfig = async () => {
   try {
-    const response = await fetch('/vue/lang/terms_explanations_zh-CN.json?v=' + new Date().getTime())
+    const basePath = getBasePath()
+    const response = await fetch(`${basePath}/lang/terms_explanations_zh-CN.json?v=${new Date().getTime()}`)
     const data = await response.json()
     termsConfig.value = data
     if (process.env.NODE_ENV === 'development') {
@@ -27,7 +29,8 @@ export const loadTermsConfig = async () => {
 // 加载颜色配置
 export const loadColorsConfig = async () => {
   try {
-    const response = await fetch('/vue/config/colors.json?v=' + new Date().getTime())
+    const basePath = getBasePath()
+    const response = await fetch(`${basePath}/config/colors.json?v=${new Date().getTime()}`)
     const data = await response.json()
     colorsConfig.value = data
     console.log('Loaded colors config:', colorsConfig.value)
@@ -92,10 +95,15 @@ export function highlightSpecialTerms(text, excludeTerm = '') {
 // 图片预加载
 async function preloadTermsImages(batchSize = 5, delay = 1000) {
   const imageUrls = []
+  const basePath = getBasePath()
 
   Object.values(termsConfig.value.terms).forEach(term => {
     if (term.imageUrl) {
-      imageUrls.push(term.imageUrl)
+      // 如果imageUrl是相对路径，添加basePath
+      const fullImageUrl = term.imageUrl.startsWith('http') ? 
+        term.imageUrl : 
+        `${basePath}${term.imageUrl}`
+      imageUrls.push(fullImageUrl)
     }
   })
 
