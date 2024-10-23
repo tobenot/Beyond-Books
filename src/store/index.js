@@ -4,12 +4,14 @@
 // - scripts/sections.js (用于章节状态)
 
 import { createStore } from 'vuex'
-import save from './modules/save'
 import sections from './modules/sections'
+import game from './modules/game'
+import save from './modules/save'
 
 export default createStore({
   modules: {
-    save,
-    sections
+    sections,
+    game,
+    save
   }
 })

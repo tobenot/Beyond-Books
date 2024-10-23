@@ -77,10 +77,15 @@ const isSectionCompleted = (sectionId) => {
 
 // 方法
 const chooseSection = async (fileName) => {
-  await store.dispatch('sections/loadSection', fileName)
-  const section = store.getters['sections/getCurrentSection']
-  await store.dispatch('game/initializeGame', section)
-  router.push('/story')
+  try {
+    await store.dispatch('sections/loadSection', fileName)
+    const section = store.getters['sections/getCurrentSection']
+    await store.dispatch('game/initializeGame', { section })
+    router.push('/story')
+  } catch (error) {
+    console.error('加载章节失败:', error)
+    useToast().error(t('loadSectionError'))
+  }
 }
 
 const replaySection = async (fileName) => {

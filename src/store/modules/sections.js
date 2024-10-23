@@ -31,9 +31,9 @@ const actions = {
       console.log('章节索引加载成功:', sectionsIndex)
       commit('SET_CHAPTERS', sectionsIndex.chapters)
       
-      // 检查是否有存档，如果没有则解锁第一个章节
+      // 修改这部分代码，增加对 saveData 的检查
       const saveData = rootGetters['save/saveData']
-      if (!saveData.unlockedSections || saveData.unlockedSections.length === 0) {
+      if (!saveData || !saveData.unlockedSections || (saveData.unlockedSections && saveData.unlockedSections.length === 0)) {
         dispatch('unlockSection', 1)
       }
     } catch (error) {
@@ -41,15 +41,23 @@ const actions = {
       throw error
     }
   },
-  async loadSection({ commit }, fileName) {  // 移除 dispatch
+  async loadSection({ commit }, fileName) {
     const sectionData = await loadSectionData(fileName)
     
-    // 预加载当前章节的图片
+    if (!sectionData) {
+      throw new Error(`章节数据加载失败: ${fileName} 返回空数据`)
+    }
+
+    if (!sectionData.startEvent) {
+      throw new Error(`章节数据格式错误: ${fileName} 缺少 startEvent 属性`)
+    }
+    
     if (sectionData.image) {
       await imageLoader.preloadImage(sectionData.image)
     }
     
     commit('SET_CURRENT_SECTION', sectionData)
+    return sectionData
   },
   unlockSection({ commit, state }, sectionId) {
     const newUnlockedSections = [...state.unlockedSections, sectionId]
