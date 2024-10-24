@@ -6,6 +6,7 @@ import { inject } from 'vue'
 import Moderator from './moderator'
 import AIPlayer from './aiPlayer'
 import StreamHandler from './streamHandler'
+import { getBasePath } from './pathManager'
 
 export default class GameManager {
   constructor(gameState) {
@@ -22,7 +23,8 @@ export default class GameManager {
 
   async loadCharacterTagBase() {
     try {
-      const response = await fetch('data/characterTagBase.json?v=' + new Date().getTime())
+      const basePath = getBasePath()
+      const response = await fetch(`${basePath}/config/characterTagBase.json?v=${new Date().getTime()}`)
       this.characterTagBase = await response.json()
       console.log('加载角色标签库:', this.characterTagBase)
     } catch (error) {
