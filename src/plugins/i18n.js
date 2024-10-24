@@ -54,9 +54,21 @@ const zhCN = {
     title: '游戏教程',
     close: '关闭',
     understand: '我明白了',
-    content: {
-      intro: '你可以把本游戏理解为...'
-      // ... 其他教程内容的翻译
+    // 将HTML内容移到专门的raw对象中
+    raw: {
+      content: `
+        <p>你可以把本游戏理解为<strong>跑团（DND或COC）</strong>、<strong>语C</strong>、<strong>剧本杀</strong>或<strong>过家家</strong>🧑‍🤝‍🧑。本游戏制作时面向的玩家是<strong>喜欢剧情向游戏</strong>，愿意<strong>认真扮演角色</strong>🎭  的语C、跑团玩家👥。</p>
+        <ol>
+          <li>📝 <strong>目标</strong>：在每一个桥段里，你需要完成<strong>桥段目标</strong>🎯，目标可能是<strong>沟通</strong>💬、<strong>战斗</strong>⚔️、<strong>解密</strong>🧩等。</li>
+          <li>🎮 <strong>操作</strong>：根据你的人设和起始事件，在对话框中打字输入以<strong>你的角色的角度</strong>进行的行动、说的话🗣️。比如输入"我挥起武器说，与我何干！"，不需要特别注意格式</li>
+          <li>💡 <strong>技巧</strong>：很多角色有<strong>超能力</strong>🔮，比如银月篇主角罗伯特，可以<strong>减缓时间流速</strong>🕰️，你可以接住敌方扔来的飞刀扔回去🗡️，也能准确地瞄准你要攻击的物件🎯，只要你能想到。</li>
+        </ol>
+        <ul>
+          <li>⚠️ <strong>注意</strong>：如果出现输入之后无回复，可以回<strong>主菜单-设置</strong>⚙️里面点"<strong>恢复默认设置</strong>🔄"。一般是初始化的网络问题🌐。</li>
+          <li>🔍 <strong>注意</strong>：高亮有颜色的文字可以点🔗。</li>
+          <li>📜 <strong>注意</strong>：在<strong>桥段剧本</strong>之外，主持人给出的信息不完全保真（比如问队友问题，可能会得到不正确的回复🤔），可以完全取信的是非大模型的<strong>桥段剧本</strong>、<strong>初始事件</strong>、<strong>词条解释</strong>。</li>
+        </ul>
+      `
     }
   },
   "exportHTML": "导出HTML",
@@ -64,10 +76,27 @@ const zhCN = {
   "exportMultipleImages": "导出多图"
 }
 
+// 添加英文版本示例
+const enUS = {
+  tutorial: {
+    title: 'Game Tutorial',
+    close: 'Close',
+    understand: 'I Understand',
+    raw: {
+      content: `
+        <p>You can think of this game as <strong>TRPG (DND/COC)</strong>, <strong>Role-playing</strong>, or <strong>Murder Mystery</strong> 🧑‍🤝‍🧑...</p>
+        <!-- 英文版的HTML内容 -->
+      `
+    }
+  }
+  // ... 其他英文翻译
+}
+
 export default createI18n({
-  legacy: false, // 使用 Composition API 模式
+  legacy: false,
   locale: 'zh-CN',
   messages: {
-    'zh-CN': zhCN
+    'zh-CN': zhCN,
+    'en-US': enUS
   }
 })
