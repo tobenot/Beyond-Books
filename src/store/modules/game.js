@@ -199,37 +199,49 @@ const actions = {
     }
   },
   async processUserInput({ commit, state, dispatch }, userInput) {
-    commit('SET_SUBMITTING', true);
+    commit('SET_SUBMITTING', true)
+    commit('SET_INTERACTION_STAGE', { 
+      stage: '处理中',
+      info: '正在分析你的行动...'
+    })
 
     try {
-      const result = await state.gameManager.processMainPlayerAction(userInput, (specificAction) => {
-        dispatch('clearSuggestions');
-        commit('ADD_OPTIMIZED_CONVERSATION_HISTORY', { 
-          role: 'user', 
-          content: specificAction 
-        });
-      });
-
+      // 使用 GameManager 处理输入
+      const result = await state.gameManager.processMainPlayerAction(userInput)
+      
       if (result.isValid) {
-        await dispatch('updateConversationWithResult', result.finalResult);
+        // 更新对话历史
+        commit('ADD_OPTIMIZED_CONVERSATION_HISTORY', {
+          role: 'assistant',
+          content: result.finalResult
+        })
         
+        // 检查是否需要结束章节
         if (state.gameManager.moderator.endSectionFlag) {
-          await dispatch('handleSectionEnd');
+          await dispatch('handleSectionEnd')
         }
       } else {
+        // 添加反馈信息
         commit('ADD_TO_CONVERSATION_HISTORY', {
           role: 'system',
           content: result.feedback
-        });
+        })
       }
     } catch (error) {
-      console.error("处理用户输入时出错:", error);
+      console.error('处理用户输入时出错:', error)
+      commit('ADD_TO_CONVERSATION_HISTORY', {
+        role: 'system',
+        content: '处理输入时发生错误，请重试。'
+      })
     } finally {
-      commit('SET_SUBMITTING', false);
-      commit('SET_COOLDOWN', true);
+      commit('SET_SUBMITTING', false)
+      commit('HIDE_INTERACTION_STAGE')
+      
+      // 添加输入冷却
+      commit('SET_COOLDOWN', true)
       setTimeout(() => {
-        commit('SET_COOLDOWN', false);
-      }, 1000);
+        commit('SET_COOLDOWN', false)
+      }, 1000)
     }
   },
   async initializeGame({ commit, dispatch, state, rootGetters }) {
@@ -395,7 +407,7 @@ const actions = {
 
     const playerCharacter = section.characters.find(char => !char.isAI)
     if (!playerCharacter) {
-      console.warn('未找到玩家角色')
+      console.warn('未找到玩���角色')
       return ''
     }
 
@@ -415,6 +427,15 @@ const actions = {
     }
     
     return info
+  },
+  scrollToBottom() {
+    // 使用事件总线或其他方式通知 StoryView 组件滚动
+    const storyContentEl = document.querySelector('.text-container')
+    if (storyContentEl) {
+      setTimeout(() => {
+        storyContentEl.scrollTop = storyContentEl.scrollHeight
+      }, 100)
+    }
   }
 }
 

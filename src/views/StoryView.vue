@@ -1,6 +1,7 @@
 // 在文件顶部添加
 import { defineOptions } from 'vue'
 import { highlightSpecialTerms } from '@/utils/termsHandler.js'
+import GameInteraction from '@/components/GameInteraction.vue'
 
 <template>
   <div class="story-container">
@@ -32,38 +33,8 @@ import { highlightSpecialTerms } from '@/utils/termsHandler.js'
       </div>
     </div>
 
-    <!-- 建议容器 -->
-    <div v-if="suggestions.length" class="suggestions-container">
-      <div v-for="(suggestion, index) in suggestions" 
-           :key="index" 
-           class="suggestion">
-        建议：{{ suggestion }}
-      </div>
-    </div>
-
-    <!-- 输入控件 -->
-    <div class="controls">
-      <input
-        type="text"
-        v-model="userInput"
-        maxlength="200"
-        placeholder="你要怎么做？"
-        @keydown.enter="handleUserInput"
-        autocomplete="off"
-        :disabled="isSubmitting || isCooldown"
-      />
-      <button 
-        class="button"
-        @click="handleUserInput"
-        :disabled="isSubmitting || isCooldown">
-        开始
-      </button>
-    </div>
-
-    <!-- 交互阶段提示 -->
-    <div v-if="interactionStage.visible" class="interaction-stage">
-      <p>{{ interactionStage.stage }}: {{ interactionStage.info }}</p>
-    </div>
+    <!-- 使用 GameInteraction 组件 -->
+    <game-interaction />
 
     <!-- 加载提示 -->
     <div v-if="isLoading" class="interaction-stage">
@@ -79,6 +50,7 @@ import { defineOptions } from 'vue'
 import { highlightSpecialTerms } from '@/utils/termsHandler.js'
 import LazyImage from '@/components/LazyImage.vue'
 import MusicPlayer from '@/components/MusicPlayer.vue'
+import GameInteraction from '@/components/GameInteraction.vue'
 
 // 添加组件名称定义
 defineOptions({
@@ -86,20 +58,11 @@ defineOptions({
 })
 
 const store = useStore()
-const userInput = ref('')
 const storyContentRef = ref(null)
 
 // 计算属性
 const section = computed(() => store.state.sections.currentSection)
-const suggestions = computed(() => store.state.game.suggestions)
-const isSubmitting = computed(() => store.state.game.isSubmitting)
-const isCooldown = computed(() => store.state.game.isCooldown)
 const isLoading = computed(() => store.state.game.isLoading)
-const interactionStage = computed(() => ({
-  stage: store.state.game.interactionStage?.stage || '',
-  info: store.state.game.interactionStage?.info || '',
-  visible: store.state.game.interactionStage?.visible || false
-}))
 const conversationHistory = computed(() => store.state.game.conversationHistory)
 
 // storyContent 计算属性
@@ -107,27 +70,6 @@ const storyContent = computed(() => {
   const content = store.state.game.storyContent
   return content ? highlightSpecialTerms(content) : ''
 })
-
-// 方法
-const handleUserInput = async () => {
-  if (isSubmitting.value || isCooldown.value || !userInput.value.trim()) {
-    return
-  }
-
-  try {
-    await store.dispatch('game/handleUserInput', userInput.value)
-    userInput.value = ''
-    
-    // 修改这里
-    if (storyContentRef.value) {
-      setTimeout(() => {
-        storyContentRef.value.scrollTop = storyContentRef.value.scrollHeight
-      }, 100)
-    }
-  } catch (error) {
-    console.error('处理用户输入时出错:', error)
-  }
-}
 
 // 修改 formatContent 方法为统一的格式化处理
 const formatContent = (message) => {
