@@ -163,6 +163,7 @@ onMounted(() => {
     storyContentRef.value.scrollTop = 0
   }
 })
+
 </script>
 
 <style scoped>

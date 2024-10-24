@@ -2,6 +2,7 @@
 import { defineOptions } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import { getBasePath } from '@/utils/pathManager'
 
 <template>
   <div class="sections-container">
@@ -19,7 +20,8 @@ import { useI18n } from 'vue-i18n'
         </template>
         <template v-else-if="isSectionUnlocked(section.id)">
           <div class="section-content">
-            <img :src="section.image" :alt="`${section.title} thumbnail`">
+            <!-- 更新图片路径 -->
+            <img :src="getSectionImagePath(section.image)" :alt="`${section.title} thumbnail`">
             <button 
               class="button" 
               @click="chooseSection(section.file)"
@@ -51,6 +53,7 @@ import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import { getBasePath } from '@/utils/pathManager'
 
 // 添加组件名称定义
 defineOptions({
@@ -73,6 +76,11 @@ const isSectionUnlocked = (sectionId) => {
 
 const isSectionCompleted = (sectionId) => {
   return store.getters['sections/isSectionCompleted'](sectionId)
+}
+
+// 获取章节图片路径
+const getSectionImagePath = (image) => {
+  return `${getBasePath()}${image}`
 }
 
 // 方法

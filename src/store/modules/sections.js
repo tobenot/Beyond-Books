@@ -1,5 +1,6 @@
 import { loadSectionData, loadSectionsIndex } from '@/utils/sectionLoader'
 import { imageLoader } from '@/utils/imageLoader'
+import { getBasePath } from '@/utils/pathManager'
 
 const state = () => ({
   chapters: [],
@@ -31,7 +32,6 @@ const actions = {
       console.log('章节索引加载成功:', sectionsIndex)
       commit('SET_CHAPTERS', sectionsIndex.chapters)
       
-      // 修改这部分代码，增加对 saveData 的检查
       const saveData = rootGetters['save/saveData']
       if (!saveData || !saveData.unlockedSections || (saveData.unlockedSections && saveData.unlockedSections.length === 0)) {
         dispatch('unlockSection', 1)
@@ -53,8 +53,10 @@ const actions = {
         throw new Error(`章节数据格式错误: ${fileName} 缺少 startEvent 属性`)
       }
       
-      // 预加载图片
+      // 更新图片路径
       if (sectionData.image) {
+        console.log('加载图片:', sectionData.image)
+        sectionData.image = `${getBasePath()}${sectionData.image}`
         await imageLoader.preloadImage(sectionData.image)
       }
       
@@ -79,10 +81,8 @@ const actions = {
   },
   async skipSection({ dispatch }, fileName) {
     const sectionData = await loadSectionData(fileName)
-    // 这里可能需要一些逻辑来处理跳过章节的影响
-    // 例如,更新游戏状态,解锁下一个章节等
     dispatch('completeSection', sectionData.id)
-    dispatch('unlockSection', sectionData.id + 1) // 假设下一个章节的id是当前id+1
+    dispatch('unlockSection', sectionData.id + 1)
   },
   async preloadSectionImages({ state }) {
     const imageUrls = []
@@ -90,7 +90,7 @@ const actions = {
     state.chapters.forEach(chapter => {
       chapter.sections.forEach(section => {
         if (section.image) {
-          imageUrls.push(section.image)
+          imageUrls.push(`${getBasePath()}${section.image}`)
         }
       })
     })

@@ -18,6 +18,7 @@ class ImageLoader {
   }
 
   async preloadImage(url) {
+    console.log('preloadImage:', url)
     const fullUrl = this.getFullUrl(url)
     
     if (this.loadedImages.has(fullUrl)) {
