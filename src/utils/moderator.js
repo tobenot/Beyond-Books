@@ -51,7 +51,7 @@ ${this.getLastRound()}
 注意，玩家的行为可以胡闹，你主要判断可行性，只要有能力做到，就可以做。
 请用JSON格式回答，包含以下字段：
 - reason: 解释玩家行动是否可行的原因
-- suggestion: 如果行动不可行，给出的建议。如果可行，则留空。
+- suggestion: ��果行动不可行，给出的建议。如果可行，则留空。
 - isValid: 玩家行动是否可行的结论（布尔值）
 - specificAction: 请具体描述玩家实际做的事情和说得话，避免歧义，同时也尽量保留原话，最重要的是具体化对象。例如，如果玩家说'你好'，可以描述为'向在场的人问好'，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力，对能力的效果至少要有一句描写。注意，使用能力必须要是玩家主动发动，因为会消耗灵力的，如果玩家没有明说，就不要发动能力。`;
 
@@ -155,7 +155,7 @@ ${plotTriggers.filter(trigger => !trigger.consumed && !trigger.triggerCondition.
   - name: 角色名字
   - note: 对该行动的结论性判定，例如"攻击"、"防御"、"行动"等，只简单写行动类型，不写成败。
   - successProbability: 行动成功的可能性，必须是以下五个选项之一："impossible"（不可能）、"unlikely"（不太可能）、"possible"（可能）、"likely"（很可能）、"certain"（必然）。如果异能用对了方式，那就是certain。
-- endReasons: 一个数组,包含每个结束条件及其���否满足的布尔值:
+- endReasons: 一个数组,包含每个结束条件及其是否满足的布尔值:
   - condition: 结束条件
   - isMet: 布尔值,表示该条件是否满足
 - endSectionFlag: 布尔值,是否结束该桥段
@@ -254,7 +254,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
   // API调用方法
   async callLargeLanguageModel(prompt, schema) {
-    const response = await fetch(store.state.settings.apiUrl, { // 使用 Vuex 状态中的 apiUrl
+    const response = await fetch(store.state.settings.apiUrl + 'chat/completions', { // 使用 Vuex 状态中的 apiUrl
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -285,7 +285,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${store.state.game.apiKey}`, // 使用 Vuex 状态中的 apiKey
+        'Authorization': `Bearer ${store.state.settings.apiKey}`, // 使用 Vuex 状态中的 apiKey
         'Accept': 'application/json'
       },
       body: JSON.stringify({ 
@@ -297,7 +297,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
     };
 
     let finalResult = '';
-    await this.streamHandler.fetchStream(store.state.settings.apiUrl, options, (partialResponse) => { // 使用 Vuex 状态中的 apiUrl
+    await this.streamHandler.fetchStream(store.state.settings.apiUrl + 'chat/completions', options, (partialResponse) => { // 使用 Vuex 状态中的 apiUrl
       finalResult = partialResponse;
       // 触发更新UI的事件
       this.$emit('streamUpdate', partialResponse);

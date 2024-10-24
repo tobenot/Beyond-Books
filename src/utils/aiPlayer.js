@@ -131,11 +131,11 @@ ${situation}
     ];
 
     try {
-      const response = await fetch(store.state.settings.apiUrl, { // 使用 Vuex 状态中的 apiUrl
+      const response = await fetch(store.state.settings.apiUrl + 'chat/completions', { // 使用 Vuex 状态中的 apiUrl
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${store.state.game.apiKey}`, // 使用 Vuex 状态中的 apiKey
+          'Authorization': `Bearer ${store.state.settings.apiKey}`, // 使用 Vuex 状态中的 apiKey
           'Accept': 'application/json'
         },
         body: JSON.stringify({ 
