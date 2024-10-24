@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { defineProps } from 'vue'  // 添加这行
 import { highlightSpecialTerms } from '@/utils/termsHandler'
+import { getBasePath } from '@/utils/pathManager'
 
 // 定义 props
 const props = defineProps({
@@ -15,12 +16,12 @@ const props = defineProps({
 const tooltipStyle = computed(() => ({
   position: 'fixed',
   display: props.show ? 'block' : 'none',
-  minWidth: '150px',
+  width: '260px',
   zIndex: 1000,
   backgroundColor: '#fff',
-  padding: '10px',
+  padding: '8px', // 减小内边距
   borderRadius: '4px',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+  boxShadow: '0 1px 4px rgba(0,0,0,0.1)', // 减淡阴影
   ...calculatePosition()
 }))
 
@@ -68,6 +69,16 @@ function calculatePosition() {
 const highlightedDescription = computed(() => {
   return highlightSpecialTerms(props.description, props.term)
 })
+
+const computedImageUrl = computed(() => {
+  if (!props.imageUrl) return ''
+  // 如果已经是完整的 URL（以 http 开头），则直接返回
+  if (props.imageUrl.startsWith('http')) {
+    return props.imageUrl
+  }
+  // 否则添加 basePath
+  return `${getBasePath()}${props.imageUrl}`
+})
 </script>
 
 <template>
@@ -76,21 +87,38 @@ const highlightedDescription = computed(() => {
     v-show="show"
     :style="tooltipStyle"
     @click.stop
+    class="term-tooltip"
   >
-    <span v-html="highlightedDescription"></span>
-    <img 
-      v-if="imageUrl"
-      :src="imageUrl" 
-      class="term-tooltip-image" 
-      alt="术语图片"
-      @load="updatePosition"
-    >
+    <div class="term-tooltip-content">
+      <span v-html="highlightedDescription"></span>
+      <img 
+        v-if="imageUrl"
+        :src="computedImageUrl" 
+        class="term-tooltip-image" 
+        alt="术语图片"
+        @load="updatePosition"
+      >
+    </div>
   </div>
 </template>
 
 <style scoped>
+.term-tooltip {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.term-tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* 减小间距 */
+}
+
 .term-tooltip-image {
-  max-width: 100%;
-  margin-top: 10px;
+  width: 256px;
+  height: 384px;
+  object-fit: cover;
+  display: block;
+  margin: 2px auto; /* 减小图片上下边距 */
 }
 </style>
