@@ -4,12 +4,13 @@ import { highlightSpecialTerms } from '@/utils/termsHandler.js'
 
 <template>
   <div class="story-container">
-    <h2>{{ section.title }}</h2>
+    <h2 class="section-title">{{ section.title }}</h2>
     
     <lazy-image 
       v-if="section.image"
       :src="section.image" 
       :alt="section.title"
+      class="section-image"
     />
     
     <music-player
@@ -244,5 +245,21 @@ onMounted(() => {
 
 .message.assistant {
   color: #333;
+}
+
+/* 添加图片限制样式 */
+.section-image {
+  max-width: 512px;
+  max-height: 512px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 20px;
 }
 </style>
