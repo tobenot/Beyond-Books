@@ -85,10 +85,13 @@ const loadLocalSettings = () => {
 }
 
 const saveSettings = async () => {
-  const settingsToSave = { ...localSettings.value, apiKey: store.state.settings.apiKey }
+  const settingsToSave = { 
+    ...localSettings.value, 
+    apiKey: localSettings.value.apiKey || store.state.settings.apiKey // 确保 apiKey 不为空
+  }
+  // 移除 console.log
   await store.dispatch('settings/saveSettings', settingsToSave)
   message.value = proxy.$t('settings.savedMessage')
-  // 添加路由跳转逻辑
   proxy.$router.push({ name: 'Home' }) // 假设要跳转到 Home 页面
 }
 

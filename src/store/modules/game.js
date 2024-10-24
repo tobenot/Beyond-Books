@@ -6,7 +6,7 @@ import GameManager from '@/utils/gameManager'
 import Moderator from '@/utils/moderator'
 import StreamHandler from '@/utils/streamHandler'
 import { ModelType } from '@/constants/models'
-import { getModel } from '@/utils/settings'
+import { getModel } from '@/store/modules/settings'
 import i18n from '@/plugins/i18n'
 
 const state = () => ({

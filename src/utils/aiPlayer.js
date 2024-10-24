@@ -2,7 +2,7 @@
 // - scripts/interaction/AIPlayer.js
 
 // AI玩家类
-import { getModel, ModelType } from '@/utils/settings'
+import { getModel, ModelType } from '@/store/modules/settings'
 import { handleApiResponse } from '@/utils/apiHandler'
 import store from '@/store' // 引入 Vuex store
 
@@ -131,7 +131,7 @@ ${situation}
     ];
 
     try {
-      const response = await fetch(store.state.game.apiUrl, { // 使用 Vuex 状态中的 apiUrl
+      const response = await fetch(store.state.settings.apiUrl, { // 使用 Vuex 状态中的 apiUrl
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

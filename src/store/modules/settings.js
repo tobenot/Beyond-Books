@@ -24,11 +24,11 @@ const state = {
 
 const mutations = {
   setSettings(state, settings) {
-    state.apiKey = settings.apiKey
-    state.apiUrl = settings.apiUrl
-    state.advancedModel = settings.advancedModel
-    state.basicModel = settings.basicModel
-    state.isPublicKey = settings.isPublicKey
+    state.apiKey = settings.apiKey || state.apiKey; // 确保不覆盖为空
+    state.apiUrl = settings.apiUrl || state.apiUrl;
+    state.advancedModel = settings.advancedModel;
+    state.basicModel = settings.basicModel;
+    state.isPublicKey = settings.isPublicKey;
   },
   SET_PUBLIC_KEY(state, publicKey) {
     // 更新 state.apiKey，但不在界面上展示

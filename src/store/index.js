@@ -10,7 +10,7 @@ import story from './modules/story'
 import interaction from './modules/interaction'
 import save from './modules/save'
 import review from './modules/review'
-import settings from '../utils/settings'
+import settings from './modules/settings'
 
 export default createStore({
   modules: {
