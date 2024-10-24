@@ -31,9 +31,15 @@ export default class GameManager {
     }
   }
 
-  async initializeGame(section) {
+  async setupGame() {
     if (!this.characterTagBase) {
       await this.loadCharacterTagBase()
+    }
+
+    // 从 store 获取 section 数据
+    const section = this.store.getters['sections/getCurrentSectionData']
+    if (!section) {
+      throw new Error('无法获取章节数据')
     }
 
     this.aiPlayers = {}

@@ -65,10 +65,10 @@ const actions = {
       }
       
       commit('SET_CURRENT_SECTION', sectionData)
-      commit('SET_CURRENT_SECTION_DATA', sectionData) // 将sectionData存储到全局状态
+      commit('SET_CURRENT_SECTION_DATA', sectionData)
       
-      // 初始化游戏状态
-      await dispatch('game/initializeGame', sectionData, { root: true })
+      // 修改这里：移除 sectionData 参数
+      await dispatch('game/initializeGame', null, { root: true })
       
       return sectionData
     } catch (error) {

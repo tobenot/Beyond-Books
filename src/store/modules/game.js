@@ -172,9 +172,11 @@ const actions = {
       globalInfluencePoints: state.globalInfluencePoints
     }, { root: true })
   },
-  initializeGameManager({ commit, state }, section) {
+  async initializeGameManager({ commit, state, rootGetters }) {
+    console.log('初始化游戏管理器')
+    const section = rootGetters['sections/getCurrentSectionData']
     if (!section) {
-      console.error('初始化游戏管理器时缺少section参数');
+      console.error('初始化游戏管理器时缺少section数据');
       return;
     }
 
@@ -190,6 +192,14 @@ const actions = {
       section.endConditions
     )
     commit('SET_MODERATOR', moderator)
+    
+    // 确保 gameManager 实例已创建
+    if (!state.gameManager) {
+      console.error('GameManager 实例未创建');
+      return;
+    }else{
+      console.log('GameManager 实例已创建')
+    }
   },
   async processUserInput({ commit, state, dispatch }, userInput) {
     commit('SET_SUBMITTING', true);
@@ -225,7 +235,7 @@ const actions = {
       }, 1000);
     }
   },
-  async initializeGame({ commit, dispatch, rootGetters }) {
+  async initializeGame({ commit, dispatch, state, rootGetters }) {  // 添加 state 参数
     const section = rootGetters['sections/getCurrentSectionData']
     if (!section) {
       console.error('初始化游戏时缺少section数据');
@@ -235,7 +245,19 @@ const actions = {
     console.log('初始化游戏:', section)
     commit('SET_LOADING', true)
     try {
-      await dispatch('initializeGameManager', section)
+      await dispatch('initializeGameManager')
+      
+      // 从 state 中获取 gameManager
+      const gameManager = state.gameManager
+      console.log('gameManager 完成设置', gameManager)
+      
+      // 确保 gameManager 存在
+      if (!gameManager) {
+        throw new Error('GameManager 初始化失败')
+      }
+      
+      // 等待 gameManager 完成设置
+      await gameManager.setupGame()
       
       const initialContent = createInitialContent(section)
       commit('SET_STORY_CONTENT', initialContent)
@@ -244,8 +266,7 @@ const actions = {
       
       commit('SET_STORY_TITLE', section.title)
       
-      // 使用 dispatch 调用 createPlayerInfo action
-      const playerInfo = await dispatch('createPlayerInfo', section)
+      const playerInfo = await dispatch('createPlayerInfo')
       commit('ADD_TO_CONVERSATION_HISTORY', {
         role: 'info',
         content: playerInfo
@@ -387,7 +408,8 @@ const actions = {
   hideInteractionStage({ commit }) {
     commit('HIDE_INTERACTION_STAGE')
   },
-  createPlayerInfo({ state }, section) {
+  createPlayerInfo({ state, rootGetters }) {
+    const section = rootGetters['sections/getCurrentSectionData']
     if (!section || !section.characters) {
       console.error('Section或characters未定义:', section)
       return ''
@@ -404,8 +426,10 @@ const actions = {
     ${playerCharacter.description}`
     
     if (playerCharacter.characterTags && state.gameManager) {
+      console.log('玩家角色标签:', playerCharacter.characterTags)
       playerCharacter.characterTags.forEach(tagKey => {
         const tagValue = state.gameManager.getCharacterTag(tagKey)
+        console.log(`标签键: ${tagKey}, 标签值: ${tagValue}`)
         if (tagValue) {
           info += `<br>- ${tagKey}: ${tagValue}`
         }
@@ -453,3 +477,4 @@ function createInitialContent(section) {
   `
   return content
 }
+
