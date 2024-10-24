@@ -2,14 +2,13 @@
 // - scripts/interaction/GameManager.js
 
 // 游戏管理器
-import { inject } from 'vue'
 import Moderator from './moderator'
 import AIPlayer from './aiPlayer'
 import StreamHandler from './streamHandler'
 import { getBasePath } from './pathManager'
 
 export default class GameManager {
-  constructor(gameState) {
+  constructor(gameState, sectionData) { // 添加 sectionData 参数
     this.gameState = gameState
     this.moderator = null
     this.aiPlayers = {}
@@ -18,7 +17,7 @@ export default class GameManager {
     this.playerInfo = null
     this.turnCount = 0
     this.plotTriggers = []
-    this.store = inject('store') // 注入 store
+    this.sectionData = sectionData // 存储传入的 section 数据
   }
 
   async loadCharacterTagBase() {
@@ -38,8 +37,8 @@ export default class GameManager {
       await this.loadCharacterTagBase()
     }
 
-    // 从 store 获取 section 数据
-    const section = this.store.getters['sections/getCurrentSectionData']
+    // 直接使用 this.sectionData 而不是从 store 获取
+    const section = this.sectionData
     if (!section) {
       throw new Error('无法获取章节数据')
     }

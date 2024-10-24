@@ -180,7 +180,8 @@ const actions = {
       return;
     }
 
-    const gameManager = new GameManager(state)
+    // 创建 GameManager 实例时传入 section 数据
+    const gameManager = new GameManager(state, section)
     commit('SET_GAME_MANAGER', gameManager)
     
     const moderator = new Moderator(
@@ -193,11 +194,10 @@ const actions = {
     )
     commit('SET_MODERATOR', moderator)
     
-    // 确保 gameManager 实例已创建
     if (!state.gameManager) {
       console.error('GameManager 实例未创建');
       return;
-    }else{
+    } else {
       console.log('GameManager 实例已创建')
     }
   },
