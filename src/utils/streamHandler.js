@@ -25,6 +25,7 @@ export default class StreamHandler {
         if (line.startsWith('data: ')) {
           const jsonStr = line.slice(6);
           if (jsonStr === '[DONE]') {
+            shouldContinue = false; // 结束流的读取
             break;
           }
           try {
@@ -39,7 +40,6 @@ export default class StreamHandler {
         }
       }
       this.buffer = lines[lines.length - 1];
-      // 在适当的条件下设置 shouldContinue = false
     }
 
     return result;
