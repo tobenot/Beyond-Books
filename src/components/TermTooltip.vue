@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { defineProps } from 'vue'  // 添加这行
 import { highlightSpecialTerms } from '@/utils/termsHandler'
 
@@ -12,19 +12,21 @@ const props = defineProps({
   event: Object
 })
 
-const tooltipStyle = ref({
+const tooltipStyle = computed(() => ({
   position: 'fixed',
-  display: 'none',
-  minWidth: '150px'
-})
+  display: props.show ? 'block' : 'none',
+  minWidth: '150px',
+  zIndex: 1000,
+  backgroundColor: '#fff',
+  padding: '10px',
+  borderRadius: '4px',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+  ...calculatePosition()
+}))
 
-const highlightedDescription = computed(() => {
-  return highlightSpecialTerms(props.description, props.term)
-})
-
-function updatePosition() {
-  if (!props.event) return
-
+function calculatePosition() {
+  if (!props.event || !props.show) return {}
+  
   const viewportWidth = document.documentElement.clientWidth
   const viewportHeight = document.documentElement.clientHeight
   const tooltipElement = document.getElementById('term-tooltip')
@@ -57,12 +59,15 @@ function updatePosition() {
     left = viewportWidth - tooltipWidth - 10
   }
 
-  tooltipStyle.value = {
-    ...tooltipStyle.value,
+  return {
     top: `${top}px`,
     left: `${left}px`
   }
 }
+
+const highlightedDescription = computed(() => {
+  return highlightSpecialTerms(props.description, props.term)
+})
 </script>
 
 <template>

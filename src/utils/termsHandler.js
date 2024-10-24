@@ -85,7 +85,10 @@ export function highlightSpecialTerms(text, excludeTerm = '') {
   replacements.sort((a, b) => b.start - a.start)
   replacements.forEach(replacement => {
     text = text.slice(0, replacement.start) + 
-      `<span class="special-term" style="font-weight: bold; color: ${replacement.color}; text-shadow: ${replacement.textShadow};" data-term="${replacement.term}">${replacement.term}</span>` + 
+      `<span class="special-term" 
+        style="font-weight: bold; color: ${replacement.color}; text-shadow: ${replacement.textShadow}; cursor: pointer;" 
+        data-term="${replacement.term}"
+        @click="handleTermClick">${replacement.term}</span>` + 
       text.slice(replacement.end)
   })
 
