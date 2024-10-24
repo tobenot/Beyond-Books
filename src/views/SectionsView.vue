@@ -87,8 +87,7 @@ const getSectionImagePath = (image) => {
 const chooseSection = async (fileName) => {
   try {
     await store.dispatch('sections/loadSection', fileName)
-    const section = store.getters['sections/getCurrentSection']
-    await store.dispatch('game/initializeGame', { section })
+    // 移除对 initializeGame 的调用
     router.push('/story')
   } catch (error) {
     console.error('加载章节失败:', error)
@@ -98,8 +97,7 @@ const chooseSection = async (fileName) => {
 
 const replaySection = async (fileName) => {
   await store.dispatch('sections/loadSection', fileName)
-  const section = store.getters['sections/getCurrentSection']
-  await store.dispatch('game/initializeGame', { section, isReplay: true })
+  // 移除对 initializeGame 的调用
   router.push('/story')
 }
 

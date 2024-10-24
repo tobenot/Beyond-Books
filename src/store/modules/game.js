@@ -225,7 +225,14 @@ const actions = {
       }, 1000);
     }
   },
-  async initializeGame({ commit, dispatch }, section) {
+  async initializeGame({ commit, dispatch, rootGetters }) {
+    const section = rootGetters['sections/getCurrentSectionData']
+    if (!section) {
+      console.error('初始化游戏时缺少section数据');
+      return;
+    }
+    
+    console.log('初始化游戏:', section)
     commit('SET_LOADING', true)
     try {
       await dispatch('initializeGameManager', section)

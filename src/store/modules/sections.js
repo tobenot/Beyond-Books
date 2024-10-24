@@ -6,7 +6,8 @@ const state = () => ({
   chapters: [],
   unlockedSections: [],
   completedSections: [],
-  currentSection: null
+  currentSection: null,
+  currentSectionData: null
 })
 
 const mutations = {
@@ -21,6 +22,9 @@ const mutations = {
   },
   SET_CURRENT_SECTION(state, section) {
     state.currentSection = section
+  },
+  SET_CURRENT_SECTION_DATA(state, sectionData) {
+    state.currentSectionData = sectionData
   }
 }
 
@@ -61,6 +65,7 @@ const actions = {
       }
       
       commit('SET_CURRENT_SECTION', sectionData)
+      commit('SET_CURRENT_SECTION_DATA', sectionData) // 将sectionData存储到全局状态
       
       // 初始化游戏状态
       await dispatch('game/initializeGame', sectionData, { root: true })
@@ -106,7 +111,8 @@ const getters = {
   isSectionCompleted: (state) => (sectionId) => {
     return state.completedSections.includes(sectionId)
   },
-  getCurrentSection: (state) => state.currentSection
+  getCurrentSection: (state) => state.currentSection,
+  getCurrentSectionData: (state) => state.currentSectionData
 }
 
 export default {
