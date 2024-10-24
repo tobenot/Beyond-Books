@@ -173,14 +173,12 @@ const actions = {
     }, { root: true })
   },
   async initializeGameManager({ commit, state, rootGetters }) {
-    console.log('初始化游戏管理器')
     const section = rootGetters['sections/getCurrentSectionData']
     if (!section) {
       console.error('初始化游戏管理器时缺少section数据');
       return;
     }
 
-    // 创建 GameManager 实例时传入 section 数据
     const gameManager = new GameManager(state, section)
     commit('SET_GAME_MANAGER', gameManager)
     
@@ -197,8 +195,6 @@ const actions = {
     if (!state.gameManager) {
       console.error('GameManager 实例未创建');
       return;
-    } else {
-      console.log('GameManager 实例已创建')
     }
   },
   async processUserInput({ commit, state, dispatch }, userInput) {
@@ -235,28 +231,23 @@ const actions = {
       }, 1000);
     }
   },
-  async initializeGame({ commit, dispatch, state, rootGetters }) {  // 添加 state 参数
+  async initializeGame({ commit, dispatch, state, rootGetters }) {
     const section = rootGetters['sections/getCurrentSectionData']
     if (!section) {
       console.error('初始化游戏时缺少section数据');
       return;
     }
     
-    console.log('初始化游戏:', section)
     commit('SET_LOADING', true)
     try {
       await dispatch('initializeGameManager')
       
-      // 从 state 中获取 gameManager
       const gameManager = state.gameManager
-      console.log('gameManager 完成设置', gameManager)
       
-      // 确保 gameManager 存在
       if (!gameManager) {
         throw new Error('GameManager 初始化失败')
       }
       
-      // 等待 gameManager 完成设置
       await gameManager.setupGame()
       
       const initialContent = createInitialContent(section)
@@ -426,14 +417,14 @@ const actions = {
     ${playerCharacter.description}`
     
     if (playerCharacter.characterTags && state.gameManager) {
-      console.log('玩家角色标签:', playerCharacter.characterTags)
-      playerCharacter.characterTags.forEach(tagKey => {
+      const characterTags = playerCharacter.characterTags.reduce((acc, tagKey) => {
         const tagValue = state.gameManager.getCharacterTag(tagKey)
-        console.log(`标签键: ${tagKey}, 标签值: ${tagValue}`)
         if (tagValue) {
-          info += `<br>- ${tagKey}: ${tagValue}`
+          acc += `<br>- ${tagKey}: ${tagValue}`
         }
-      })
+        return acc
+      }, '')
+      info += characterTags
     }
     
     return info
@@ -477,4 +468,3 @@ function createInitialContent(section) {
   `
   return content
 }
-

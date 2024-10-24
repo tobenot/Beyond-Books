@@ -18,7 +18,6 @@ class ImageLoader {
   }
 
   async preloadImage(url) {
-    console.log('preloadImage:', url)
     const fullUrl = this.getFullUrl(url)
     
     if (this.loadedImages.has(fullUrl)) {
@@ -61,7 +60,7 @@ class ImageLoader {
           await new Promise(resolve => setTimeout(resolve, delay))
         }
       } catch (error) {
-        console.error('Error preloading batch:', error)
+        // 移除 console.error
       }
     }
   }

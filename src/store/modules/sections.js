@@ -31,9 +31,7 @@ const mutations = {
 const actions = {
   async loadSectionsIndex({ commit, dispatch, rootGetters }) {
     try {
-      console.log('开始加载章节索引...')
       const sectionsIndex = await loadSectionsIndex()
-      console.log('章节索引加载成功:', sectionsIndex)
       commit('SET_CHAPTERS', sectionsIndex.chapters)
       
       const saveData = rootGetters['save/saveData']
@@ -59,7 +57,6 @@ const actions = {
       
       // 更新图片路径
       if (sectionData.image) {
-        console.log('加载图片:', sectionData.image)
         sectionData.image = `${getBasePath()}${sectionData.image}`
         await imageLoader.preloadImage(sectionData.image)
       }
@@ -67,7 +64,6 @@ const actions = {
       commit('SET_CURRENT_SECTION', sectionData)
       commit('SET_CURRENT_SECTION_DATA', sectionData)
       
-      // 修改这里：移除 sectionData 参数
       await dispatch('game/initializeGame', null, { root: true })
       
       return sectionData

@@ -25,7 +25,6 @@ export default class GameManager {
       const basePath = getBasePath()
       const response = await fetch(`${basePath}/config/characterTagBase.json?v=${new Date().getTime()}`)
       this.characterTagBase = await response.json()
-      console.log('加载角色标签库:', this.characterTagBase)
     } catch (error) {
       console.error('加载角色标签库时出错:', error)
       throw error
@@ -156,6 +155,4 @@ export default class GameManager {
     })
     return triggeredPlots
   }
-
-  // 其他方法...
 }
