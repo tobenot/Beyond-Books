@@ -2,7 +2,6 @@
 // - scripts/interaction/Moderator.js
 
 // 主持人类
-import { inject } from 'vue'
 import { getModel, ModelType } from '@/store/modules/settings'
 import { handleApiResponse } from '@/utils/apiHandler'
 import StreamHandler from '@/utils/streamHandler'
@@ -18,7 +17,7 @@ export default class Moderator {
     this.endConditions = endConditions;
     this.streamHandler = new StreamHandler();
     this.endSectionFlag = false;
-    this.store = inject('store') // 注入 store
+    this.store = store; // 直接使用导入的 store
   }
 
   async validateAction(action) {
@@ -51,7 +50,7 @@ ${this.getLastRound()}
 注意，玩家的行为可以胡闹，你主要判断可行性，只要有能力做到，就可以做。
 请用JSON格式回答，包含以下字段：
 - reason: 解释玩家行动是否可行的原因
-- suggestion: ��果行动不可行，给出的建议。如果可行，则留空。
+- suggestion: 果行动不可行，给出的建议。如果可行，则留空。
 - isValid: 玩家行动是否可行的结论（布尔值）
 - specificAction: 请具体描述玩家实际做的事情和说得话，避免歧义，同时也尽量保留原话，最重要的是具体化对象。例如，如果玩家说'你好'，可以描述为'向在场的人问好'，或者判断到是向谁问好。如果不可行，可以留空。如果玩家使用了特殊能力或技能，请具体说明使用的是哪个能力，对能力的效果至少要有一句描写。注意，使用能力必须要是玩家主动发动，因为会消耗灵力的，如果玩家没有明说，就不要发动能力。`;
 
@@ -244,8 +243,11 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
   // 辅助方法
   getOptimizedHistory() {
-    return this.store.state.interaction.optimizedConversationHistory
-      .map(entry => `${entry.role}: ${entry.content}`).join('\n') || ''
+    const history = this.store.state.interaction.optimizedConversationHistory;
+    if (!history || !Array.isArray(history)) {
+      return ''; // 如果历史记录未定义或不是数组，返回空字符串
+    }
+    return history.map(entry => `${entry.role}: ${entry.content}`).join('\n') || '';
   }
 
   getSelectedCharacter() {
