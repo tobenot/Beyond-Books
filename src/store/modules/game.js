@@ -448,8 +448,6 @@ export default {
 function createInitialContent(section) {
   let content = `
     <h2>${section.title}</h2>
-    ${section.image ? `<div class="image-container"><img src="${section.image}" alt="桥段图片"></div>` : ''}
-    ${section.musicUrl ? `<div class="music-player" id="musicPlayer"></div>` : ''}
     <p><b>目标：${section.objective}</b></p>
     <p>${section.backgroundInfo}</p>
   `
