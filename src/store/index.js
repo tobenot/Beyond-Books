@@ -10,6 +10,7 @@ import story from './modules/story'
 import interaction from './modules/interaction'
 import save from './modules/save'
 import review from './modules/review'
+import settings from '../utils/settings'
 
 export default createStore({
   modules: {
@@ -18,6 +19,7 @@ export default createStore({
     story,
     interaction,
     save,
-    review
+    review,
+    settings
   }
 })

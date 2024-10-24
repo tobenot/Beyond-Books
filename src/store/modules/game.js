@@ -42,7 +42,9 @@ const state = () => ({
     stage: '',
     info: '',
     visible: false
-  }
+  },
+  apiKey: '',
+  apiUrl: ''
 })
 
 const mutations = {
@@ -137,18 +139,26 @@ const mutations = {
   },
   HIDE_INTERACTION_STAGE(state) {
     state.interactionStage.visible = false
+  },
+  SET_API_KEY(state, apiKey) {
+    state.apiKey = apiKey
+  },
+  SET_API_URL(state, apiUrl) {
+    state.apiUrl = apiUrl
   }
 }
 
 const actions = {
   initializeGameState({ commit, dispatch }) {
-    // 使用 save 模块替代直接调用 loadSave
     const savedData = dispatch('save/loadSave', null, { root: true })
     if (savedData) {
       commit('SET_CURRENT_SECTION', savedData.currentSectionId)
       commit('SET_COMPLETED_SECTIONS', savedData.completedSections)
       commit('SET_UNLOCKED_SECTIONS', savedData.unlockedSections)
       commit('SET_GLOBAL_INFLUENCE_POINTS', savedData.globalInfluencePoints)
+      // 从存档中加载 apiKey 和 apiUrl
+      commit('SET_API_KEY', savedData.apiKey)
+      commit('SET_API_URL', savedData.apiUrl)
     } else {
       commit('SET_CURRENT_SECTION', null)
       commit('SET_COMPLETED_SECTIONS', [])
@@ -326,7 +336,7 @@ const actions = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VITE_API_KEY}`
+        'Authorization': `Bearer ${state.apiKey}` // 使用 state 中的 apiKey
       },
       body: JSON.stringify({ 
         model: getModel(ModelType.BASIC),
@@ -338,7 +348,7 @@ const actions = {
 
     try {
       await state.streamHandler.fetchStream(
-        process.env.VITE_API_URL,
+        state.apiUrl, // 使用 state 中的 apiUrl
         options,
         (partialResponse) => {
           commit('UPDATE_STREAMING_CONTENT', partialResponse)
@@ -374,11 +384,11 @@ const actions = {
   },
 
   async callLargeLanguageModel({ state }, prompt) {
-    const response = await fetch(state.apiUrl, {
+    const response = await fetch(state.apiUrl, { // 使用 state 中的 apiUrl
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${state.apiKey}`,
+        'Authorization': `Bearer ${state.apiKey}`, // 使用 state 中的 apiKey
         'Accept': 'application/json'
       },
       body: JSON.stringify({ 
@@ -407,7 +417,7 @@ const actions = {
 
     const playerCharacter = section.characters.find(char => !char.isAI)
     if (!playerCharacter) {
-      console.warn('未找到玩���角色')
+      console.warn('未找到玩家角色')
       return ''
     }
 

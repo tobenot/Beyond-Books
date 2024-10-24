@@ -12,6 +12,7 @@ import { defineOptions } from 'vue'
         v-model="localSettings.apiKey" 
         :placeholder="$t('settings.apiKeyPlaceholder')"
         :disabled="localSettings.isPublicKey"
+        autocomplete="off"
       >
 
       <label for="api-url">{{ $t('settings.apiUrlLabel') }}</label>
@@ -37,13 +38,17 @@ import { defineOptions } from 'vue'
         <button @click="getPublicKey">{{ $t('settings.publicKeyButton') }}</button>
         <button @click="resetSettings">{{ $t('settings.resetButton') }}</button>
         <button @click="showHelp">{{ $t('settings.helpButton') }}</button>
+        <!-- 新增不保存退出按钮 -->
+        <button @click="exitWithoutSaving">{{ $t('settings.exitButton') }}</button>
       </div>
+      <!-- 显示消息 -->
+      <div v-if="message" class="message">{{ message }}</div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import { useStore } from 'vuex'
 
 // 添加组件名称定义
@@ -52,14 +57,18 @@ defineOptions({
 })
 
 const store = useStore()
+const { proxy } = getCurrentInstance()
 
 const localSettings = ref({
-  apiKey: '',
+  apiKey: '', // 仅在用户输入时更新
   apiUrl: '',
   advancedModel: '',
   basicModel: '',
   isPublicKey: false
 })
+
+// 添加消息状态
+const message = ref('')
 
 // 计算属性
 const storeSettings = computed(() => ({
@@ -72,35 +81,47 @@ const storeSettings = computed(() => ({
 
 // 方法
 const loadLocalSettings = () => {
-  localSettings.value = { ...storeSettings.value }
+  localSettings.value = { ...storeSettings.value, apiKey: '' } // 不展示 apiKey
 }
 
 const saveSettings = async () => {
-  await store.dispatch('settings/saveSettings', localSettings.value)
-  this.$toast.success(this.$t('settings.savedMessage'))
+  const settingsToSave = { ...localSettings.value, apiKey: store.state.settings.apiKey }
+  await store.dispatch('settings/saveSettings', settingsToSave)
+  message.value = proxy.$t('settings.savedMessage')
+  // 添加路由跳转逻辑
+  proxy.$router.push({ name: 'Home' }) // 假设要跳转到 Home 页面
 }
 
 const getPublicKey = async () => {
-  const success = await store.dispatch('settings/getPublicKey')
-  if (success) {
-    this.$toast.success(this.$t('settings.publicKeyFetched'))
-    loadLocalSettings()
-  } else {
-    this.$toast.error(this.$t('settings.publicKeyFetchFailed'))
+  try {
+    const fsuccess = await store.dispatch('settings/getPublicKey')
+    if (fsuccess) {
+      message.value = proxy.$t('settings.publicKeyFetched')
+      loadLocalSettings()
+    } else {
+      throw new Error('Failed to fetch public key')
+    }
+  } catch (error) {
+    console.error('Error fetching public key:', error)
+    message.value = proxy.$t('settings.publicKeyFetchFailed')
   }
 }
 
 const resetSettings = async () => {
   await store.dispatch('settings/resetSettings')
   loadLocalSettings()
-  this.$toast.info(this.$t('settings.resetMessage'))
+  message.value = proxy.$t('settings.resetMessage')
 }
 
 const showHelp = () => {
-  this.$modal.show('settings-help', {
-    title: this.$t('settings.helpTitle'),
-    content: this.$t('settings.helpContent')
+  proxy.$modal.show('settings-help', {
+    title: proxy.$t('settings.helpTitle'),
+    content: proxy.$t('settings.helpContent')
   })
+}
+
+const exitWithoutSaving = () => {
+  proxy.$router.push({ name: 'Home' }) // 假设要跳转到 Home 页面
 }
 
 onMounted(() => {
@@ -109,3 +130,9 @@ onMounted(() => {
 })
 </script>
 
+<style>
+.message {
+  margin-top: 10px;
+  color: #4caf50; /* 绿色 */
+}
+</style>

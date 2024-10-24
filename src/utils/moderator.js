@@ -3,9 +3,10 @@
 
 // 主持人类
 import { inject } from 'vue'
-import { getModel, ModelType } from '@/store/modules/settings'
+import { getModel, ModelType } from '@/utils/settings'
 import { handleApiResponse } from '@/utils/apiHandler'
 import StreamHandler from '@/utils/streamHandler'
+import store from '@/store' // 引入 Vuex store
 
 export default class Moderator {
   constructor(startEvent, commonKnowledge, GMDetails, playerInfo, sectionObjective, endConditions) {
@@ -253,11 +254,11 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
   // API调用方法
   async callLargeLanguageModel(prompt, schema) {
-    const response = await fetch(process.env.VITE_API_URL, {
+    const response = await fetch(store.state.game.apiUrl, { // 使用 Vuex 状态中的 apiUrl
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VITE_API_KEY}`,
+        'Authorization': `Bearer ${store.state.game.apiKey}`, // 使用 Vuex 状态中的 apiKey
         'Accept': 'application/json'
       },
       body: JSON.stringify({ 
@@ -284,7 +285,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VITE_API_KEY}`,
+        'Authorization': `Bearer ${store.state.game.apiKey}`, // 使用 Vuex 状态中的 apiKey
         'Accept': 'application/json'
       },
       body: JSON.stringify({ 
@@ -296,7 +297,7 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
     };
 
     let finalResult = '';
-    await this.streamHandler.fetchStream(process.env.VITE_API_URL, options, (partialResponse) => {
+    await this.streamHandler.fetchStream(store.state.game.apiUrl, options, (partialResponse) => { // 使用 Vuex 状态中的 apiUrl
       finalResult = partialResponse;
       // 触发更新UI的事件
       this.$emit('streamUpdate', partialResponse);

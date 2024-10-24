@@ -2,8 +2,9 @@
 // - scripts/interaction/AIPlayer.js
 
 // AI玩家类
-import { getModel, ModelType } from '@/store/modules/settings'
+import { getModel, ModelType } from '@/utils/settings'
 import { handleApiResponse } from '@/utils/apiHandler'
+import store from '@/store' // 引入 Vuex store
 
 export default class AIPlayer {
   constructor(character, commonKnowledge, startEvent, sectionGuidance, globalCharacterTagBase) {
@@ -130,11 +131,11 @@ ${situation}
     ];
 
     try {
-      const response = await fetch(process.env.VITE_API_URL, {
+      const response = await fetch(store.state.game.apiUrl, { // 使用 Vuex 状态中的 apiUrl
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.VITE_API_KEY}`,
+          'Authorization': `Bearer ${store.state.game.apiKey}`, // 使用 Vuex 状态中的 apiKey
           'Accept': 'application/json'
         },
         body: JSON.stringify({ 
