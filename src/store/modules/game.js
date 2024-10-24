@@ -203,6 +203,11 @@ const actions = {
     )
     commit('SET_MODERATOR', moderator)
     
+    // 监听 streamUpdate 事件
+    moderator.eventBus.on('streamUpdate', (partialResponse) => {
+      commit('UPDATE_STREAMING_CONTENT', partialResponse)
+    })
+    
     if (!state.gameManager) {
       console.error('GameManager 实例未创建');
       return;
@@ -486,3 +491,4 @@ function createInitialContent(section) {
   `
   return content
 }
+

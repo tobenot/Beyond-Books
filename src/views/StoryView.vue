@@ -31,6 +31,9 @@ import GameInteraction from '@/components/GameInteraction.vue'
            :class="message.role">
         <div v-html="formatContent(message)"></div>
       </div>
+
+      <!-- 流式内容 -->
+      <div v-html="streamingContent" class="message assistant"></div>
     </div>
 
     <!-- 使用 GameInteraction 组件 -->
@@ -64,6 +67,7 @@ const storyContentRef = ref(null)
 const section = computed(() => store.state.sections.currentSection)
 const isLoading = computed(() => store.state.game.isLoading)
 const conversationHistory = computed(() => store.state.game.conversationHistory)
+const streamingContent = computed(() => store.state.game.streamingContent) // 新增
 
 // storyContent 计算属性
 const storyContent = computed(() => {
@@ -99,6 +103,15 @@ watch(conversationHistory, () => {
     }, 100)
   }
 }, { deep: true })
+
+// 监听流式内容变化，自动滚动到底部
+watch(streamingContent, () => {
+  if (storyContentRef.value) {
+    setTimeout(() => {
+      storyContentRef.value.scrollTop = storyContentRef.value.scrollHeight
+    }, 100)
+  }
+})
 
 // 生命周期钩子
 onMounted(() => {
