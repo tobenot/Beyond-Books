@@ -31,7 +31,7 @@ export default class StreamHandler {
             const data = JSON.parse(jsonStr);
             if (data.choices && data.choices[0].delta.content) {
               result += data.choices[0].delta.content;
-              updateCallback(result);
+              updateCallback(result); // 这里调用更新回调
             }
           } catch (e) {
             console.error('JSON解析错误:', e);

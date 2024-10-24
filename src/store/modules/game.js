@@ -44,7 +44,8 @@ const state = () => ({
     visible: false
   },
   apiKey: '',
-  apiUrl: ''
+  apiUrl: '',
+  streamingMessageIndex: null, // 用于跟踪流式消息的位置
 })
 
 const mutations = {
@@ -82,6 +83,7 @@ const mutations = {
     state.conversationHistory.push(message)
   },
   UPDATE_STREAMING_CONTENT(state, content) {
+    console.log('Updating streaming content:', content); // 添加调试输出
     state.streamingContent = content
   },
   SET_SHOW_TUTORIAL(state, show) {
@@ -145,6 +147,21 @@ const mutations = {
   },
   SET_API_URL(state, apiUrl) {
     state.apiUrl = apiUrl
+  },
+  START_STREAMING_MESSAGE(state) {
+    // 创建一条新的流式消息并记录其索引
+    state.conversationHistory.push({
+      role: 'assistant',
+      content: ''
+    });
+    state.streamingMessageIndex = state.conversationHistory.length - 1;
+  },
+  UPDATE_STREAMING_MESSAGE(state, content) {
+    // 使用 streamingMessageIndex 更新流式消息的内容
+    const message = state.conversationHistory[state.streamingMessageIndex];
+    if (message && message.role === 'assistant') {
+      message.content = content;
+    }
   }
 }
 
@@ -183,7 +200,7 @@ const actions = {
       globalInfluencePoints: state.globalInfluencePoints
     }, { root: true })
   },
-  async initializeGameManager({ commit, state, rootGetters }) {
+  async initializeGameManager({ commit, state, rootGetters, dispatch }) {
     const section = rootGetters['sections/getCurrentSectionData']
     if (!section) {
       console.error('初始化游戏管理器时缺少section数据');
@@ -193,6 +210,7 @@ const actions = {
     const gameManager = new GameManager(state, section)
     commit('SET_GAME_MANAGER', gameManager)
     
+    // 确保在此处初始化并设置 Moderator
     const moderator = new Moderator(
       section.startEvent,
       section.commonKnowledge,
@@ -203,9 +221,11 @@ const actions = {
     )
     commit('SET_MODERATOR', moderator)
     
-    // 监听 streamUpdate 事件
+    // 确保在此处设置事件监听器
     moderator.eventBus.on('streamUpdate', (partialResponse) => {
+      console.log('Received stream update:', partialResponse); // 确保日志输出
       commit('UPDATE_STREAMING_CONTENT', partialResponse)
+      dispatch('processStreamingResponse', partialResponse)
     })
     
     if (!state.gameManager) {
@@ -221,8 +241,8 @@ const actions = {
     })
 
     try {
-      // 使用 GameManager 处理输入
-      const result = await state.gameManager.processMainPlayerAction(userInput)
+      // 确保在调用 processMainPlayerAction 时传递 moderator
+      const result = await state.gameManager.processMainPlayerAction(userInput, state.moderator)
       
       if (result.isValid) {
         // 更新对话历史
@@ -232,7 +252,7 @@ const actions = {
         })
         
         // 检查是否需要结束章节
-        if (state.gameManager.moderator.endSectionFlag) {
+        if (state.moderator.endSectionFlag) {
           await dispatch('handleSectionEnd')
         }
       } else {
@@ -337,6 +357,7 @@ const actions = {
     }
   },
   async processStreamingResponse({ commit, state }, prompt) {
+    console.log('Processing streaming response:', prompt);
     const options = {
       method: 'POST',
       headers: {
@@ -352,11 +373,12 @@ const actions = {
     }
 
     try {
+      commit('START_STREAMING_MESSAGE'); // 开始流式消息
       await state.streamHandler.fetchStream(
         state.apiUrl, // 使用 state 中的 apiUrl
         options,
         (partialResponse) => {
-          commit('UPDATE_STREAMING_CONTENT', partialResponse)
+          commit('UPDATE_STREAMING_MESSAGE', partialResponse); // 更新流式消息
         }
       )
     } catch (error) {

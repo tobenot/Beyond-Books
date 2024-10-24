@@ -2,22 +2,20 @@
 // - scripts/interaction/GameManager.js
 
 // 游戏管理器
-import Moderator from './moderator'
 import AIPlayer from './aiPlayer'
 import StreamHandler from './streamHandler'
 import { getBasePath } from './pathManager'
 
 export default class GameManager {
-  constructor(gameState, sectionData) { // 添加 sectionData 参数
+  constructor(gameState, sectionData) {
     this.gameState = gameState
-    this.moderator = null
     this.aiPlayers = {}
     this.streamHandler = new StreamHandler()
     this.characterTagBase = null
     this.playerInfo = null
     this.turnCount = 0
     this.plotTriggers = []
-    this.sectionData = sectionData // 存储传入的 section 数据
+    this.sectionData = sectionData
   }
 
   async loadCharacterTagBase() {
@@ -36,7 +34,6 @@ export default class GameManager {
       await this.loadCharacterTagBase()
     }
 
-    // 直接使用 this.sectionData 而不是从 store 获取
     const section = this.sectionData
     if (!section) {
       throw new Error('无法获取章节数据')
@@ -63,14 +60,6 @@ export default class GameManager {
     if (!this.mainPlayer.isAI) {
       this.playerInfo = this.createPlayerInfo(this.mainPlayer)
     }
-    this.moderator = new Moderator(
-      section.startEvent,
-      section.commonKnowledge,
-      section.GMDetails,
-      this.playerInfo,
-      section.objective,
-      section.endConditions
-    )
   }
 
   initializePlotTriggers(triggers) {
@@ -93,10 +82,15 @@ export default class GameManager {
     return info
   }
 
-  async processMainPlayerAction(action) {
+  async processMainPlayerAction(action, moderator) {
     this.turnCount++
 
-    const validationResult = await this.moderator.validateAction(action)
+    // 确保 moderator 是一个有效的对象
+    if (!moderator) {
+      throw new Error('Moderator 未定义');
+    }
+
+    const validationResult = await moderator.validateAction(action)
     if (!validationResult.isValid) {
       return { 
         content: validationResult.reason, 
@@ -107,10 +101,10 @@ export default class GameManager {
 
     const specificAction = validationResult.specificAction
     const aiResponses = await this.getAIPlayersResponses(specificAction)
-    const actionSummary = await this.moderator.summarizeActions(specificAction, aiResponses, this.plotTriggers, this.turnCount)
+    const actionSummary = await moderator.summarizeActions(specificAction, aiResponses, this.plotTriggers, this.turnCount)
 
     const triggeredPlots = this.updateTriggeredPlots(actionSummary.triggerChecks)
-    const finalResult = await this.moderator.generateFinalResult(actionSummary, specificAction, aiResponses, triggeredPlots)
+    const finalResult = await moderator.generateFinalResult(actionSummary, specificAction, aiResponses, triggeredPlots)
 
     this.updateContext(finalResult)
 

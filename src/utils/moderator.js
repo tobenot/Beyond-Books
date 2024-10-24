@@ -238,7 +238,7 @@ ${actionsWithResults.map(item => `${item.name}: ${item.action}\n判定: ${item.i
 本回合触发的剧情触发器：
 ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
-请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行���，以及触发的剧情触发器。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不要写太多内容，不要写重复了。也不要描写主角${this.getSelectedCharacter()}的心理活动或主观气氛。写三个自然段就行。如果有剧情触发器的话，必须体现在你的描述里，优先级很高。`;
+请小说化地描述这个新的回合的结果，包括每个角色说出来的话、做的动作等。请用第三人称方式描写。请确保描述中自然地包含每个角色实际成功或失败的行，以触发的剧情触发器。注意你的回复会直接增量展示为小说内容，所以不要写前导后缀提示。也不要写太多内容，不要写重复了。也不要描写主角${this.getSelectedCharacter()}的心理活动或主观气氛。写三个自然段就行。如果有剧情触发器的话，必须体现在你的描述里，优先级很高。`;
 
     return await this.callLargeLanguageModelStream(prompt);
   }
@@ -302,9 +302,9 @@ ${triggeredPlots.map(trigger => trigger.content).join('\n')}
 
     let finalResult = '';
     await this.streamHandler.fetchStream(store.state.settings.apiUrl + 'chat/completions', options, (partialResponse) => {
+      console.log('Stream update:', partialResponse); // 添加调试输出
       finalResult = partialResponse;
-      // 使用事件总线触发事件
-      this.eventBus.emit('streamUpdate', partialResponse); // 使用 emit 而不是 $emit
+      this.eventBus.emit('streamUpdate', partialResponse); // 触发事件总线更新
     });
 
     return finalResult;

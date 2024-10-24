@@ -67,7 +67,11 @@ const storyContentRef = ref(null)
 const section = computed(() => store.state.sections.currentSection)
 const isLoading = computed(() => store.state.game.isLoading)
 const conversationHistory = computed(() => store.state.game.conversationHistory)
-const streamingContent = computed(() => store.state.game.streamingContent) // 新增
+const streamingContent = computed(() => {
+  const content = store.state.game.streamingContent;
+  console.log('Streaming content:', content); // 添加调试输出
+  return formatContent({ role: 'assistant', content }); // 使用 formatContent 格式化
+});
 
 // storyContent 计算属性
 const storyContent = computed(() => {
